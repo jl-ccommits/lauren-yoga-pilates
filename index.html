@@ -781,7 +781,7 @@ function renderBlocks() {
       <button class="btn danger" data-action="delete-block" data-bi="${bi}">🗑️</button>
     </div>` : '';
 
-    const quizBtn = !S.editMode ? `<button class="quiz-toggle ${isQuiz ? 'active' : ''}" data-action="toggle-quiz" data-bi="${bi}">${isQuiz ? '📋 List' : '❓ Quiz'}</button>` : '';
+    const quizBtn = !S.editMode ? `<button class="quiz-toggle ${isQuiz ? 'active' : ''}" data-action="toggle-quiz" data-bi="${bi}">${isQuiz ? '❓ Quiz' : '📋 List'}</button>` : '';
 
     return `<div class="block-card" data-bi="${bi}">
       <div class="block-header" data-action="toggle-collapse" data-bi="${bi}">
