@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.routinetracker.app',
+  appId: 'com.laurenlandman.routinetracker',
   appName: 'Routine Tracker',
   webDir: 'www',
   server: {
