@@ -2,311 +2,706 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pilates & Yoga Routine Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Routine Tracker</title>
+
+  <!-- Firebase SDK (Modular CDN for Capacitor compatibility) -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { initializeAuth, browserLocalPersistence, indexedDBLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot, collection, enableIndexedDbPersistence, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    window._firebase = { initializeApp, initializeAuth, browserLocalPersistence, indexedDBLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot, collection, enableIndexedDbPersistence, serverTimestamp };
+    window.dispatchEvent(new Event('firebase-ready'));
+  </script>
+
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap');
 
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --accent: #7c6af7;
-      --accent2: #a78bfa;
-      --text: #e8eaf6;
-      --text-mid: #9094b0;
-      --text-dim: #5a5f7a;
-      --slate: #3b4a6b;
-      --rose: #6b3b5a;
-      --teal: #2d5a5a;
-      --sage: #3b5a3b;
-      --amber: #5a4a2d;
-      --border: rgba(255,255,255,0.06);
-      --border-bright: rgba(255,255,255,0.12);
-      --radius: 16px;
+      --bg: #FAF8F5;
+      --surface: #FFFFFF;
+      --surface2: #F3EFE9;
+      --surface-glass: rgba(250, 248, 245, 0.85);
+      --accent: #8B7355;
+      --accent2: #A6906F;
+      --accent-subtle: rgba(139, 115, 85, 0.07);
+      --text: #2C2825;
+      --text-mid: #7A7470;
+      --text-dim: #B5AFA9;
+      --slate: #E8E4DF;
+      --rose: #F0E4E0;
+      --teal: #DDE8E4;
+      --sage: #E2E8DD;
+      --amber: #EDE6D8;
+      --border: rgba(0,0,0,0.04);
+      --border-bright: rgba(0,0,0,0.08);
+      --divider: rgba(0,0,0,0.06);
+      --radius: 14px;
       --radius-sm: 10px;
+      --radius-lg: 20px;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+      --shadow-elevated: 0 8px 30px rgba(0,0,0,0.08);
+      --shadow-sheet: 0 -4px 30px rgba(0,0,0,0.1);
+      --ease-spring: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --success: #34C759;
+      --error: #FF3B30;
+    }
+
+    [data-theme="dark"] {
+      --bg: #1C1A17;
+      --surface: #262320;
+      --surface2: #332F2B;
+      --surface-glass: rgba(28, 26, 23, 0.88);
+      --accent: #C4A882;
+      --accent2: #D4BE9C;
+      --accent-subtle: rgba(196, 168, 130, 0.1);
+      --text: #F0EDE8;
+      --text-mid: #9A9490;
+      --text-dim: #5E5955;
+      --slate: #2E2B28;
+      --rose: #332928;
+      --teal: #262E2B;
+      --sage: #2A2E27;
+      --amber: #302C24;
+      --border: rgba(255,255,255,0.05);
+      --border-bright: rgba(255,255,255,0.1);
+      --divider: rgba(255,255,255,0.06);
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+      --shadow-elevated: 0 8px 30px rgba(0,0,0,0.3);
+      --shadow-sheet: 0 -4px 30px rgba(0,0,0,0.4);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.5;
       min-height: 100vh;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .container { max-width: 540px; margin: 0 auto; padding: 0 16px; }
+    .serif { font-family: 'DM Serif Display', Georgia, serif; }
+    .container { max-width: 540px; margin: 0 auto; padding: 0 20px; }
+
+    /* ---- Auth Screen ---- */
+    .auth-screen {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 24px;
+    }
+    .auth-card {
+      background: var(--surface); border-radius: var(--radius-lg);
+      padding: 36px 32px; max-width: 380px; width: 100%;
+      box-shadow: var(--shadow-elevated);
+    }
+    .auth-logo { text-align: center; font-size: 44px; margin-bottom: 4px; }
+    .auth-title { text-align: center; font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; letter-spacing: -0.02em; margin-bottom: 2px; }
+    .auth-subtitle { text-align: center; font-size: 14px; color: var(--text-mid); margin-bottom: 28px; letter-spacing: 0.02em; }
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .auth-input {
+      background: var(--surface2); border: none; border-bottom: 0.5px solid var(--border-bright);
+      color: var(--text); padding: 14px 16px; border-radius: var(--radius-sm);
+      font: 15px 'Inter', sans-serif; width: 100%; height: 48px;
+      transition: border-color 200ms var(--ease-snappy);
+    }
+    .auth-input:focus { outline: none; border-bottom-color: var(--accent); }
+    .auth-input::placeholder { color: var(--text-dim); }
+    .auth-btn {
+      padding: 14px; background: var(--accent); border: none; color: #fff;
+      border-radius: var(--radius-sm); font: 600 15px 'Inter', sans-serif;
+      cursor: pointer; height: 48px; letter-spacing: 0.01em;
+      transition: background 200ms var(--ease-snappy);
+    }
+    .auth-btn:hover { background: var(--accent2); }
+    .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .auth-toggle { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-mid); }
+    .auth-toggle a { color: var(--accent); cursor: pointer; text-decoration: none; font-weight: 500; }
+    .auth-toggle a:hover { text-decoration: underline; }
+    .auth-error { color: var(--error); font-size: 13px; text-align: center; margin-top: 8px; min-height: 20px; }
+    .auth-divider {
+      display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text-dim); font-size: 12px; letter-spacing: 0.05em;
+    }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 0.5px; background: var(--border-bright); }
+    .auth-google {
+      padding: 14px; background: var(--surface); border: 1px solid var(--border-bright); color: var(--text);
+      border-radius: var(--radius-sm); font: 500 14px 'Inter', sans-serif;
+      cursor: pointer; width: 100%; height: 48px;
+      transition: all 200ms var(--ease-snappy);
+    }
+    .auth-google:hover { background: var(--surface2); }
+    .auth-reset { text-align: center; margin-top: 10px; }
+    .auth-reset a { color: var(--text-dim); cursor: pointer; text-decoration: none; font-size: 13px; }
+    .auth-reset a:hover { color: var(--accent); }
+
+    /* ---- Loading Screen ---- */
+    .loading-screen {
+      display: flex; align-items: center; justify-content: center; min-height: 100vh;
+      font-size: 16px; color: var(--text-mid);
+    }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border-bright);
+      border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ---- Buttons ---- */
     .btn {
-      padding: 6px 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      color: var(--text);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font: 500 13px/1.4 'Inter', sans-serif;
-      transition: all 0.2s;
+      padding: 10px 16px; min-height: 44px;
+      background: var(--surface); border: none;
+      color: var(--text); border-radius: var(--radius-sm);
+      cursor: pointer; font: 500 14px/1.4 'Inter', sans-serif;
+      transition: all 180ms var(--ease-snappy);
+      box-shadow: var(--shadow-card);
+      display: inline-flex; align-items: center; justify-content: center;
     }
-    .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .btn.primary:hover { background: var(--accent2); border-color: var(--accent2); }
-    .btn.danger:hover { background: #ff6b6b; border-color: #ff6b6b; color: var(--bg); }
-    .btn.active { background: #16a34a; border-color: #22c55e; }
-    .btn.lg { padding: 10px 16px; font-weight: 600; }
+    .btn:hover { background: var(--surface2); }
+    .btn:active { transform: scale(0.97); }
+    .btn.primary { background: var(--accent); color: #fff; box-shadow: none; }
+    .btn.primary:hover { background: var(--accent2); }
+    .btn.danger { background: transparent; color: var(--error); box-shadow: none; }
+    .btn.danger:hover { background: rgba(255,59,48,0.08); }
+    .btn.active { background: var(--success); color: #fff; box-shadow: none; }
+    .btn.ghost { background: transparent; box-shadow: none; color: var(--accent); font-weight: 600; }
+    .btn.ghost:hover { background: var(--accent-subtle); }
+    .btn.lg { padding: 12px 20px; font-weight: 600; min-height: 48px; }
     .btn.block { width: 100%; text-align: center; }
 
     /* ---- Header ---- */
     .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 12px;
+      padding: 20px 0 16px; margin-bottom: 8px;
     }
-    .routine-name { flex: 1; font-size: 18px; font-weight: 600; min-width: 0; word-break: break-word; }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px;
+    }
+    .header-controls {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .routine-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px; font-weight: 400; letter-spacing: -0.02em;
+      line-height: 1.2; flex: 1; min-width: 0;
+    }
     .routine-name input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 4px 8px; border-radius: var(--radius-sm); font: 600 18px 'Inter', sans-serif; width: 100%;
+      background: var(--surface2); color: var(--text); border: none; border-bottom: 1px solid var(--accent);
+      padding: 4px 0; font: 400 28px 'DM Serif Display', serif; width: 100%;
+      letter-spacing: -0.02em;
     }
+    .routine-name input:focus { outline: none; }
     .discipline-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 20px;
-      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+      background: var(--accent-subtle); border: none; border-radius: 100px;
+      font-size: 13px; font-weight: 500; color: var(--accent); cursor: pointer;
+      transition: all 180ms var(--ease-snappy);
     }
-    .discipline-badge:hover { background: var(--accent); border-color: var(--accent); }
+    .discipline-badge:hover { background: var(--accent); color: #fff; }
+    .user-menu { display: flex; align-items: center; gap: 8px; }
+    .user-avatar {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 600; color: #fff; cursor: pointer;
+      box-shadow: var(--shadow-card); transition: transform 180ms var(--ease-snappy);
+      -webkit-tap-highlight-color: rgba(0,0,0,0.1); position: relative; z-index: 10;
+    }
+    .user-avatar:hover { transform: scale(1.05); }
 
     /* ---- Progress ---- */
-    .progress-section { margin-bottom: 16px; }
+    .progress-section { margin-bottom: 20px; }
     .progress-bar {
-      width: 100%; height: 6px; background: var(--surface2);
-      border-radius: 3px; overflow: hidden; margin-bottom: 8px; border: 1px solid var(--border);
+      width: 100%; height: 4px; background: var(--surface2);
+      border-radius: 2px; overflow: hidden; margin-bottom: 10px;
     }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; }
-    .progress-text { font-size: 12px; color: var(--text-mid); }
+    .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 350ms var(--ease-spring); }
+    .progress-text { font-size: 13px; color: var(--text-mid); }
     .progress-row { display: flex; justify-content: space-between; align-items: center; }
 
     /* ---- Equipment Filter ---- */
-    .eq-filter { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .eq-filter { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+    .eq-filter::-webkit-scrollbar { display: none; }
     .eq-chip {
-      padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border-bright);
-      border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+      padding: 8px 16px; background: var(--surface2); border: none;
+      border-radius: 100px; font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 180ms var(--ease-snappy); white-space: nowrap; min-height: 36px;
+      display: flex; align-items: center; gap: 4px;
     }
-    .eq-chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .eq-chip.active { background: var(--accent); color: #fff; }
 
     /* ---- Edit Top Bar ---- */
-    .edit-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .edit-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .edit-bar .btn { flex: 1; min-width: 80px; }
 
     /* ---- Block Cards ---- */
-    .blocks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .blocks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
     .block-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden; transition: all 0.2s;
+      background: var(--surface); border: none;
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow-card);
+      transition: box-shadow 250ms var(--ease-spring);
+      position: relative;
     }
-    .block-card:hover { border-color: var(--border-bright); }
+    .block-card:hover { box-shadow: var(--shadow-elevated); }
+    .block-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      border-radius: 3px 0 0 3px;
+    }
 
     .block-header {
-      display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer;
-      background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer;
+      background: transparent; transition: background 180ms var(--ease-snappy);
     }
-    .block-emoji { font-size: 24px; min-width: 32px; text-align: center; }
+    .block-header:active { background: var(--accent-subtle); }
+    .block-emoji { font-size: 22px; min-width: 28px; text-align: center; }
     .block-info { flex: 1; min-width: 0; }
-    .block-title { font-weight: 600; font-size: 15px; }
+    .block-title { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; }
     .block-title input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 4px 8px; border-radius: var(--radius-sm); font: 600 15px 'Inter', sans-serif; width: 100%;
+      background: var(--surface2); color: var(--text); border: none; border-bottom: 1px solid var(--accent);
+      padding: 4px 0; border-radius: 0; font: 600 16px 'Inter', sans-serif; width: 100%;
     }
+    .block-title input:focus { outline: none; }
     .eq-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
     .eq-badge {
-      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 12px;
+      display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px;
+      background: var(--surface2); border: none; border-radius: 100px;
       font-size: 11px; font-weight: 500; color: var(--text-mid);
     }
-    .toggle-arrow { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+    .toggle-arrow {
+      width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+      transition: transform 350ms var(--ease-spring); color: var(--text-dim); font-size: 14px;
+    }
     .toggle-arrow.collapsed { transform: rotate(-90deg); }
-    .block-actions { display: flex; gap: 4px; align-items: center; }
+    .block-actions { display: flex; gap: 6px; align-items: center; }
 
-    .block-content { display: flex; flex-direction: column; max-height: 2000px; overflow: hidden; transition: max-height 0.3s; }
+    .block-content { display: flex; flex-direction: column; max-height: 2000px; overflow: hidden; transition: max-height 350ms var(--ease-spring); }
     .block-content.collapsed { max-height: 0; }
 
     /* ---- Transition Card ---- */
     .transition-card {
-      padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius); display: flex; align-items: center; gap: 12px; font-size: 14px;
+      padding: 14px 20px; background: var(--accent-subtle); border: none;
+      border-radius: var(--radius); display: flex; align-items: center; gap: 12px;
+      font-size: 14px; font-style: italic; color: var(--text-mid);
     }
 
     /* ---- Step Rows ---- */
     .step-row {
-      display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 14px; padding: 14px 20px;
+      border-top: 0.5px solid var(--divider); min-height: 48px;
     }
-    .step-checkbox { width: 20px; height: 20px; min-width: 20px; margin-top: 2px; cursor: pointer; accent-color: var(--accent); }
+    .step-checkbox {
+      -webkit-appearance: none; appearance: none;
+      width: 22px; height: 22px; min-width: 22px; margin-top: 1px;
+      border: 2px solid var(--border-bright); border-radius: 50%; cursor: pointer;
+      background: transparent; position: relative;
+      transition: all 180ms var(--ease-snappy);
+    }
+    .step-checkbox:checked {
+      background: var(--accent); border-color: var(--accent);
+    }
+    .step-checkbox:checked::after {
+      content: ''; position: absolute; left: 6px; top: 3px;
+      width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .step-checkbox:active { transform: scale(0.9); }
     .step-content { flex: 1; min-width: 0; }
-    .step-emoji { font-size: 18px; margin-bottom: 4px; }
-    .step-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
-    .step-detail { font-size: 13px; color: var(--text-mid); }
-    .step-row.checked { opacity: 0.5; }
-    .step-row.checked .step-name { text-decoration: line-through; }
+    .step-name { font-weight: 500; font-size: 15px; margin-bottom: 2px; line-height: 1.4; }
+    .step-name .step-emoji { margin-right: 6px; }
+    .step-detail { font-size: 14px; color: var(--text-mid); line-height: 1.4; }
+    .step-row.checked { opacity: 0.35; }
+    .step-row.checked .step-name { text-decoration: line-through; color: var(--text-dim); }
 
     .pulse-badge {
       display: inline-block; margin-left: 6px; padding: 2px 8px;
-      background: linear-gradient(90deg, #ff6b6b, #ff8c8c); color: white;
-      border-radius: 12px; font-size: 11px; font-weight: 600;
-      animation: pulse 1.5s ease-in-out infinite;
+      background: #E8735A; color: white;
+      border-radius: 100px; font-size: 10px; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      animation: pulse-scale 2s ease-in-out infinite;
     }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+    @keyframes pulse-scale { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
 
     /* ---- Quiz Mode ---- */
     .quiz-card { cursor: pointer; user-select: none; }
     .quiz-card .step-detail { display: none; }
     .quiz-card.revealed .step-detail { display: block; }
     .quiz-toggle {
-      padding: 2px 8px; background: var(--surface2); border: 1px solid var(--border-bright);
-      border-radius: 12px; font-size: 11px; cursor: pointer; color: var(--text-mid); transition: all 0.2s;
+      padding: 6px 14px; background: var(--surface2); border: none;
+      border-radius: 100px; font-size: 12px; font-weight: 500; cursor: pointer;
+      color: var(--text-mid); transition: all 180ms var(--ease-snappy); min-height: 32px;
     }
-    .quiz-toggle:hover, .quiz-toggle.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .quiz-toggle:hover, .quiz-toggle.active { background: var(--accent); color: #fff; }
 
     /* ---- Edit Step Rows ---- */
     .step-edit {
-      display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); align-items: flex-start;
+      display: flex; gap: 8px; padding: 12px 20px; border-top: 0.5px solid var(--divider); align-items: flex-start;
     }
     .step-edit input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 6px 8px; border-radius: var(--radius-sm); font: 13px 'Inter', sans-serif;
+      background: var(--surface2); color: var(--text); border: none; border-bottom: 0.5px solid var(--border-bright);
+      padding: 8px 4px; border-radius: 0; font: 14px 'Inter', sans-serif; height: 40px;
     }
+    .step-edit input:focus { outline: none; border-bottom-color: var(--accent); }
     .step-edit input[type="text"] { flex: 1; }
     .step-emoji-input { width: 40px; text-align: center; font-size: 18px; }
     .step-btns { display: flex; gap: 4px; }
     .step-btns button {
-      padding: 4px 6px; background: var(--surface2); border: 1px solid var(--border-bright);
-      color: var(--text); border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; transition: all 0.2s;
+      padding: 6px 8px; background: transparent; border: none;
+      color: var(--text-mid); border-radius: var(--radius-sm); cursor: pointer;
+      font-size: 13px; transition: all 180ms var(--ease-snappy); min-width: 36px; min-height: 36px;
+      display: flex; align-items: center; justify-content: center;
     }
-    .step-btns button:hover { background: var(--accent); border-color: var(--accent); }
-    .step-btns button.danger:hover { background: #ff6b6b; color: var(--bg); }
+    .step-btns button:hover { background: var(--surface2); color: var(--accent); }
+    .step-btns button.danger:hover { background: rgba(255,59,48,0.08); color: var(--error); }
 
     .add-step-btn {
-      padding: 10px 16px; background: var(--surface2); border: 1px dashed var(--border-bright);
-      color: var(--text-mid); border-radius: var(--radius-sm); cursor: pointer; font: 500 13px 'Inter', sans-serif;
-      transition: all 0.2s; margin: 12px 16px;
+      padding: 12px 20px; background: var(--accent-subtle); border: none;
+      color: var(--accent); border-radius: var(--radius-sm); cursor: pointer;
+      font: 500 14px 'Inter', sans-serif; transition: all 180ms var(--ease-snappy);
+      margin: 12px 20px; min-height: 44px;
     }
-    .add-step-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .add-step-btn:hover { background: var(--accent); color: #fff; }
 
     .add-block-btn {
-      padding: 12px 16px; background: var(--surface2); border: 2px dashed var(--border-bright);
-      color: var(--text-mid); border-radius: var(--radius); cursor: pointer; font: 600 14px 'Inter', sans-serif;
-      transition: all 0.2s; text-align: center; margin-bottom: 24px;
+      padding: 14px 20px; background: var(--accent-subtle); border: none;
+      color: var(--accent); border-radius: var(--radius); cursor: pointer;
+      font: 600 14px 'Inter', sans-serif; transition: all 180ms var(--ease-snappy);
+      text-align: center; margin-bottom: 32px; min-height: 48px;
     }
-    .add-block-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .add-block-btn:hover { background: var(--accent); color: #fff; }
 
     /* ---- Edit Toolbar per block ---- */
     .edit-toolbar {
-      display: flex; gap: 6px; align-items: center; padding: 8px 16px;
-      background: rgba(255,255,255,0.02); flex-wrap: wrap;
+      display: flex; gap: 6px; align-items: center; padding: 8px 20px;
+      background: var(--accent-subtle); flex-wrap: wrap;
     }
 
-    /* ---- Library Panel ---- */
+    /* ---- Library Bottom Sheet ---- */
     .library-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 8900; animation: fadeIn 0.2s;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      z-index: 8900; animation: fadeIn 250ms var(--ease-snappy);
     }
     .library-panel {
-      position: fixed; right: 0; top: 0; bottom: 0; width: 100%; max-width: 400px;
-      background: var(--surface); border-left: 1px solid var(--border-bright); z-index: 9000;
-      display: flex; flex-direction: column; animation: slideIn 0.3s; box-shadow: -8px 0 24px rgba(0,0,0,0.3);
+      position: fixed; left: 0; right: 0; bottom: 0;
+      background: var(--surface); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      z-index: 9000; display: flex; flex-direction: column;
+      max-height: 85vh; animation: slideUp 400ms var(--ease-spring);
+      box-shadow: var(--shadow-sheet);
+      padding-bottom: var(--safe-bottom);
     }
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .library-header { padding: 16px; border-bottom: 1px solid var(--border-bright); display: flex; justify-content: space-between; align-items: center; }
-    .library-title { font-size: 16px; font-weight: 700; }
-    .library-content { flex: 1; overflow-y: auto; padding: 16px; }
-    .library-empty { text-align: center; color: var(--text-mid); padding: 32px 16px; font-size: 14px; }
+    .library-grab {
+      display: flex; justify-content: center; padding: 12px 0 4px;
+    }
+    .library-grab-bar {
+      width: 36px; height: 5px; background: var(--border-bright); border-radius: 3px;
+    }
+    .library-header {
+      padding: 12px 20px 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .library-title { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; }
+    .library-content { flex: 1; overflow-y: auto; padding: 0 20px 20px; -webkit-overflow-scrolling: touch; }
+    .library-empty { text-align: center; color: var(--text-mid); padding: 40px 16px; font-size: 14px; }
 
     .routine-card {
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: var(--radius);
-      padding: 12px; margin-bottom: 12px; transition: all 0.2s;
+      background: var(--surface2); border: none; border-radius: var(--radius);
+      padding: 16px; margin-bottom: 12px; transition: all 180ms var(--ease-snappy);
     }
-    .routine-card:hover { border-color: var(--accent); }
-    .routine-card-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-    .routine-card-meta { font-size: 12px; color: var(--text-mid); margin-bottom: 8px; }
+    .routine-card:hover { box-shadow: var(--shadow-card); }
+    .routine-card-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .routine-card-meta { font-size: 12px; color: var(--text-mid); margin-bottom: 10px; }
     .routine-card-btns { display: flex; gap: 8px; }
-    .routine-card-btns .btn { flex: 1; }
+    .routine-card-btns .btn { flex: 1; min-height: 40px; font-size: 13px; }
 
     /* ---- Modal ---- */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000; padding: 20px;
+      animation: fadeIn 250ms var(--ease-snappy);
     }
     .modal {
-      background: var(--surface); border: 1px solid var(--border-bright); border-radius: var(--radius);
-      padding: 24px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      background: var(--surface); border: none; border-radius: var(--radius-lg);
+      padding: 28px; max-width: 420px; width: 100%;
+      box-shadow: var(--shadow-elevated);
+      animation: modalIn 300ms var(--ease-spring);
     }
-    .modal h3 { font-size: 18px; margin-bottom: 16px; }
-    .modal p { color: var(--text-mid); font-size: 14px; margin-bottom: 16px; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .modal h3 { font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400; margin-bottom: 12px; }
+    .modal p { color: var(--text-mid); font-size: 14px; margin-bottom: 16px; line-height: 1.5; }
     .modal-form { display: flex; flex-direction: column; gap: 12px; }
     .form-input {
-      background: var(--surface2); border: 1px solid var(--border-bright); color: var(--text);
-      padding: 10px 12px; border-radius: var(--radius-sm); font: 14px 'Inter', sans-serif;
+      background: var(--surface2); border: none; border-bottom: 0.5px solid var(--border-bright);
+      color: var(--text); padding: 12px 4px; border-radius: 0; font: 15px 'Inter', sans-serif; height: 48px;
     }
-    .form-input:focus { outline: none; border-color: var(--accent); }
+    .form-input:focus { outline: none; border-bottom-color: var(--accent); }
     .modal-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
 
     /* ---- Dropdown ---- */
     .dropdown { position: relative; display: inline-block; }
     .dropdown-menu {
       position: absolute; top: 100%; right: 0; background: var(--surface);
-      border: 1px solid var(--border-bright); border-radius: var(--radius-sm);
-      min-width: 200px; z-index: 1000; margin-top: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border: none; border-radius: var(--radius);
+      min-width: 200px; z-index: 1000; margin-top: 6px;
+      box-shadow: var(--shadow-elevated); overflow: hidden;
     }
     .dropdown-menu button {
-      width: 100%; text-align: left; padding: 10px 16px; background: none;
-      border: none; border-bottom: 1px solid var(--border); color: var(--text);
-      cursor: pointer; font-size: 13px; transition: background 0.2s;
+      width: 100%; text-align: left; padding: 14px 20px; background: none;
+      border: none; border-bottom: 0.5px solid var(--divider); color: var(--text);
+      cursor: pointer; font-size: 14px; transition: background 150ms; min-height: 48px;
     }
     .dropdown-menu button:last-child { border-bottom: none; }
-    .dropdown-menu button:hover { background: var(--surface2); }
+    .dropdown-menu button:hover { background: var(--accent-subtle); }
 
     /* ---- Utility ---- */
     .hidden { display: none !important; }
-    .success { color: #22c55e; font-size: 12px; margin-top: 8px; }
-    .error { color: #ff6b6b; font-size: 12px; margin-top: 8px; }
+    .success { color: var(--success); font-size: 13px; margin-top: 8px; }
+    .error { color: var(--error); font-size: 13px; margin-top: 8px; }
+    .sync-status { font-size: 11px; color: var(--text-dim); padding: 4px 0; }
 
     @media (max-width: 540px) {
-      .container { padding: 0 12px; }
-      .header { padding: 12px 0; }
+      .container { padding: 0 16px; }
+      .header { padding: 16px 0 12px; }
       .edit-bar { flex-direction: column; }
       .edit-bar .btn { min-width: auto; }
-      .library-panel { max-width: 100%; }
-      .modal { padding: 16px; }
+      .modal { padding: 24px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="routine-name" id="routineName"></div>
-      <div class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></div>
-      <button class="btn" id="editToggle" data-action="toggle-edit">✏️ Edit</button>
+
+  <!-- Auth Screen -->
+  <div id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <div class="auth-logo">🧘‍♀️</div>
+      <div class="auth-title serif">Routine Tracker</div>
+      <div class="auth-subtitle">Pilates & Yoga</div>
+      <div class="auth-form" id="authForm">
+        <input type="email" class="auth-input" id="authEmail" placeholder="Email" autocomplete="email">
+        <input type="password" class="auth-input" id="authPassword" placeholder="Password" autocomplete="current-password">
+        <button class="auth-btn" id="authSubmit">Sign In</button>
+      </div>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-reset" id="authResetLink"><a id="forgotPassword">Forgot password?</a></div>
+      <div class="auth-divider">or</div>
+      <button class="auth-google" id="googleSignIn">Continue with Google</button>
+      <div class="auth-toggle" id="authToggle">
+        Don't have an account? <a id="authSwitchMode">Sign Up</a>
+      </div>
     </div>
-    <div id="editBar" class="edit-bar hidden"></div>
-    <div id="progressSection" class="progress-section"></div>
-    <div id="eqFilter" class="eq-filter"></div>
-    <div id="blocks" class="blocks"></div>
   </div>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="loading-screen hidden">
+    <span class="spinner"></span> Loading your routines...
+  </div>
+
+  <!-- Main App -->
+  <div id="appScreen" class="hidden">
+    <div class="container">
+      <div class="header">
+        <div class="header-top">
+          <div class="routine-name" id="routineName"></div>
+          <div class="header-controls">
+            <div class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></div>
+            <button class="btn ghost" id="editToggle" data-action="toggle-edit" style="white-space:nowrap;">Edit</button>
+            <button class="user-avatar" id="userAvatar" data-action="show-user-menu" title="Account" style="border:none;outline:none;-webkit-appearance:none;flex-shrink:0;"></button>
+            <button class="btn ghost" data-action="sign-out" style="white-space:nowrap;font-size:12px;color:var(--text-dim);min-height:36px;padding:6px 10px;">Sign Out</button>
+          </div>
+        </div>
+      </div>
+      <div id="editBar" class="edit-bar hidden"></div>
+      <div id="progressSection" class="progress-section"></div>
+      <div id="eqFilter" class="eq-filter"></div>
+      <div id="blocks" class="blocks"></div>
+      <div id="syncStatus" class="sync-status"></div>
+    </div>
+  </div>
+
   <div id="modalContainer"></div>
   <div id="libraryOverlay" class="library-overlay hidden" data-action="close-library"></div>
   <div id="libraryPanel" class="library-panel hidden">
+    <div class="library-grab"><div class="library-grab-bar"></div></div>
     <div class="library-header">
       <div class="library-title">My Routines</div>
-      <button class="btn" data-action="close-library">✕</button>
+      <button class="btn ghost" data-action="close-library" style="min-height:36px;padding:6px 12px">✕</button>
     </div>
     <div class="library-content" id="libraryContent"></div>
   </div>
 
 <script>
+// ===== FIREBASE CONFIG =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCPoPyXozlHTLO2m7ln1coBduTjd6mQOcM",
+  authDomain: "pilates-yoga-app.firebaseapp.com",
+  projectId: "pilates-yoga-app",
+  storageBucket: "pilates-yoga-app.firebasestorage.app",
+  messagingSenderId: "831465442759",
+  appId: "1:831465442759:web:bdc7caed23ec1acedadde2"
+};
+
+let app, auth, db, FB;
+
+window.addEventListener('firebase-ready', () => {
+
+function initFirebase() {
+  FB = window._firebase;
+  app = FB.initializeApp(firebaseConfig);
+  // Use initializeAuth with explicit persistence for Capacitor compatibility
+  auth = FB.initializeAuth(app, {
+    persistence: [FB.indexedDBLocalPersistence, FB.browserLocalPersistence]
+  });
+  db = FB.getFirestore(app);
+  FB.enableIndexedDbPersistence(db).catch(() => {});
+}
+
+// Detect if running on GitHub Pages (no auth needed) vs Capacitor/localhost (auth required)
+const isGitHubPages = location.hostname.includes('github.io');
+
+if (!isGitHubPages) {
+  initFirebase();
+  // Handle Google redirect result on app reload
+  FB.getRedirectResult(auth).catch(() => {});
+}
+
+let currentUser = null;
+let unsubState = null;
+let unsubRoutines = null;
+
+// ===== THEME =====
+function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? null : 'dark';
+  if (next) {
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.removeItem('theme');
+  }
+}
+initTheme();
+
+// ===== AUTH =====
+let isSignUp = false;
+
+function showScreen(screenId) {
+  ['authScreen', 'loadingScreen', 'appScreen'].forEach(id => {
+    document.getElementById(id).classList.toggle('hidden', id !== screenId);
+  });
+}
+
+document.getElementById('authSwitchMode').addEventListener('click', () => {
+  isSignUp = !isSignUp;
+  document.getElementById('authSubmit').textContent = isSignUp ? 'Create Account' : 'Sign In';
+  document.getElementById('authSwitchMode').textContent = isSignUp ? 'Sign In' : 'Sign Up';
+  document.getElementById('authToggle').childNodes[0].textContent = isSignUp ? 'Already have an account? ' : "Don't have an account? ";
+  document.getElementById('authError').textContent = '';
+});
+
+document.getElementById('authSubmit').addEventListener('click', async () => {
+  const email = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errorEl = document.getElementById('authError');
+  errorEl.textContent = '';
+  if (!email || !password) { errorEl.textContent = 'Please enter email and password.'; return; }
+  if (password.length < 6) { errorEl.textContent = 'Password must be at least 6 characters.'; return; }
+  const btn = document.getElementById('authSubmit');
+  btn.disabled = true;
+  try {
+    if (isSignUp) { await FB.createUserWithEmailAndPassword(auth, email, password); }
+    else { await FB.signInWithEmailAndPassword(auth, email, password); }
+  } catch (err) {
+    const messages = {
+      'auth/user-not-found': 'No account with this email. Sign up instead?',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/email-already-in-use': 'Email already in use. Sign in instead?',
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/too-many-requests': 'Too many attempts. Try again later.',
+    };
+    errorEl.textContent = messages[err.code] || err.message;
+  }
+  btn.disabled = false;
+});
+
+document.getElementById('googleSignIn').addEventListener('click', async () => {
+  const errorEl = document.getElementById('authError');
+  errorEl.textContent = '';
+  try {
+    const provider = new FB.GoogleAuthProvider();
+    try {
+      await FB.signInWithPopup(auth, provider);
+    } catch (popupErr) {
+      if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/operation-not-supported-in-this-environment') {
+        await FB.signInWithRedirect(auth, provider);
+      } else if (popupErr.code !== 'auth/popup-closed-by-user') {
+        throw popupErr;
+      }
+    }
+  } catch (err) {
+    errorEl.textContent = err.message;
+  }
+});
+
+document.getElementById('forgotPassword').addEventListener('click', async () => {
+  const email = document.getElementById('authEmail').value.trim();
+  const errorEl = document.getElementById('authError');
+  if (!email) { errorEl.textContent = 'Enter your email first, then click forgot password.'; return; }
+  try {
+    await FB.sendPasswordResetEmail(auth, email);
+    errorEl.style.color = 'var(--success)';
+    errorEl.textContent = 'Password reset email sent! Check your inbox.';
+    setTimeout(() => { errorEl.style.color = ''; }, 5000);
+  } catch (err) { errorEl.textContent = err.message; }
+});
+
+document.getElementById('authPassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('authSubmit').click();
+});
+
+// ===== BOTTOM SHEET TOUCH GESTURES =====
+let sheetStartY = 0;
+let sheetCurrentY = 0;
+let sheetDragging = false;
+
+function initSheetGestures() {
+  const panel = document.getElementById('libraryPanel');
+  panel.addEventListener('touchstart', (e) => {
+    const grab = e.target.closest('.library-grab, .library-header');
+    if (!grab) return;
+    sheetStartY = e.touches[0].clientY;
+    sheetDragging = true;
+    panel.style.transition = 'none';
+  });
+  panel.addEventListener('touchmove', (e) => {
+    if (!sheetDragging) return;
+    sheetCurrentY = e.touches[0].clientY - sheetStartY;
+    if (sheetCurrentY < 0) sheetCurrentY = 0;
+    panel.style.transform = `translateY(${sheetCurrentY}px)`;
+  });
+  panel.addEventListener('touchend', () => {
+    if (!sheetDragging) return;
+    sheetDragging = false;
+    panel.style.transition = '';
+    if (sheetCurrentY > panel.offsetHeight * 0.3) {
+      closeLibrary();
+    }
+    panel.style.transform = '';
+    sheetCurrentY = 0;
+  });
+}
+initSheetGestures();
+
 // ===== DATA =====
 
 const EQUIPMENT = {
@@ -348,9 +743,7 @@ const PILATES_DEFAULT = {
         { name: 'Repeat on Left', detail: 'Start with center work again, then full left side sequence.', emoji: '🔄', tags: [] },
       ]
     },
-    {
-      type: 'transition', id: 't1', title: 'Transition: Remove ball, grab band', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
+    { type: 'transition', id: 't1', title: 'Transition: Remove ball, grab band', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: [] },
     {
       type: 'block', id: 'block2', title: 'Block 2 · Bridge Series — Band + Weights', emoji: '🍑', equipment: ['band', 'weights'],
       color: 'var(--rose)',
@@ -404,9 +797,7 @@ const PILATES_DEFAULT = {
         { name: 'Flow Sequence', detail: 'Lunge → Inhale W3 arms up → Exhale twist → Back to lunge.', emoji: '🌊', tags: [] },
       ]
     },
-    {
-      type: 'transition', id: 't2', title: 'Transition: Standing mountain knee drives with ball → high plank', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
+    { type: 'transition', id: 't2', title: 'Transition: Standing mountain knee drives with ball → high plank', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: [] },
     {
       type: 'block', id: 'block5', title: 'Block 5 · Core/Arm Series — Both Sides', emoji: '💪', equipment: [],
       color: 'var(--slate)',
@@ -454,9 +845,7 @@ const PILATES_DEFAULT = {
         { name: 'Flow Sequence', detail: 'Lunge → Inhale W3 arms up → Exhale twist → Back to lunge.', emoji: '🌊', tags: [] },
       ]
     },
-    {
-      type: 'transition', id: 't3', title: 'Transition: Side plank high L→R, land on left side', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
+    { type: 'transition', id: 't3', title: 'Transition: Side plank high L→R, land on left side', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: [] },
     {
       type: 'block', id: 'block8', title: 'Block 8 · Sideline — Right', emoji: '🤸‍♀️', equipment: [],
       color: 'var(--rose)',
@@ -477,9 +866,7 @@ const PILATES_DEFAULT = {
         { name: 'Teaser Lifts — Hold to Finish', detail: 'Teaser lifts, hold full teaser to finish.', emoji: '💎', tags: [] },
       ]
     },
-    {
-      type: 'transition', id: 't4', title: 'Transition: Side plank high L→R, land on right side', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
+    { type: 'transition', id: 't4', title: 'Transition: Side plank high L→R, land on right side', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: [] },
     {
       type: 'block', id: 'block9', title: 'Block 9 · Sideline — Left', emoji: '🤸‍♀️', equipment: [],
       color: 'var(--rose)', mirrorOf: 'block8',
@@ -607,13 +994,9 @@ const YOGA_DEFAULT = {
     {
       type: 'block', id: 'block5', title: 'Block 5 · Left Side Flow', emoji: '🏃‍♀️', equipment: ['weights'],
       color: 'var(--sage)', mirrorOf: 'block4',
-      steps: [
-        { name: 'Repeat Full Block 4 on Left', detail: 'Mirror all of Block 4 on the left side.', emoji: '🔄', tags: [] },
-      ]
+      steps: [{ name: 'Repeat Full Block 4 on Left', detail: 'Mirror all of Block 4 on the left side.', emoji: '🔄', tags: [] }]
     },
-    {
-      type: 'transition', id: 't1', title: 'Transition: Repeat flow faster — 4 pulses for everything', emoji: '⚡', equipment: [], color: 'var(--surface2)', steps: []
-    },
+    { type: 'transition', id: 't1', title: 'Transition: Repeat flow faster — 4 pulses for everything', emoji: '⚡', equipment: [], color: 'var(--surface2)', steps: [] },
     {
       type: 'block', id: 'block6', title: 'Block 6 · Core Intermission', emoji: '🏐', equipment: ['ball'],
       color: 'var(--slate)',
@@ -650,16 +1033,12 @@ const YOGA_DEFAULT = {
     {
       type: 'block', id: 'block8', title: 'Block 8 · Balancing Flow — Left', emoji: '⚖️', equipment: ['weights'],
       color: 'var(--teal)', mirrorOf: 'block7',
-      steps: [
-        { name: 'Repeat Full Block 7 on Left', detail: 'Mirror all of Block 7 on the left side.', emoji: '🔄', tags: [] },
-      ]
+      steps: [{ name: 'Repeat Full Block 7 on Left', detail: 'Mirror all of Block 7 on the left side.', emoji: '🔄', tags: [] }]
     },
     {
       type: 'block', id: 'block9', title: 'Block 9 · Optional Boat Pose', emoji: '⛵', equipment: [],
       color: 'var(--rose)',
-      steps: [
-        { name: 'Boat Pose Sequence', detail: 'Optional boat pose sequence if more core work is needed.', emoji: '⛵', tags: [] },
-      ]
+      steps: [{ name: 'Boat Pose Sequence', detail: 'Optional boat pose sequence if more core work is needed.', emoji: '⛵', tags: [] }]
     },
     {
       type: 'block', id: 'block10', title: 'Block 10 · Cool Down', emoji: '🧘‍♀️', equipment: [],
@@ -688,30 +1067,50 @@ const S = {
   eqFilter: new Set(),
 };
 
+let saveTimeout = null;
+function debouncedSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => saveStateToCloud(), 1000);
+}
+
+function saveStateToCloud() {
+  if (!currentUser) return;
+  const data = {
+    routineId: S.routineId, routineName: S.routineName, discipline: S.discipline,
+    blocks: S.blocks, checked: S.checked,
+    collapsed: Object.fromEntries(Object.entries(S.collapsed)),
+    updatedAt: FB.serverTimestamp(),
+  };
+  FB.setDoc(FB.doc(db, 'users', currentUser.uid), data, { merge: true }).catch(err => {
+    console.warn('Cloud save failed:', err.message);
+  });
+}
+
 function saveState() {
   const data = {
-    routineId: S.routineId,
-    routineName: S.routineName,
-    discipline: S.discipline,
-    blocks: S.blocks,
-    checked: S.checked,
+    routineId: S.routineId, routineName: S.routineName, discipline: S.discipline,
+    blocks: S.blocks, checked: S.checked,
     collapsed: Object.fromEntries(Object.entries(S.collapsed)),
   };
   localStorage.setItem('current_state', JSON.stringify(data));
+  debouncedSave();
+}
+
+function loadStateFromData(data) {
+  S.routineId = data.routineId || null;
+  S.routineName = data.routineName || 'My Routine';
+  S.discipline = data.discipline || 'pilates';
+  S.blocks = data.blocks || [];
+  S.checked = data.checked || {};
+  S.collapsed = data.collapsed || {};
 }
 
 function loadState() {
   try {
     const raw = localStorage.getItem('current_state');
     if (!raw) return;
-    const data = JSON.parse(raw);
-    S.routineId = data.routineId || null;
-    S.routineName = data.routineName || 'My Routine';
-    S.discipline = data.discipline || 'pilates';
-    S.blocks = data.blocks || [];
-    S.checked = data.checked || {};
-    S.collapsed = data.collapsed || {};
-  } catch(e) { /* ignore corrupt data */ }
+    loadStateFromData(JSON.parse(raw));
+  } catch(e) {}
 }
 
 function getRoutines() {
@@ -722,12 +1121,16 @@ function getRoutines() {
 function saveRoutineToLibrary(name) {
   const routines = getRoutines();
   const id = 'r_' + Date.now();
-  routines.push({
+  const routineData = {
     id, name, discipline: S.discipline,
     savedAt: new Date().toISOString(),
     blocks: JSON.parse(JSON.stringify(S.blocks)),
-  });
+  };
+  routines.push(routineData);
   localStorage.setItem('routines_library', JSON.stringify(routines));
+  if (currentUser) {
+    FB.setDoc(FB.doc(db, 'users', currentUser.uid, 'routines', id), routineData).catch(() => {});
+  }
   return id;
 }
 
@@ -735,20 +1138,104 @@ function loadRoutineFromLibrary(id) {
   const routines = getRoutines();
   const r = routines.find(x => x.id === id);
   if (!r) return;
-  S.routineId = r.id;
-  S.routineName = r.name;
-  S.discipline = r.discipline;
+  S.routineId = r.id; S.routineName = r.name; S.discipline = r.discipline;
   S.blocks = JSON.parse(JSON.stringify(r.blocks));
-  S.checked = {};
-  S.collapsed = {};
-  S.quizMode = {};
-  S.quizRevealed = {};
+  S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.quizRevealed = {};
   saveState();
 }
 
 function deleteRoutineFromLibrary(id) {
   const routines = getRoutines().filter(x => x.id !== id);
   localStorage.setItem('routines_library', JSON.stringify(routines));
+  if (currentUser) {
+    FB.deleteDoc(FB.doc(db, 'users', currentUser.uid, 'routines', id)).catch(() => {});
+  }
+}
+
+// ===== CLOUD SYNC =====
+
+function startCloudSync() {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+  unsubState = FB.onSnapshot(FB.doc(db, 'users', uid), doc => {
+    if (doc.exists() && doc.metadata.hasPendingWrites === false) {
+      const data = doc.data();
+      if (data.blocks) {
+        loadStateFromData(data);
+        localStorage.setItem('current_state', JSON.stringify({
+          routineId: S.routineId, routineName: S.routineName,
+          discipline: S.discipline, blocks: S.blocks,
+          checked: S.checked, collapsed: S.collapsed,
+        }));
+        render();
+      }
+    }
+  });
+  unsubRoutines = FB.onSnapshot(FB.collection(db, 'users', uid, 'routines'), snapshot => {
+    if (snapshot.metadata.hasPendingWrites) return;
+    const routines = [];
+    snapshot.forEach(doc => routines.push(doc.data()));
+    localStorage.setItem('routines_library', JSON.stringify(routines));
+  });
+}
+
+function stopCloudSync() {
+  if (unsubState) { unsubState(); unsubState = null; }
+  if (unsubRoutines) { unsubRoutines(); unsubRoutines = null; }
+}
+
+async function initUserData() {
+  if (!currentUser) return;
+  const uid = currentUser.uid;
+  const userDoc = await FB.getDoc(FB.doc(db, 'users', uid));
+  if (userDoc.exists() && userDoc.data().blocks) {
+    loadStateFromData(userDoc.data());
+    localStorage.setItem('current_state', JSON.stringify({
+      routineId: S.routineId, routineName: S.routineName,
+      discipline: S.discipline, blocks: S.blocks,
+      checked: S.checked, collapsed: S.collapsed,
+    }));
+    const routinesSnap = await FB.getDocs(FB.collection(db, 'users', uid, 'routines'));
+    const routines = [];
+    routinesSnap.forEach(doc => routines.push(doc.data()));
+    localStorage.setItem('routines_library', JSON.stringify(routines));
+  } else {
+    loadState();
+    saveStateToCloud();
+  }
+}
+
+// ===== AUTH STATE =====
+
+if (isGitHubPages) {
+  // No auth on GitHub Pages — go straight to app with localStorage
+  loadState();
+  showScreen('appScreen');
+  render();
+} else {
+  FB.onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      showScreen('loadingScreen');
+      try { await initUserData(); } catch (err) { loadState(); }
+      startCloudSync();
+      showScreen('appScreen');
+      updateUserAvatar();
+      render();
+    } else {
+      currentUser = null;
+      stopCloudSync();
+      showScreen('authScreen');
+    }
+  });
+}
+
+function updateUserAvatar() {
+  if (!currentUser) return;
+  const el = document.getElementById('userAvatar');
+  const name = currentUser.displayName || currentUser.email || '?';
+  el.textContent = name.charAt(0).toUpperCase();
+  el.title = currentUser.email || 'Account';
 }
 
 // ===== RENDER =====
@@ -774,14 +1261,11 @@ function renderHeader() {
   } else {
     nameEl.textContent = S.routineName;
   }
-
   const badge = document.getElementById('disciplineBadge');
   badge.textContent = S.discipline === 'yoga' ? '🧘 Yoga' : '🏋️ Pilates';
-
   const toggle = document.getElementById('editToggle');
   toggle.textContent = S.editMode ? '✅ Done' : '✏️ Edit';
   toggle.classList.toggle('active', S.editMode);
-
   const editBar = document.getElementById('editBar');
   if (S.editMode) {
     editBar.classList.remove('hidden');
@@ -805,10 +1289,9 @@ function renderHeader() {
 function renderProgress() {
   const section = document.getElementById('progressSection');
   if (S.editMode) { section.innerHTML = ''; return; }
-
   const visible = S.blocks.filter(shouldShow);
   let total = 0, done = 0;
-  visible.forEach((b, _) => {
+  visible.forEach((b) => {
     if (b.type === 'transition') return;
     const bi = S.blocks.indexOf(b);
     b.steps.forEach((_, si) => { total++; if (S.checked[`${bi}_${si}`]) done++; });
@@ -818,7 +1301,7 @@ function renderProgress() {
     <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
     <div class="progress-row">
       <span class="progress-text">${pct}% complete</span>
-      <button class="btn" data-action="start-fresh">Start Fresh</button>
+      <button class="btn ghost" data-action="start-fresh" style="min-height:32px;padding:4px 12px;font-size:13px">Start Fresh</button>
     </div>
   `;
 }
@@ -836,11 +1319,10 @@ function renderEqFilter() {
 function renderBlocks() {
   const el = document.getElementById('blocks');
   const visible = S.blocks.filter(shouldShow);
-
   el.innerHTML = visible.map(block => {
     const bi = S.blocks.indexOf(block);
     if (block.type === 'transition') {
-      return `<div class="transition-card"><span style="font-size:20px">${block.emoji}</span><span>${block.title}</span></div>`;
+      return `<div class="transition-card"><span style="font-size:18px">${block.emoji}</span><span>${block.title}</span></div>`;
     }
     const isCollapsed = S.collapsed[bi] !== false;
     const isQuiz = S.quizMode[bi] === true;
@@ -862,8 +1344,7 @@ function renderBlocks() {
           const revealed = S.quizRevealed[key];
           return `<div class="step-row quiz-card ${revealed ? 'revealed' : ''}" data-action="reveal-quiz" data-bi="${bi}" data-si="${si}">
             <div class="step-content">
-              <div class="step-emoji">${step.emoji}</div>
-              <div class="step-name">${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
+              <div class="step-name"><span class="step-emoji">${step.emoji}</span>${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
               <div class="step-detail">${esc(step.detail)}</div>
             </div>
           </div>`;
@@ -871,8 +1352,7 @@ function renderBlocks() {
         return `<div class="step-row ${checked ? 'checked' : ''}" data-bi="${bi}" data-si="${si}">
           <input type="checkbox" class="step-checkbox" data-action="toggle-step" data-bi="${bi}" data-si="${si}" ${checked ? 'checked' : ''}>
           <div class="step-content">
-            <div class="step-emoji">${step.emoji}</div>
-            <div class="step-name">${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
+            <div class="step-name"><span class="step-emoji">${step.emoji}</span>${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
             <div class="step-detail">${esc(step.detail)}</div>
           </div>
         </div>`;
@@ -880,15 +1360,15 @@ function renderBlocks() {
     }
 
     const editToolbar = S.editMode ? `<div class="edit-toolbar">
-      <button class="btn" data-action="move-up" data-bi="${bi}">↑</button>
-      <button class="btn" data-action="move-down" data-bi="${bi}">↓</button>
+      <button class="btn" data-action="move-up" data-bi="${bi}" style="min-height:36px;padding:6px 10px">↑</button>
+      <button class="btn" data-action="move-down" data-bi="${bi}" style="min-height:36px;padding:6px 10px">↓</button>
       <div style="flex:1"></div>
-      <button class="btn danger" data-action="delete-block" data-bi="${bi}">🗑️</button>
+      <button class="btn danger" data-action="delete-block" data-bi="${bi}" style="min-height:36px;padding:6px 10px">🗑️</button>
     </div>` : '';
 
     const quizBtn = !S.editMode ? `<button class="quiz-toggle ${isQuiz ? 'active' : ''}" data-action="toggle-quiz" data-bi="${bi}">${isQuiz ? '❓ Quiz' : '📋 List'}</button>` : '';
 
-    return `<div class="block-card" data-bi="${bi}">
+    return `<div class="block-card" style="--block-color:${block.color || 'var(--accent-subtle)'}" data-bi="${bi}">
       <div class="block-header" data-action="toggle-collapse" data-bi="${bi}">
         <span class="block-emoji">${block.emoji}</span>
         <div class="block-info">
@@ -912,7 +1392,7 @@ function renderBlocks() {
 
 function renderEditSteps(block, bi) {
   if (block.steps.length === 0) {
-    return `<div style="padding:16px;text-align:center;color:var(--text-mid);font-size:13px">No steps yet</div>`;
+    return `<div style="padding:20px;text-align:center;color:var(--text-mid);font-size:14px">No steps yet</div>`;
   }
   return block.steps.map((step, si) => `
     <div class="step-edit" data-bi="${bi}" data-si="${si}">
@@ -941,7 +1421,7 @@ function render() {
 function showModal(html) {
   document.getElementById('modalContainer').innerHTML = `
     <div class="modal-overlay" data-action="close-modal">
-      <div class="modal">${html}</div>
+      <div class="modal" onclick="event.stopPropagation()">${html}</div>
     </div>`;
 }
 function closeModal() { document.getElementById('modalContainer').innerHTML = ''; }
@@ -949,12 +1429,12 @@ function closeModal() { document.getElementById('modalContainer').innerHTML = ''
 function showSaveModal() {
   showModal(`
     <h3>Save Routine</h3>
-    <p>Save to your device for quick access anytime.</p>
+    <p>Save to your account for access on any device.</p>
     <div class="modal-form">
       <input type="text" class="form-input" id="saveNameInput" value="${esc(S.routineName)}">
       <div class="modal-btns">
-        <button class="btn" data-action="close-modal">Cancel</button>
-        <button class="btn primary" data-action="confirm-save">💾 Save</button>
+        <button class="btn ghost" data-action="close-modal">Cancel</button>
+        <button class="btn primary" data-action="confirm-save">Save</button>
       </div>
       <div id="saveStatus"></div>
     </div>
@@ -968,7 +1448,7 @@ function showLibrary() {
   const content = document.getElementById('libraryContent');
   const routines = getRoutines();
   if (routines.length === 0) {
-    content.innerHTML = '<div class="library-empty">No saved routines yet. Save your first!</div>';
+    content.innerHTML = '<div class="library-empty">No saved routines yet.<br>Save your first!</div>';
     return;
   }
   content.innerHTML = routines.map(r => `
@@ -996,7 +1476,23 @@ function showDisciplineModal() {
       <button class="btn lg block" data-action="switch-to-pilates">🏋️ Pilates Template</button>
       <button class="btn lg block" data-action="switch-to-yoga">🧘 Yoga Template</button>
     </div>
-    <div class="modal-btns"><button class="btn" data-action="close-modal">Cancel</button></div>
+    <div class="modal-btns"><button class="btn ghost" data-action="close-modal">Cancel</button></div>
+  `);
+}
+
+function showUserMenu() {
+  const email = currentUser ? currentUser.email : '';
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  showModal(`
+    <h3>Account</h3>
+    <p>Signed in as <strong>${esc(email)}</strong></p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <button class="btn block" data-action="toggle-theme">${isDark ? '☀️ Light Mode' : '🌙 Dark Mode'}</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn ghost" data-action="close-modal">Close</button>
+      <button class="btn danger" data-action="sign-out">Sign Out</button>
+    </div>
   `);
 }
 
@@ -1011,230 +1507,119 @@ document.addEventListener('click', (e) => {
 
   switch (action) {
     case 'toggle-edit':
-      S.editMode = !S.editMode;
-      S.collapsed = {};
-      render();
-      break;
-
-    case 'switch-discipline':
-      showDisciplineModal();
-      break;
-
+      S.editMode = !S.editMode; S.collapsed = {}; render(); break;
+    case 'switch-discipline': showDisciplineModal(); break;
+    case 'show-user-menu': showUserMenu(); break;
+    case 'sign-out': closeModal(); FB.signOut(auth); break;
+    case 'toggle-theme': toggleTheme(); closeModal(); break;
     case 'toggle-collapse':
-      if (bi !== null) {
-        S.collapsed[bi] = S.collapsed[bi] !== false ? false : true;
-        renderBlocks();
-      }
-      break;
-
-    case 'toggle-step':
-      // handled by change event
-      break;
-
+      if (bi !== null) { S.collapsed[bi] = S.collapsed[bi] !== false ? false : true; renderBlocks(); } break;
+    case 'toggle-step': break;
     case 'toggle-eq': {
       const eq = el.dataset.eq;
       S.eqFilter.has(eq) ? S.eqFilter.delete(eq) : S.eqFilter.add(eq);
-      render();
-      break;
+      render(); break;
     }
-
     case 'toggle-quiz':
       e.stopPropagation();
-      if (bi !== null) {
-        S.quizMode[bi] = !S.quizMode[bi];
-        S.quizRevealed = {};
-        renderBlocks();
-      }
-      break;
-
+      if (bi !== null) { S.quizMode[bi] = !S.quizMode[bi]; S.quizRevealed = {}; renderBlocks(); } break;
     case 'reveal-quiz':
-      if (bi !== null && si !== null) {
-        const key = `${bi}_${si}`;
-        S.quizRevealed[key] = !S.quizRevealed[key];
-        renderBlocks();
-      }
-      break;
-
+      if (bi !== null && si !== null) { S.quizRevealed[`${bi}_${si}`] = !S.quizRevealed[`${bi}_${si}`]; renderBlocks(); } break;
     case 'start-fresh':
-      S.checked = {};
-      S.quizRevealed = {};
-      saveState();
-      render();
-      break;
-
+      S.checked = {}; S.quizRevealed = {}; saveState(); render(); break;
     case 'move-up':
-      if (bi !== null && bi > 0) {
-        [S.blocks[bi - 1], S.blocks[bi]] = [S.blocks[bi], S.blocks[bi - 1]];
-        saveState(); render();
-      }
-      break;
-
+      if (bi !== null && bi > 0) { [S.blocks[bi-1], S.blocks[bi]] = [S.blocks[bi], S.blocks[bi-1]]; saveState(); render(); } break;
     case 'move-down':
-      if (bi !== null && bi < S.blocks.length - 1) {
-        [S.blocks[bi], S.blocks[bi + 1]] = [S.blocks[bi + 1], S.blocks[bi]];
-        saveState(); render();
-      }
-      break;
-
+      if (bi !== null && bi < S.blocks.length-1) { [S.blocks[bi], S.blocks[bi+1]] = [S.blocks[bi+1], S.blocks[bi]]; saveState(); render(); } break;
     case 'delete-block':
-      if (bi !== null && confirm('Delete this block?')) {
-        S.blocks.splice(bi, 1);
-        saveState(); render();
-      }
-      break;
-
+      if (bi !== null && confirm('Delete this block?')) { S.blocks.splice(bi,1); saveState(); render(); } break;
     case 'add-step':
-      if (bi !== null) {
-        S.blocks[bi].steps.push({ name: '', detail: '', emoji: '✨', tags: [] });
-        saveState(); render();
-      }
-      break;
-
+      if (bi !== null) { S.blocks[bi].steps.push({ name:'', detail:'', emoji:'✨', tags:[] }); saveState(); render(); } break;
     case 'delete-step':
-      if (bi !== null && si !== null) {
-        S.blocks[bi].steps.splice(si, 1);
-        saveState(); render();
-      }
-      break;
-
+      if (bi !== null && si !== null) { S.blocks[bi].steps.splice(si,1); saveState(); render(); } break;
     case 'toggle-pulse':
       if (bi !== null && si !== null) {
-        const step = S.blocks[bi].steps[si];
-        const tags = step.tags || [];
-        const idx = tags.indexOf('pulse');
-        idx >= 0 ? tags.splice(idx, 1) : tags.push('pulse');
-        step.tags = tags;
-        saveState(); render();
-      }
-      break;
-
+        const step = S.blocks[bi].steps[si]; const tags = step.tags || [];
+        const idx = tags.indexOf('pulse'); idx >= 0 ? tags.splice(idx,1) : tags.push('pulse');
+        step.tags = tags; saveState(); render();
+      } break;
     case 'add-block':
-      S.blocks.push({
-        type: 'block', id: `block${Date.now()}`, title: 'New Block', emoji: '✨',
-        equipment: [], color: 'var(--slate)', steps: []
-      });
-      saveState(); render();
-      break;
-
-    case 'save-routine':
-      showSaveModal();
-      break;
-
+      S.blocks.push({ type:'block', id:`block${Date.now()}`, title:'New Block', emoji:'✨', equipment:[], color:'var(--slate)', steps:[] });
+      saveState(); render(); break;
+    case 'save-routine': showSaveModal(); break;
     case 'confirm-save': {
       const name = document.getElementById('saveNameInput').value.trim();
       if (!name) return;
       S.routineName = name;
-      const id = saveRoutineToLibrary(name);
-      S.routineId = id;
-      saveState();
+      const id = saveRoutineToLibrary(name); S.routineId = id; saveState();
       document.getElementById('saveStatus').innerHTML = '<div class="success">Saved!</div>';
-      setTimeout(closeModal, 1000);
-      break;
+      setTimeout(closeModal, 1000); break;
     }
-
-    case 'load-routines':
-      showLibrary();
-      break;
-
-    case 'close-library':
-      closeLibrary();
-      break;
-
+    case 'load-routines': showLibrary(); break;
+    case 'close-library': closeLibrary(); break;
     case 'load-routine': {
-      const rid = el.dataset.rid;
-      loadRoutineFromLibrary(rid);
-      closeLibrary();
-      S.editMode = false;
-      render();
-      break;
+      loadRoutineFromLibrary(el.dataset.rid); closeLibrary(); S.editMode = false; render(); break;
     }
-
-    case 'delete-routine': {
-      const rid = el.dataset.rid;
-      if (confirm('Delete this saved routine?')) {
-        deleteRoutineFromLibrary(rid);
-        showLibrary();
-      }
-      break;
-    }
-
+    case 'delete-routine':
+      if (confirm('Delete this saved routine?')) { deleteRoutineFromLibrary(el.dataset.rid); showLibrary(); } break;
     case 'new-pilates':
       if (confirm('Start new Pilates routine? Unsaved changes will be lost.')) {
         S.blocks = JSON.parse(JSON.stringify(PILATES_DEFAULT.blocks));
         S.discipline = 'pilates'; S.routineName = 'Mat Pilates';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         saveState(); render();
-      }
-      break;
-
+      } break;
     case 'new-yoga':
       if (confirm('Start new Yoga routine? Unsaved changes will be lost.')) {
         S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
         S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         saveState(); render();
-      }
-      break;
-
+      } break;
     case 'new-blank':
       if (confirm('Start blank? Unsaved changes will be lost.')) {
         S.blocks = [
-          { type: 'block', id: 'warmup', title: 'Warm-up', emoji: '🌅', equipment: [], color: 'var(--amber)', steps: [] },
-          { type: 'block', id: 'block1', title: 'Block 1', emoji: '✨', equipment: [], color: 'var(--slate)', steps: [] },
+          { type:'block', id:'warmup', title:'Warm-up', emoji:'🌅', equipment:[], color:'var(--amber)', steps:[] },
+          { type:'block', id:'block1', title:'Block 1', emoji:'✨', equipment:[], color:'var(--slate)', steps:[] },
         ];
         S.discipline = 'custom'; S.routineName = 'My Routine';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         saveState(); render();
-      }
-      break;
-
+      } break;
     case 'switch-to-pilates':
       if (confirm('Switch to Pilates? Unsaved changes will be lost.')) {
         S.blocks = JSON.parse(JSON.stringify(PILATES_DEFAULT.blocks));
         S.discipline = 'pilates'; S.routineName = 'Mat Pilates';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         closeModal(); saveState(); render();
-      }
-      break;
-
+      } break;
     case 'switch-to-yoga':
       if (confirm('Switch to Yoga? Unsaved changes will be lost.')) {
         S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
         S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         closeModal(); saveState(); render();
-      }
-      break;
-
+      } break;
     case 'close-modal':
-      if (e.target.classList.contains('modal-overlay')) closeModal();
-      break;
+      if (e.target.classList.contains('modal-overlay') || el.dataset.action === 'close-modal') closeModal(); break;
   }
 });
 
-// Handle checkbox changes
 document.addEventListener('change', (e) => {
   if (e.target.classList.contains('step-checkbox')) {
     const bi = parseInt(e.target.dataset.bi);
     const si = parseInt(e.target.dataset.si);
     const key = `${bi}_${si}`;
     e.target.checked ? (S.checked[key] = true) : delete S.checked[key];
-    saveState();
-    renderProgress();
-    // Update just this row's style
+    saveState(); renderProgress();
     const row = e.target.closest('.step-row');
     if (row) row.classList.toggle('checked', e.target.checked);
   }
 });
 
-// Handle edit inputs — update state without re-render
 document.addEventListener('input', (e) => {
   const { bi, si, field } = e.target.dataset;
-  if (e.target.id === 'routineNameInput') {
-    S.routineName = e.target.value;
-    saveState();
-    return;
-  }
+  if (e.target.id === 'routineNameInput') { S.routineName = e.target.value; saveState(); return; }
   if (bi != null && si != null && field) {
     const step = S.blocks[parseInt(bi)].steps[parseInt(si)];
     if (field === 'name') step.name = e.target.value;
@@ -1244,22 +1629,18 @@ document.addEventListener('input', (e) => {
   }
 });
 
-// New routine dropdown
 document.addEventListener('click', (e) => {
   const newBtn = document.getElementById('newBtn');
   const newMenu = document.getElementById('newMenu');
   if (!newBtn || !newMenu) return;
   if (e.target === newBtn || newBtn.contains(e.target)) {
-    e.stopPropagation();
-    newMenu.classList.toggle('hidden');
+    e.stopPropagation(); newMenu.classList.toggle('hidden');
   } else if (!newMenu.contains(e.target)) {
     newMenu.classList.add('hidden');
   }
 });
 
-// ===== INIT =====
-loadState();
-render();
+}); // end firebase-ready
 </script>
 </body>
 </html>
