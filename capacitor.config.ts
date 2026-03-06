@@ -5,9 +5,9 @@ const config: CapacitorConfig = {
   appName: 'Routine Tracker',
   webDir: 'www',
   server: {
-    // Enable this for development to load from a local server
-    // url: 'http://localhost:8080',
-    // cleartext: true,
+    iosScheme: 'https',
+    androidScheme: 'https',
+    hostname: 'localhost',
   },
   ios: {
     contentInset: 'automatic',

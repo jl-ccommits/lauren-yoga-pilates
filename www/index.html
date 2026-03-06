@@ -7,10 +7,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Routine Tracker</title>
 
-  <!-- Firebase SDK (CDN) -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDK (Modular CDN for Capacitor compatibility) -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { initializeAuth, browserLocalPersistence, indexedDBLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot, collection, enableIndexedDbPersistence, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    window._firebase = { initializeApp, initializeAuth, browserLocalPersistence, indexedDBLocalPersistence, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, getFirestore, doc, getDoc, getDocs, setDoc, deleteDoc, onSnapshot, collection, enableIndexedDbPersistence, serverTimestamp };
+    window.dispatchEvent(new Event('firebase-ready'));
+  </script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap');
@@ -172,13 +176,18 @@
 
     /* ---- Header ---- */
     .header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 0 16px; margin-bottom: 8px; flex-wrap: wrap; gap: 12px;
+      padding: 20px 0 16px; margin-bottom: 8px;
+    }
+    .header-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px;
+    }
+    .header-controls {
+      display: flex; align-items: center; gap: 8px; flex-shrink: 0;
     }
     .routine-name {
-      flex: 1; font-family: 'DM Serif Display', serif;
+      font-family: 'DM Serif Display', serif;
       font-size: 28px; font-weight: 400; letter-spacing: -0.02em;
-      min-width: 0; word-break: break-word; line-height: 1.2;
+      line-height: 1.2; flex: 1; min-width: 0;
     }
     .routine-name input {
       background: var(--surface2); color: var(--text); border: none; border-bottom: 1px solid var(--accent);
@@ -195,10 +204,11 @@
     .discipline-badge:hover { background: var(--accent); color: #fff; }
     .user-menu { display: flex; align-items: center; gap: 8px; }
     .user-avatar {
-      width: 36px; height: 36px; border-radius: 50%; background: var(--accent);
+      width: 44px; height: 44px; border-radius: 50%; background: var(--accent);
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 600; color: #fff; cursor: pointer;
+      font-size: 16px; font-weight: 600; color: #fff; cursor: pointer;
       box-shadow: var(--shadow-card); transition: transform 180ms var(--ease-snappy);
+      -webkit-tap-highlight-color: rgba(0,0,0,0.1); position: relative; z-index: 10;
     }
     .user-avatar:hover { transform: scale(1.05); }
 
@@ -496,11 +506,14 @@
   <div id="appScreen" class="hidden">
     <div class="container">
       <div class="header">
-        <div class="routine-name" id="routineName"></div>
-        <div class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></div>
-        <button class="btn ghost" id="editToggle" data-action="toggle-edit">✏️ Edit</button>
-        <div class="user-menu">
-          <div class="user-avatar" id="userAvatar" data-action="show-user-menu" title="Account"></div>
+        <div class="header-top">
+          <div class="routine-name" id="routineName"></div>
+          <div class="header-controls">
+            <div class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></div>
+            <button class="btn ghost" id="editToggle" data-action="toggle-edit" style="white-space:nowrap;">Edit</button>
+            <button class="user-avatar" id="userAvatar" data-action="show-user-menu" title="Account" style="border:none;outline:none;-webkit-appearance:none;flex-shrink:0;"></button>
+            <button class="btn ghost" data-action="sign-out" style="white-space:nowrap;font-size:12px;color:var(--text-dim);min-height:36px;padding:6px 10px;">Sign Out</button>
+          </div>
         </div>
       </div>
       <div id="editBar" class="edit-bar hidden"></div>
@@ -533,10 +546,24 @@ const firebaseConfig = {
   appId: "1:831465442759:web:bdc7caed23ec1acedadde2"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
-db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+let app, auth, db, FB;
+
+window.addEventListener('firebase-ready', () => {
+
+function initFirebase() {
+  FB = window._firebase;
+  app = FB.initializeApp(firebaseConfig);
+  // Use initializeAuth with explicit persistence for Capacitor compatibility
+  auth = FB.initializeAuth(app, {
+    persistence: [FB.indexedDBLocalPersistence, FB.browserLocalPersistence]
+  });
+  db = FB.getFirestore(app);
+  FB.enableIndexedDbPersistence(db).catch(() => {});
+}
+
+initFirebase();
+// Handle Google redirect result on app reload
+FB.getRedirectResult(auth).catch(() => {});
 
 let currentUser = null;
 let unsubState = null;
@@ -587,8 +614,8 @@ document.getElementById('authSubmit').addEventListener('click', async () => {
   const btn = document.getElementById('authSubmit');
   btn.disabled = true;
   try {
-    if (isSignUp) { await auth.createUserWithEmailAndPassword(email, password); }
-    else { await auth.signInWithEmailAndPassword(email, password); }
+    if (isSignUp) { await FB.createUserWithEmailAndPassword(auth, email, password); }
+    else { await FB.signInWithEmailAndPassword(auth, email, password); }
   } catch (err) {
     const messages = {
       'auth/user-not-found': 'No account with this email. Sign up instead?',
@@ -606,10 +633,18 @@ document.getElementById('googleSignIn').addEventListener('click', async () => {
   const errorEl = document.getElementById('authError');
   errorEl.textContent = '';
   try {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    await auth.signInWithPopup(provider);
+    const provider = new FB.GoogleAuthProvider();
+    try {
+      await FB.signInWithPopup(auth, provider);
+    } catch (popupErr) {
+      if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/operation-not-supported-in-this-environment') {
+        await FB.signInWithRedirect(auth, provider);
+      } else if (popupErr.code !== 'auth/popup-closed-by-user') {
+        throw popupErr;
+      }
+    }
   } catch (err) {
-    if (err.code !== 'auth/popup-closed-by-user') errorEl.textContent = err.message;
+    errorEl.textContent = err.message;
   }
 });
 
@@ -618,7 +653,7 @@ document.getElementById('forgotPassword').addEventListener('click', async () => 
   const errorEl = document.getElementById('authError');
   if (!email) { errorEl.textContent = 'Enter your email first, then click forgot password.'; return; }
   try {
-    await auth.sendPasswordResetEmail(email);
+    await FB.sendPasswordResetEmail(auth, email);
     errorEl.style.color = 'var(--success)';
     errorEl.textContent = 'Password reset email sent! Check your inbox.';
     setTimeout(() => { errorEl.style.color = ''; }, 5000);
@@ -1039,9 +1074,9 @@ function saveStateToCloud() {
     routineId: S.routineId, routineName: S.routineName, discipline: S.discipline,
     blocks: S.blocks, checked: S.checked,
     collapsed: Object.fromEntries(Object.entries(S.collapsed)),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: FB.serverTimestamp(),
   };
-  db.collection('users').doc(currentUser.uid).set(data, { merge: true }).catch(err => {
+  FB.setDoc(FB.doc(db, 'users', currentUser.uid), data, { merge: true }).catch(err => {
     console.warn('Cloud save failed:', err.message);
   });
 }
@@ -1089,7 +1124,7 @@ function saveRoutineToLibrary(name) {
   routines.push(routineData);
   localStorage.setItem('routines_library', JSON.stringify(routines));
   if (currentUser) {
-    db.collection('users').doc(currentUser.uid).collection('routines').doc(id).set(routineData).catch(() => {});
+    FB.setDoc(FB.doc(db, 'users', currentUser.uid, 'routines', id), routineData).catch(() => {});
   }
   return id;
 }
@@ -1108,7 +1143,7 @@ function deleteRoutineFromLibrary(id) {
   const routines = getRoutines().filter(x => x.id !== id);
   localStorage.setItem('routines_library', JSON.stringify(routines));
   if (currentUser) {
-    db.collection('users').doc(currentUser.uid).collection('routines').doc(id).delete().catch(() => {});
+    FB.deleteDoc(FB.doc(db, 'users', currentUser.uid, 'routines', id)).catch(() => {});
   }
 }
 
@@ -1117,8 +1152,8 @@ function deleteRoutineFromLibrary(id) {
 function startCloudSync() {
   if (!currentUser) return;
   const uid = currentUser.uid;
-  unsubState = db.collection('users').doc(uid).onSnapshot(doc => {
-    if (doc.exists && doc.metadata.hasPendingWrites === false) {
+  unsubState = FB.onSnapshot(FB.doc(db, 'users', uid), doc => {
+    if (doc.exists() && doc.metadata.hasPendingWrites === false) {
       const data = doc.data();
       if (data.blocks) {
         loadStateFromData(data);
@@ -1131,7 +1166,7 @@ function startCloudSync() {
       }
     }
   });
-  unsubRoutines = db.collection('users').doc(uid).collection('routines').onSnapshot(snapshot => {
+  unsubRoutines = FB.onSnapshot(FB.collection(db, 'users', uid, 'routines'), snapshot => {
     if (snapshot.metadata.hasPendingWrites) return;
     const routines = [];
     snapshot.forEach(doc => routines.push(doc.data()));
@@ -1147,15 +1182,15 @@ function stopCloudSync() {
 async function initUserData() {
   if (!currentUser) return;
   const uid = currentUser.uid;
-  const doc = await db.collection('users').doc(uid).get();
-  if (doc.exists && doc.data().blocks) {
-    loadStateFromData(doc.data());
+  const userDoc = await FB.getDoc(FB.doc(db, 'users', uid));
+  if (userDoc.exists() && userDoc.data().blocks) {
+    loadStateFromData(userDoc.data());
     localStorage.setItem('current_state', JSON.stringify({
       routineId: S.routineId, routineName: S.routineName,
       discipline: S.discipline, blocks: S.blocks,
       checked: S.checked, collapsed: S.collapsed,
     }));
-    const routinesSnap = await db.collection('users').doc(uid).collection('routines').get();
+    const routinesSnap = await FB.getDocs(FB.collection(db, 'users', uid, 'routines'));
     const routines = [];
     routinesSnap.forEach(doc => routines.push(doc.data()));
     localStorage.setItem('routines_library', JSON.stringify(routines));
@@ -1167,7 +1202,7 @@ async function initUserData() {
 
 // ===== AUTH STATE =====
 
-auth.onAuthStateChanged(async (user) => {
+FB.onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     showScreen('loadingScreen');
@@ -1463,7 +1498,7 @@ document.addEventListener('click', (e) => {
       S.editMode = !S.editMode; S.collapsed = {}; render(); break;
     case 'switch-discipline': showDisciplineModal(); break;
     case 'show-user-menu': showUserMenu(); break;
-    case 'sign-out': closeModal(); auth.signOut(); break;
+    case 'sign-out': closeModal(); FB.signOut(auth); break;
     case 'toggle-theme': toggleTheme(); closeModal(); break;
     case 'toggle-collapse':
       if (bi !== null) { S.collapsed[bi] = S.collapsed[bi] !== false ? false : true; renderBlocks(); } break;
@@ -1592,6 +1627,8 @@ document.addEventListener('click', (e) => {
     newMenu.classList.add('hidden');
   }
 });
+
+}); // end firebase-ready
 </script>
 </body>
 </html>
