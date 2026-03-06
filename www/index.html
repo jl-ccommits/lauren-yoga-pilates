@@ -561,9 +561,14 @@ function initFirebase() {
   FB.enableIndexedDbPersistence(db).catch(() => {});
 }
 
-initFirebase();
-// Handle Google redirect result on app reload
-FB.getRedirectResult(auth).catch(() => {});
+// Detect if running on GitHub Pages (no auth needed) vs Capacitor/localhost (auth required)
+const isGitHubPages = location.hostname.includes('github.io');
+
+if (!isGitHubPages) {
+  initFirebase();
+  // Handle Google redirect result on app reload
+  FB.getRedirectResult(auth).catch(() => {});
+}
 
 let currentUser = null;
 let unsubState = null;
@@ -1202,21 +1207,28 @@ async function initUserData() {
 
 // ===== AUTH STATE =====
 
-FB.onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    currentUser = user;
-    showScreen('loadingScreen');
-    try { await initUserData(); } catch (err) { loadState(); }
-    startCloudSync();
-    showScreen('appScreen');
-    updateUserAvatar();
-    render();
-  } else {
-    currentUser = null;
-    stopCloudSync();
-    showScreen('authScreen');
-  }
-});
+if (isGitHubPages) {
+  // No auth on GitHub Pages — go straight to app with localStorage
+  loadState();
+  showScreen('appScreen');
+  render();
+} else {
+  FB.onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      showScreen('loadingScreen');
+      try { await initUserData(); } catch (err) { loadState(); }
+      startCloudSync();
+      showScreen('appScreen');
+      updateUserAvatar();
+      render();
+    } else {
+      currentUser = null;
+      stopCloudSync();
+      showScreen('authScreen');
+    }
+  });
+}
 
 function updateUserAvatar() {
   if (!currentUser) return;
