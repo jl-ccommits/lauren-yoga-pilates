@@ -1,1265 +1,1471 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pilates & Yoga Routine Tracker</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mat Pilates Routine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
-    :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --accent: #7c6af7;
-      --accent2: #a78bfa;
-      --text: #e8eaf6;
-      --text-mid: #9094b0;
-      --text-dim: #5a5f7a;
-      --slate: #3b4a6b;
-      --rose: #6b3b5a;
-      --teal: #2d5a5a;
-      --sage: #3b5a3b;
-      --amber: #5a4a2d;
-      --border: rgba(255,255,255,0.06);
-      --border-bright: rgba(255,255,255,0.12);
-      --radius: 16px;
-      --radius-sm: 10px;
-    }
+  :root {
+    --bg: #f8f6f3;
+    --card: #ffffff;
+    --accent: #8b7d6b;
+    --accent-dark: #5c5147;
+    --text: #2d2a26;
+    --text-mid: #6b6560;
+    --text-light: #9e9590;
+    --warm: #c9a87c;
+    --warm-light: #f5ede3;
+    --sage: #7a9178;
+    --sage-light: #e6efe5;
+    --rose: #b8878f;
+    --rose-light: #f5e6e9;
+    --slate: #7e8e9a;
+    --slate-light: #e4ebf0;
+    --clay: #b08968;
+    --clay-light: #f0e4d8;
+    --mauve: #9b8aa6;
+    --mauve-light: #ede6f2;
+    --shadow: 0 1px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
+    --radius: 14px;
+  }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
-    }
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
 
-    .container { max-width: 540px; margin: 0 auto; padding: 0 16px; }
+  /* Top progress */
+  .top-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 3px; background: rgba(0,0,0,0.04); z-index: 100;
+  }
+  .top-bar-fill {
+    height: 100%; background: var(--sage);
+    transition: width 0.4s ease;
+  }
 
-    /* ---- Buttons ---- */
-    .btn {
-      padding: 6px 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
-      color: var(--text);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      font: 500 13px/1.4 'Inter', sans-serif;
-      transition: all 0.2s;
-    }
-    .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .btn.primary:hover { background: var(--accent2); border-color: var(--accent2); }
-    .btn.danger:hover { background: #ff6b6b; border-color: #ff6b6b; color: var(--bg); }
-    .btn.active { background: #16a34a; border-color: #22c55e; }
-    .btn.lg { padding: 10px 16px; font-weight: 600; }
-    .btn.block { width: 100%; text-align: center; }
+  /* Header */
+  .header {
+    padding: 32px 20px 16px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 20px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--accent-dark);
+  }
+  .header .subtitle {
+    font-size: 13px; color: var(--text-light); margin-top: 6px;
+    font-weight: 400; letter-spacing: 0.3px;
+  }
 
-    /* ---- Header ---- */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 12px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .routine-name { flex: 1; font-size: 18px; font-weight: 600; min-width: 0; word-break: break-word; }
-    .routine-name input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 4px 8px; border-radius: var(--radius-sm); font: 600 18px 'Inter', sans-serif; width: 100%;
-    }
-    .discipline-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 20px;
-      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-    }
-    .discipline-badge:hover { background: var(--accent); border-color: var(--accent); }
+  /* Home */
+  .home { padding: 0 16px 100px; }
 
-    /* ---- Progress ---- */
-    .progress-section { margin-bottom: 16px; }
-    .progress-bar {
-      width: 100%; height: 6px; background: var(--surface2);
-      border-radius: 3px; overflow: hidden; margin-bottom: 8px; border: 1px solid var(--border);
-    }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; }
-    .progress-text { font-size: 12px; color: var(--text-mid); }
-    .progress-row { display: flex; justify-content: space-between; align-items: center; }
+  .block-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    border: 1.5px solid transparent;
+    position: relative; overflow: hidden;
+  }
+  .block-card:active { transform: scale(0.98); }
+  .block-card.completed { border-color: var(--sage); opacity: 0.75; }
+  .block-card.completed::before {
+    content: ''; position: absolute; top: 0; left: 0; bottom: 0;
+    width: 3px; background: var(--sage);
+  }
 
-    /* ---- Equipment Filter ---- */
-    .eq-filter { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .eq-chip {
-      padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border-bright);
-      border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-    }
-    .eq-chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .block-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0; font-weight: 600;
+  }
+  .block-info { flex: 1; min-width: 0; }
+  .block-info h3 { font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text); }
+  .block-info .meta { font-size: 11.5px; color: var(--text-light); margin-top: 2px; letter-spacing: 0.2px; }
 
-    /* ---- Edit Top Bar ---- */
-    .edit-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-    .edit-bar .btn { flex: 1; min-width: 80px; }
+  .equip-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .equip-tag {
+    font-size: 10.5px; padding: 2px 8px; border-radius: 20px;
+    font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase;
+  }
 
-    /* ---- Block Cards ---- */
-    .blocks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-    .block-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden; transition: all 0.2s;
-    }
-    .block-card:hover { border-color: var(--border-bright); }
+  .block-card .arrow { color: var(--text-light); font-size: 16px; flex-shrink: 0; opacity: 0.4; }
+  .block-card .check { display: none; font-size: 16px; color: var(--sage); flex-shrink: 0; }
+  .block-card.completed .arrow { display: none; }
+  .block-card.completed .check { display: block; }
 
-    .block-header {
-      display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer;
-      background: var(--surface); border-bottom: 1px solid var(--border);
-    }
-    .block-emoji { font-size: 24px; min-width: 32px; text-align: center; }
-    .block-info { flex: 1; min-width: 0; }
-    .block-title { font-weight: 600; font-size: 15px; }
-    .block-title input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 4px 8px; border-radius: var(--radius-sm); font: 600 15px 'Inter', sans-serif; width: 100%;
-    }
-    .eq-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-    .eq-badge {
-      display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 12px;
-      font-size: 11px; font-weight: 500; color: var(--text-mid);
-    }
-    .toggle-arrow { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-    .toggle-arrow.collapsed { transform: rotate(-90deg); }
-    .block-actions { display: flex; gap: 4px; align-items: center; }
+  /* ──── Exercise View ──── */
+  .exercise-view {
+    display: none; min-height: 100dvh; flex-direction: column;
+  }
+  .exercise-view.active { display: flex; }
 
-    .block-content { display: flex; flex-direction: column; max-height: 2000px; overflow: hidden; transition: max-height 0.3s; }
-    .block-content.collapsed { max-height: 0; }
+  .ev-top {
+    padding: 20px 20px 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .ev-back {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--card); border: 1px solid rgba(0,0,0,0.06);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; color: var(--text-mid);
+    flex-shrink: 0;
+  }
+  .ev-block-title { font-size: 15px; font-weight: 600; flex: 1; color: var(--text); }
 
-    /* ---- Transition Card ---- */
-    .transition-card {
-      padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius); display: flex; align-items: center; gap: 12px; font-size: 14px;
-    }
+  .ev-mode-toggle {
+    display: flex; background: rgba(0,0,0,0.04); border-radius: 8px; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .ev-mode-btn {
+    padding: 6px 12px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; background: transparent;
+    color: var(--text-light); transition: all 0.2s;
+    font-family: inherit;
+  }
+  .ev-mode-btn.active {
+    background: var(--card); color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-radius: 6px;
+  }
 
-    /* ---- Step Rows ---- */
-    .step-row {
-      display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--border);
-    }
-    .step-checkbox { width: 20px; height: 20px; min-width: 20px; margin-top: 2px; cursor: pointer; accent-color: var(--accent); }
-    .step-content { flex: 1; min-width: 0; }
-    .step-emoji { font-size: 18px; margin-bottom: 4px; }
-    .step-name { font-weight: 500; font-size: 14px; margin-bottom: 2px; }
-    .step-detail { font-size: 13px; color: var(--text-mid); }
-    .step-row.checked { opacity: 0.5; }
-    .step-row.checked .step-name { text-decoration: line-through; }
+  .ev-equip-row {
+    display: flex; gap: 6px; padding: 0 20px; margin-bottom: 6px;
+  }
 
-    .pulse-badge {
-      display: inline-block; margin-left: 6px; padding: 2px 8px;
-      background: linear-gradient(90deg, #ff6b6b, #ff8c8c); color: white;
-      border-radius: 12px; font-size: 11px; font-weight: 600;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+  .ev-progress {
+    margin: 0 20px; height: 4px; background: rgba(0,0,0,0.04);
+    border-radius: 2px; overflow: hidden;
+  }
+  .ev-progress-fill {
+    height: 100%; background: var(--accent);
+    border-radius: 2px; transition: width 0.3s ease;
+  }
+  .ev-progress-text {
+    text-align: center; font-size: 11px; color: var(--text-light);
+    margin-top: 5px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
 
-    /* ---- Quiz Mode ---- */
-    .quiz-card { cursor: pointer; user-select: none; }
-    .quiz-card .step-detail { display: none; }
-    .quiz-card.revealed .step-detail { display: block; }
-    .quiz-toggle {
-      padding: 2px 8px; background: var(--surface2); border: 1px solid var(--border-bright);
-      border-radius: 12px; font-size: 11px; cursor: pointer; color: var(--text-mid); transition: all 0.2s;
-    }
-    .quiz-toggle:hover, .quiz-toggle.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  /* ──── Card Mode ──── */
+  .card-mode { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+  .card-mode.hidden { display: none; }
 
-    /* ---- Edit Step Rows ---- */
-    .step-edit {
-      display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); align-items: flex-start;
-    }
-    .step-edit input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 6px 8px; border-radius: var(--radius-sm); font: 13px 'Inter', sans-serif;
-    }
-    .step-edit input[type="text"] { flex: 1; }
-    .step-emoji-input { width: 40px; text-align: center; font-size: 18px; }
-    .step-btns { display: flex; gap: 4px; }
-    .step-btns button {
-      padding: 4px 6px; background: var(--surface2); border: 1px solid var(--border-bright);
-      color: var(--text); border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; transition: all 0.2s;
-    }
-    .step-btns button:hover { background: var(--accent); border-color: var(--accent); }
-    .step-btns button.danger:hover { background: #ff6b6b; color: var(--bg); }
+  .ev-card {
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow-md);
+    padding: 36px 28px 30px;
+    width: 100%; max-width: 400px;
+    text-align: center;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-    .add-step-btn {
-      padding: 10px 16px; background: var(--surface2); border: 1px dashed var(--border-bright);
-      color: var(--text-mid); border-radius: var(--radius-sm); cursor: pointer; font: 500 13px 'Inter', sans-serif;
-      transition: all 0.2s; margin: 12px 16px;
-    }
-    .add-step-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .ev-card .step-emoji { font-size: 40px; margin-bottom: 16px; line-height: 1; }
+  .ev-card .step-name {
+    font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 10px;
+    color: var(--text);
+  }
+  .ev-card .step-detail {
+    font-size: 14px; color: var(--text-mid); line-height: 1.6;
+  }
 
-    .add-block-btn {
-      padding: 12px 16px; background: var(--surface2); border: 2px dashed var(--border-bright);
-      color: var(--text-mid); border-radius: var(--radius); cursor: pointer; font: 600 14px 'Inter', sans-serif;
-      transition: all 0.2s; text-align: center; margin-bottom: 24px;
-    }
-    .add-block-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 18px; }
 
-    /* ---- Edit Toolbar per block ---- */
-    .edit-toolbar {
-      display: flex; gap: 6px; align-items: center; padding: 8px 16px;
-      background: rgba(255,255,255,0.02); flex-wrap: wrap;
-    }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.2px;
+  }
+  .badge-pulse { background: var(--clay-light); color: var(--clay); }
+  .badge-hold { background: var(--rose-light); color: var(--rose); }
+  .badge-transition { background: var(--mauve-light); color: var(--mauve); }
+  .badge-repeat { background: var(--sage-light); color: var(--sage); }
+  .badge-flow { background: var(--slate-light); color: var(--slate); }
+  .badge-side { background: var(--warm-light); color: var(--clay); }
 
-    /* ---- Library Panel ---- */
-    .library-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 8900; animation: fadeIn 0.2s;
-    }
-    .library-panel {
-      position: fixed; right: 0; top: 0; bottom: 0; width: 100%; max-width: 400px;
-      background: var(--surface); border-left: 1px solid var(--border-bright); z-index: 9000;
-      display: flex; flex-direction: column; animation: slideIn 0.3s; box-shadow: -8px 0 24px rgba(0,0,0,0.3);
-    }
-    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .library-header { padding: 16px; border-bottom: 1px solid var(--border-bright); display: flex; justify-content: space-between; align-items: center; }
-    .library-title { font-size: 16px; font-weight: 700; }
-    .library-content { flex: 1; overflow-y: auto; padding: 16px; }
-    .library-empty { text-align: center; color: var(--text-mid); padding: 32px 16px; font-size: 14px; }
+  /* Nav */
+  .ev-nav {
+    padding: 14px 20px 30px; display: flex; gap: 10px;
+  }
+  .ev-btn {
+    flex: 1; padding: 14px; border-radius: 12px;
+    font-size: 15px; font-weight: 600; border: none;
+    cursor: pointer; transition: transform 0.1s;
+    font-family: inherit; letter-spacing: 0.3px;
+  }
+  .ev-btn:active { transform: scale(0.97); }
+  .ev-btn-prev { background: var(--card); color: var(--text-mid); border: 1.5px solid rgba(0,0,0,0.06); }
+  .ev-btn-next { background: var(--accent-dark); color: #fff; }
+  .ev-btn:disabled { opacity: 0.3; cursor: default; }
+  .ev-btn-done { background: var(--sage); color: #fff; }
 
-    .routine-card {
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: var(--radius);
-      padding: 12px; margin-bottom: 12px; transition: all 0.2s;
-    }
-    .routine-card:hover { border-color: var(--accent); }
-    .routine-card-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-    .routine-card-meta { font-size: 12px; color: var(--text-mid); margin-bottom: 8px; }
-    .routine-card-btns { display: flex; gap: 8px; }
-    .routine-card-btns .btn { flex: 1; }
+  /* ──── List Mode ──── */
+  .list-mode {
+    flex: 1; padding: 12px 20px 100px; overflow-y: auto;
+  }
+  .list-mode.hidden { display: none; }
 
-    /* ---- Modal ---- */
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px;
-    }
-    .modal {
-      background: var(--surface); border: 1px solid var(--border-bright); border-radius: var(--radius);
-      padding: 24px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-    .modal h3 { font-size: 18px; margin-bottom: 16px; }
-    .modal p { color: var(--text-mid); font-size: 14px; margin-bottom: 16px; }
-    .modal-form { display: flex; flex-direction: column; gap: 12px; }
-    .form-input {
-      background: var(--surface2); border: 1px solid var(--border-bright); color: var(--text);
-      padding: 10px 12px; border-radius: var(--radius-sm); font: 14px 'Inter', sans-serif;
-    }
-    .form-input:focus { outline: none; border-color: var(--accent); }
-    .modal-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+  .list-item {
+    display: flex; gap: 12px; padding: 14px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    align-items: flex-start;
+  }
+  .list-item:last-child { border-bottom: none; }
 
-    /* ---- Dropdown ---- */
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-menu {
-      position: absolute; top: 100%; right: 0; background: var(--surface);
-      border: 1px solid var(--border-bright); border-radius: var(--radius-sm);
-      min-width: 200px; z-index: 1000; margin-top: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-    }
-    .dropdown-menu button {
-      width: 100%; text-align: left; padding: 10px 16px; background: none;
-      border: none; border-bottom: 1px solid var(--border); color: var(--text);
-      cursor: pointer; font-size: 13px; transition: background 0.2s;
-    }
-    .dropdown-menu button:last-child { border-bottom: none; }
-    .dropdown-menu button:hover { background: var(--surface2); }
+  .list-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,0,0,0.04); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text-light);
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .list-item.is-pulse .list-num { background: var(--clay-light); color: var(--clay); }
+  .list-item.is-hold .list-num { background: var(--rose-light); color: var(--rose); }
+  .list-item.is-repeat .list-num { background: var(--sage-light); color: var(--sage); }
+  .list-item.is-transition .list-num { background: var(--mauve-light); color: var(--mauve); }
 
-    /* ---- Utility ---- */
-    .hidden { display: none !important; }
-    .success { color: #22c55e; font-size: 12px; margin-top: 8px; }
-    .error { color: #ff6b6b; font-size: 12px; margin-top: 8px; }
+  .list-content { flex: 1; }
+  .list-content .list-name {
+    font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text);
+  }
+  .list-content .list-detail {
+    font-size: 12.5px; color: var(--text-light); line-height: 1.45; margin-top: 2px;
+  }
+  .list-content .list-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .list-content .badge { font-size: 10.5px; padding: 3px 9px; }
 
-    @media (max-width: 540px) {
-      .container { padding: 0 12px; }
-      .header { padding: 12px 0; }
-      .edit-bar { flex-direction: column; }
-      .edit-bar .btn { min-width: auto; }
-      .library-panel { max-width: 100%; }
-      .modal { padding: 16px; }
-    }
-  </style>
+  .list-emoji { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+  /* Completion */
+  .completion-screen {
+    display: none; min-height: 100dvh; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px; text-align: center;
+  }
+  .completion-screen.active { display: flex; }
+  .completion-screen .done-icon { font-size: 56px; margin-bottom: 20px; }
+  .completion-screen h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .completion-screen p { font-size: 14px; color: var(--text-light); max-width: 280px; line-height: 1.5; }
+  .completion-screen .ev-btn { margin-top: 28px; width: 200px; }
+
+  .home-screen { display: block; }
+  .home-screen.hidden { display: none; }
+
+  .reset-bar { text-align: center; padding: 10px 0 24px; }
+  .reset-btn {
+    background: none; border: none; color: var(--text-light);
+    font-size: 12px; cursor: pointer; text-decoration: underline;
+    padding: 8px 16px; font-family: inherit;
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div class="routine-name" id="routineName"></div>
-      <div class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></div>
-      <button class="btn" id="editToggle" data-action="toggle-edit">✏️ Edit</button>
-    </div>
-    <div id="editBar" class="edit-bar hidden"></div>
-    <div id="progressSection" class="progress-section"></div>
-    <div id="eqFilter" class="eq-filter"></div>
-    <div id="blocks" class="blocks"></div>
+
+<div class="top-bar"><div class="top-bar-fill" id="topBarFill"></div></div>
+
+<!-- HOME -->
+<div class="home-screen" id="homeScreen">
+  <div class="header">
+    <h1>Mat Pilates</h1>
+    <div class="subtitle">10 blocks · warm-up · finisher</div>
   </div>
-  <div id="modalContainer"></div>
-  <div id="libraryOverlay" class="library-overlay hidden" data-action="close-library"></div>
-  <div id="libraryPanel" class="library-panel hidden">
-    <div class="library-header">
-      <div class="library-title">My Routines</div>
-      <button class="btn" data-action="close-library">✕</button>
-    </div>
-    <div class="library-content" id="libraryContent"></div>
+  <div class="home" id="blockList"></div>
+  <div class="reset-bar">
+    <button class="reset-btn" onclick="resetAll()">Reset progress</button>
   </div>
+</div>
+
+<!-- EXERCISE VIEW -->
+<div class="exercise-view" id="exerciseView">
+  <div class="ev-top">
+    <button class="ev-back" onclick="goHome()">←</button>
+    <div class="ev-block-title" id="evTitle"></div>
+    <div class="ev-mode-toggle">
+      <button class="ev-mode-btn active" id="btnModeCard" onclick="setMode('card')">Cards</button>
+      <button class="ev-mode-btn" id="btnModeList" onclick="setMode('list')">List</button>
+    </div>
+  </div>
+  <div class="ev-equip-row" id="evEquipRow"></div>
+  <div class="ev-progress"><div class="ev-progress-fill" id="evProgressFill"></div></div>
+  <div class="ev-progress-text" id="evProgressText"></div>
+
+  <!-- Card Mode -->
+  <div class="card-mode" id="cardMode">
+    <div class="ev-card" id="evCard">
+      <div class="step-emoji" id="evEmoji"></div>
+      <div class="step-name" id="evName"></div>
+      <div class="step-detail" id="evDetail"></div>
+      <div class="badge-row" id="evBadges"></div>
+    </div>
+  </div>
+
+  <!-- List Mode -->
+  <div class="list-mode hidden" id="listMode"></div>
+
+  <div class="ev-nav" id="evNav">
+    <button class="ev-btn ev-btn-prev" id="btnPrev" onclick="prevStep()">Back</button>
+    <button class="ev-btn ev-btn-next" id="btnNext" onclick="nextStep()">Next</button>
+  </div>
+</div>
+
+<!-- COMPLETION -->
+<div class="completion-screen" id="completionScreen">
+  <div class="done-icon">✨</div>
+  <h2>Routine Complete</h2>
+  <p>All blocks finished. Beautiful practice.</p>
+  <button class="ev-btn ev-btn-done" onclick="goHome()">Back to Overview</button>
+</div>
 
 <script>
-// ===== DATA =====
+const routine = [
+  {
+    id: "warmup", title: "Warm-up", homeEmoji: "☀️",
+    equipment: [], color: "var(--sage)", colorLight: "var(--sage-light)",
+    steps: [
+      { name: "Seated Cross-Legged", detail: "Hand at heart, hand at belly. Find your breath.", emoji: "🧘🏻‍♀️" },
+      { name: "Seated Cat/Cow", detail: "Flow through spinal flexion and extension.", emoji: "🌊" },
+      { name: "Rolls L & R", detail: "Gentle lateral rolls, left and right.", emoji: "↔️" },
+      { name: "Cat/Cow Again", detail: "Repeat the seated cat/cow flow.", emoji: "🌊" },
+      { name: "Side Arm Stretch & Twist", detail: "Right and left sides. Open through the chest.", emoji: "🌿" },
+    ]
+  },
+  {
+    id: "block1", title: "Block 1 · Seated Ball Work + Weights", homeEmoji: "⚽",
+    equipment: ["ball", "weights"], color: "var(--slate)", colorLight: "var(--slate-light)",
+    steps: [
+      { name: "Full Range Curl — Hands at Chest", detail: "Ball behind back, feet flat on mat. Curl up and down through full range.", emoji: "💫" },
+      { name: "Pulses — Hands at Chest", detail: "Small pulse at the top of the curl.", emoji: "🔥", isPulse: true },
+      { name: "Full Range — Arms Extended", detail: "Same curl, arms extended out in front.", emoji: "➡️" },
+      { name: "Pulses — Arms Extended", detail: "Pulse with arms extended.", emoji: "🔥", isPulse: true },
+      { name: "Twist Right — Full Range", detail: "Rotate to the right, full range curl.", emoji: "↩️", side: "R" },
+      { name: "Hold Twist + Pulse", detail: "Hold the right twist, pulse.", emoji: "🔥", isPulse: true, side: "R" },
+      { name: "Add Right Leg Lift + Twist", detail: "Lift right leg as you twist, full range.", emoji: "🤵", side: "R" },
+      { name: "Pulse — Leg Up, Hold Twist", detail: "Pulse with right leg up, holding the twist.", emoji: "🔥", isPulse: true, side: "R" },
+      { name: "Extend Arms & Knee in Twist", detail: "Extend both arms and knee while holding the twist.", emoji: "⭐" },
+      { name: "Pulse — Fully Extended", detail: "Pulse with everything extended.", emoji: "🔥", isPulse: true },
+      { name: "Hold Wide", detail: "Open wide and hold.", emoji: "🔒", isHold: true },
+      { name: "Repeat on Left", detail: "Start with center work again, then full left side sequence.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "t1", title: "Transition", homeEmoji: "🔀",
+    equipment: ["band"], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "Equipment Swap", detail: "Remove ball, grab band. Band around knees, weights by side.", emoji: "🔀", isTransition: true },
+    ]
+  },
+  {
+    id: "block2", title: "Block 2 · Bridge Series — Band + Weights", homeEmoji: "🌉",
+    equipment: ["band", "weights"], color: "var(--clay)", colorLight: "var(--clay-light)",
+    steps: [
+      { name: "Arms Overhead with Weights", detail: "Extend arms over head holding weights.", emoji: "🙏" },
+      { name: "Full Range Bridge", detail: "Full range bridge pose — lift and lower.", emoji: "🌉" },
+      { name: "2 Up, 2 Down", detail: "2 counts to lift, 2 counts to lower.", emoji: "⏱️" },
+      { name: "Pulses", detail: "Pulse at the top of the bridge.", emoji: "🔥", isPulse: true },
+      { name: "Add Skull Crushers", detail: "Repeat bridge + skull crushers with weights as glutes drop.", emoji: "💀" },
+      { name: "Hold Weights High", detail: "Lock arms extended, hold weights high.", emoji: "🔒", isHold: true },
+      { name: "Knees Push Out on Band — Full Range", detail: "Press knees out against the band, full range.", emoji: "🤵" },
+      { name: "Pulses — Knees Out", detail: "Pulse knees out against the band.", emoji: "🔥", isPulse: true },
+      { name: "Tap R + Lift, Tap L + Lift", detail: "Alternate toe taps with lifts.", emoji: "👃" },
+      { name: "Circles Right", detail: "Circle the hips to the right.", emoji: "⭕", side: "R" },
+      { name: "Circles Left", detail: "Circle the hips to the left.", emoji: "⭕", side: "L" },
+      { name: "Full Range Bridge", detail: "End with full range bridge.", emoji: "🌉" },
+      { name: "Pulses", detail: "Final bridge pulses.", emoji: "🔥", isPulse: true },
+      { name: "Hold at Top", detail: "Hold the bridge at the top. Squeeze.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "block3", title: "Block 3 · Tabletop Glute — Right", homeEmoji: "🍑",
+    equipment: ["band", "ball"], color: "var(--rose)", colorLight: "var(--rose-light)",
+    steps: [
+      { name: "Setup", detail: "Ball under left hand. Tabletop position.", emoji: "📐" },
+      { name: "Donkey Kicks — Left Leg", detail: "Full range donkey kicks, left leg.", emoji: "🤵" },
+      { name: "Up an Inch, Down an Inch", detail: "Tiny controlled range at the top.", emoji: "📏" },
+      { name: "Pulses", detail: "Pulse at the top.", emoji: "🔥", isPulse: true },
+      { name: "Hold Kick + Tricep Pushup", detail: "Hold the kick, tricep pushup with hand on ball. Full range.", emoji: "💪" },
+      { name: "Tricep Pushup Pulses", detail: "Pulse the tricep pushup.", emoji: "🔥", isPulse: true },
+      { name: "Extend Arm & Leg", detail: "Extend opposite arm and leg long.", emoji: "⭐" },
+      { name: "Hold + Pulse Back In", detail: "Hold extension, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Rainbows R & L", detail: "Palm on ball, rainbow the leg right and left.", emoji: "🌈" },
+      { name: "Full Range Lift", detail: "Lift the leg through full range.", emoji: "⬆️" },
+      { name: "Pulses", detail: "Pulse the lift.", emoji: "🔥", isPulse: true },
+      { name: "Elbow to Knee + Extend", detail: "Draw elbow to knee, then extend long.", emoji: "🔗" },
+      { name: "Taps to Corner + Lift", detail: "Tap to corner of mat, lift. End with hold.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "block4", title: "Block 4 · Standing Glute — Right", homeEmoji: "🦵",
+    equipment: ["band", "ball"], color: "var(--slate)", colorLight: "var(--slate-light)",
+    steps: [
+      { name: "Full Range Lunge — Lift & Lower", detail: "Full range lunge with lift/lower + hinge.", emoji: "🤵" },
+      { name: "Single Pulses", detail: "Pulse in the lunge.", emoji: "🔥", isPulse: true },
+      { name: "Lift/Lower Front Heel", detail: "Heel raises in lunge position.", emoji: "👠" },
+      { name: "Warrior 3 — Tap & Lift", detail: "Hinge to Warrior 3, tap down and lift.", emoji: "⚔️" },
+      { name: "Warrior 3 Pulses", detail: "Hold Warrior 3, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Back to Lunge — Twists", detail: "Return to lunge, full range rotational twists.", emoji: "🌀" },
+      { name: "Hold Twist + Pulse", detail: "Hold the twist, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Flow Sequence", detail: "Lunge → Inhale W3 arms up → Exhale twist → Back to lunge", emoji: "🌊", isFlow: true },
+    ]
+  },
+  {
+    id: "t2", title: "Transition", homeEmoji: "🔀",
+    equipment: ["ball"], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "To High Plank", detail: "Standing mountain knee drives with ball. Come down to high plank.", emoji: "🔀", isTransition: true },
+    ]
+  },
+  {
+    id: "block5", title: "Block 5 · Core/Arm Series — Both Sides", homeEmoji: "💪",
+    equipment: [], color: "var(--sage)", colorLight: "var(--sage-light)",
+    steps: [
+      { name: "High Plank — Knee Drives + Toe Taps", detail: "x3 each side from high plank.", emoji: "🤸🏻‍♀️" },
+      { name: "Serve the Platter — Both Arms", detail: "Both arms serve the platter.", emoji: "🍽️" },
+      { name: "Alternate Serves R & L", detail: "Alternate right and left arm serves.", emoji: "↔️" },
+      { name: "Hold Out + Pulse", detail: "Hold arms extended, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Flip Up & Down", detail: "Flip hands/arms up and down.", emoji: "↕️" },
+      { name: "Over Under", detail: "Over-under arm pattern.", emoji: "🔀" },
+      { name: "Open Wide", detail: "Repeat series with arms out wide.", emoji: "🦅" },
+      { name: "End with a Hold", detail: "Hold the final position. Breathe.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "block6", title: "Block 6 · Tabletop Glute — Left", homeEmoji: "🍑",
+    equipment: ["band", "ball"], color: "var(--rose)", colorLight: "var(--rose-light)",
+    steps: [
+      { name: "Mirror Block 3 — Left Side", detail: "Full tabletop glute series, opposite side. Ball under right hand, donkey kicks with right leg.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "block7", title: "Block 7 · Standing Glute — Left", homeEmoji: "🦵",
+    equipment: ["band", "ball"], color: "var(--slate)", colorLight: "var(--slate-light)",
+    steps: [
+      { name: "Mirror Block 4 — Left Side", detail: "Full standing glute series, opposite side.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "t3", title: "Transition", homeEmoji: "🔀",
+    equipment: [], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "Side Plank L → R", detail: "High side plank, left to right. Land on left side.", emoji: "🤸🏻‍♀️", isTransition: true },
+    ]
+  },
+  {
+    id: "block8", title: "Block 8 · Sideline — Right", homeEmoji: "🦀",
+    equipment: [], color: "var(--clay)", colorLight: "var(--clay-light)",
+    steps: [
+      { name: "Up for 3, Down Fast", detail: "Slow lift 3 counts, quick lower.", emoji: "⬆️" },
+      { name: "Up Fast, Down for 3", detail: "Quick lift, slow lower 3 counts.", emoji: "⬇️" },
+      { name: "Pulses for 8", detail: "8 quick pulses at the top.", emoji: "🔥", isPulse: true },
+      { name: "Circles Front & Back", detail: "Small circles with top leg, both directions.", emoji: "⭕" },
+      { name: "Pulses", detail: "Pulse at the top.", emoji: "🔥", isPulse: true },
+      { name: "Front Leg Extends — Full Range", detail: "Back leg flat to back of mat. Front leg extends and raises.", emoji: "🤵" },
+      { name: "Pulses", detail: "Pulse the front leg raises.", emoji: "🔥", isPulse: true },
+      { name: "Teaser Lifts", detail: "Add teaser lifts.", emoji: "🚀" },
+      { name: "Teaser Pulses", detail: "Pulse in the teaser.", emoji: "🔥", isPulse: true },
+      { name: "Inner Thigh — Full Range", detail: "Back leg in front of mat. Inner thigh lifts, full range.", emoji: "🤵" },
+      { name: "Pulses — Inner Thigh", detail: "Inner thigh pulses.", emoji: "🔥", isPulse: true },
+      { name: "Circles Front & Back", detail: "Inner thigh circles, both directions.", emoji: "⭕" },
+      { name: "Swings Forward & Back", detail: "Swing bottom leg forward and back.", emoji: "🏌️🏻‍♀️" },
+      { name: "Teaser Lifts — Hold to Finish", detail: "Teaser lifts, hold full teaser to finish.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "t4", title: "Transition", homeEmoji: "🔀",
+    equipment: [], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "Side Plank L → R", detail: "High side plank, left to right. Land on right side.", emoji: "🤸🏻‍♀️", isTransition: true },
+    ]
+  },
+  {
+    id: "block9", title: "Block 9 · Sideline — Left", homeEmoji: "🦀",
+    equipment: [], color: "var(--clay)", colorLight: "var(--clay-light)",
+    steps: [
+      { name: "Mirror Block 8 — Left Side", detail: "Full sideline series, opposite side.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "block10", title: "Block 10 · Final Core & Stretch", homeEmoji: "✨",
+    equipment: [], color: "var(--sage)", colorLight: "var(--sage-light)",
+    steps: [
+      { name: "Hip Lifts × 8", detail: "8 controlled hip lifts.", emoji: "🌑" },
+      { name: "Pulses Up × 16", detail: "16 pulses lifting up.", emoji: "🔥", isPulse: true },
+      { name: "Pulses — Legs Down × 16", detail: "16 pulses lowering legs.", emoji: "🔥", isPulse: true },
+      { name: "Low Hold", detail: "Hold low. Engage core. Breathe.", emoji: "🔒", isHold: true },
+      { name: "Stretch — Side Twists", detail: "Gentle side twists to release.", emoji: "🌀" },
+      { name: "Happy Baby", detail: "Happy baby pose. Let go.", emoji: "👶" },
+      { name: "Glute Bridge", detail: "Gentle glute bridge stretch.", emoji: "🌉" },
+      { name: "Bound Angle", detail: "Bound angle pose. Breathe and release.", emoji: "🦋" },
+    ]
+  },
+];
 
-const EQUIPMENT = {
-  ball: { label: 'Ball', icon: '🏐' },
-  band: { label: 'Band', icon: '🔗' },
-  weights: { label: 'Weights', icon: '🏋️' },
-};
+// STATE
+let currentBlockIndex = -1;
+let currentStepIndex = 0;
+let viewMode = 'card'; // 'card' or 'list'
+let completedBlocks = JSON.parse(localStorage.getItem('mp3') || '{}');
 
-const PILATES_DEFAULT = {
-  name: 'Mat Pilates',
-  discipline: 'pilates',
-  blocks: [
-    {
-      type: 'block', id: 'warmup', title: 'Warm-up', emoji: '🧘‍♀️', equipment: [],
-      color: 'var(--amber)',
-      steps: [
-        { name: 'Seated Cross-Legged', detail: 'Hand at heart, hand at belly. Find your breath.', emoji: '🫁', tags: [] },
-        { name: 'Seated Cat/Cow', detail: 'Flow through spinal flexion and extension.', emoji: '🐈', tags: [] },
-        { name: 'Rolls L & R', detail: 'Gentle lateral rolls, left and right.', emoji: '↔️', tags: [] },
-        { name: 'Cat/Cow Again', detail: 'Repeat the seated cat/cow flow.', emoji: '🐈', tags: [] },
-        { name: 'Side Arm Stretch & Twist R&L', detail: 'Right and left sides. Open through the chest.', emoji: '🙆‍♀️', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block1', title: 'Block 1 · Seated Ball Work + Weights', emoji: '🎯', equipment: ['ball', 'weights'],
-      color: 'var(--slate)',
-      steps: [
-        { name: 'Full Range Curl — Hands at Chest', detail: 'Ball behind back, feet flat on mat. Curl up and down through full range.', emoji: '🫃', tags: [] },
-        { name: 'Pulses — Hands at Chest', detail: 'Small pulse at the top of the curl.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Full Range — Arms Extended', detail: 'Same curl, arms extended out in front.', emoji: '💪', tags: [] },
-        { name: 'Pulses — Arms Extended', detail: 'Pulse with arms extended.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Twist Right — Full Range', detail: 'Rotate to the right, full range curl.', emoji: '🌀', tags: [] },
-        { name: 'Hold Twist + Pulse', detail: 'Hold the right twist, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Add Right Leg Lift + Twist', detail: 'Lift right leg as you twist, full range.', emoji: '🦵', tags: [] },
-        { name: 'Pulse — Leg Up, Hold Twist', detail: 'Pulse with right leg up, holding the twist.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Extend Arms & Knee in Twist', detail: 'Extend both arms and knee while holding the twist.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Pulse — Fully Extended', detail: 'Pulse with everything extended.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Hold Wide', detail: 'Open wide and hold.', emoji: '🧎‍♀️', tags: [] },
-        { name: 'Repeat on Left', detail: 'Start with center work again, then full left side sequence.', emoji: '🔄', tags: [] },
-      ]
-    },
-    {
-      type: 'transition', id: 't1', title: 'Transition: Remove ball, grab band', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
-    {
-      type: 'block', id: 'block2', title: 'Block 2 · Bridge Series — Band + Weights', emoji: '🍑', equipment: ['band', 'weights'],
-      color: 'var(--rose)',
-      steps: [
-        { name: 'Arms Overhead with Weights', detail: 'Extend arms over head holding weights.', emoji: '🏋️‍♀️', tags: [] },
-        { name: 'Full Range Bridge', detail: 'Full range bridge pose — lift and lower.', emoji: '🍑', tags: [] },
-        { name: '2 Up, 2 Down', detail: '2 counts to lift, 2 counts to lower.', emoji: '⏱️', tags: [] },
-        { name: 'Pulses', detail: 'Pulse at the top of the bridge.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Add Skull Crushers', detail: 'Repeat bridge + skull crushers with weights as glutes drop.', emoji: '💀', tags: [] },
-        { name: 'Hold Weights High', detail: 'Lock arms extended, hold weights high.', emoji: '🏋️‍♀️', tags: [] },
-        { name: 'Knees Push Out on Band — Full Range', detail: 'Press knees out against the band, full range.', emoji: '🦵', tags: [] },
-        { name: 'Pulses — Knees Out', detail: 'Pulse knees out against the band.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Tap R + Lift, Tap L + Lift', detail: 'Alternate toe taps with lifts.', emoji: '🦶', tags: [] },
-        { name: 'Circles Right', detail: 'Circle the hips to the right.', emoji: '⭕', tags: [] },
-        { name: 'Circles Left', detail: 'Circle the hips to the left.', emoji: '⭕', tags: [] },
-        { name: 'Full Range Bridge', detail: 'End with full range bridge.', emoji: '🍑', tags: [] },
-        { name: 'Pulses', detail: 'Final bridge pulses.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Hold at Top', detail: 'Hold the bridge at the top. Squeeze.', emoji: '💎', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block3', title: 'Block 3 · Tabletop Glute — Right', emoji: '🦵', equipment: ['band', 'ball'],
-      color: 'var(--teal)',
-      steps: [
-        { name: 'Setup', detail: 'Ball under left hand. Tabletop position.', emoji: '🤲', tags: [] },
-        { name: 'Donkey Kicks — Left Leg', detail: 'Full range donkey kicks, left leg.', emoji: '🦵', tags: [] },
-        { name: 'Up an Inch, Down an Inch', detail: 'Tiny controlled range at the top.', emoji: '📐', tags: [] },
-        { name: 'Pulses', detail: 'Pulse at the top.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Hold Kick + Tricep Pushup', detail: 'Hold the kick, tricep pushup with hand on ball. Full range.', emoji: '💪', tags: [] },
-        { name: 'Tricep Pushup Pulses', detail: 'Pulse the tricep pushup.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Extend Arm & Leg', detail: 'Extend opposite arm and leg long.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Hold + Pulse Back In', detail: 'Hold extension, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Rainbows R & L', detail: 'Palm on ball, rainbow the leg right and left.', emoji: '🌈', tags: [] },
-        { name: 'Full Range Lift', detail: 'Lift the leg through full range.', emoji: '⬆️', tags: [] },
-        { name: 'Pulses', detail: 'Pulse the lift.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Elbow to Knee + Extend', detail: 'Draw elbow to knee, then extend long.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Taps to Corner + Lift', detail: 'Tap to corner of mat, lift. End with hold.', emoji: '💎', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block4', title: 'Block 4 · Standing Glute — Right', emoji: '🏃‍♀️', equipment: ['band', 'ball'],
-      color: 'var(--sage)',
-      steps: [
-        { name: 'Full Range Lunge — Lift & Lower', detail: 'Full range lunge with lift/lower + hinge.', emoji: '🦵', tags: [] },
-        { name: 'Single Pulses', detail: 'Pulse in the lunge.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Lift/Lower Front Heel', detail: 'Heel raises in lunge position.', emoji: '🦶', tags: [] },
-        { name: 'Warrior 3 — Tap & Lift', detail: 'Hinge to Warrior 3, tap down and lift.', emoji: '🧘‍♀️', tags: [] },
-        { name: 'Warrior 3 Pulses', detail: 'Hold Warrior 3, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Back to Lunge — Twists', detail: 'Return to lunge, full range rotational twists.', emoji: '🌀', tags: [] },
-        { name: 'Hold Twist + Pulse', detail: 'Hold the twist, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Flow Sequence', detail: 'Lunge → Inhale W3 arms up → Exhale twist → Back to lunge.', emoji: '🌊', tags: [] },
-      ]
-    },
-    {
-      type: 'transition', id: 't2', title: 'Transition: Standing mountain knee drives with ball → high plank', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
-    {
-      type: 'block', id: 'block5', title: 'Block 5 · Core/Arm Series — Both Sides', emoji: '💪', equipment: [],
-      color: 'var(--slate)',
-      steps: [
-        { name: 'High Plank — Knee Drives + Toe Taps', detail: 'x3 each side from high plank.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Serve the Platter — Both Arms', detail: 'Both arms serve the platter.', emoji: '🙌', tags: [] },
-        { name: 'Alternate Serves R & L', detail: 'Alternate right and left arm serves.', emoji: '↔️', tags: [] },
-        { name: 'Hold Out + Pulse', detail: 'Hold arms extended, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Flip Up & Down', detail: 'Flip hands/arms up and down.', emoji: '🔃', tags: [] },
-        { name: 'Over Under', detail: 'Over-under arm pattern.', emoji: '↕️', tags: [] },
-        { name: 'Open Wide', detail: 'Repeat series with arms out wide.', emoji: '🙆‍♀️', tags: [] },
-        { name: 'End with a Hold', detail: 'Hold the final position. Breathe.', emoji: '💎', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block6', title: 'Block 6 · Tabletop Glute — Left', emoji: '🦵', equipment: ['band', 'ball'],
-      color: 'var(--teal)', mirrorOf: 'block3',
-      steps: [
-        { name: 'Setup', detail: 'Ball under right hand. Tabletop position.', emoji: '🤲', tags: [] },
-        { name: 'Donkey Kicks — Right Leg', detail: 'Full range donkey kicks, right leg.', emoji: '🦵', tags: [] },
-        { name: 'Up an Inch, Down an Inch', detail: 'Tiny controlled range at the top.', emoji: '📐', tags: [] },
-        { name: 'Pulses', detail: 'Pulse at the top.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Hold Kick + Tricep Pushup', detail: 'Hold the kick, tricep pushup with hand on ball. Full range.', emoji: '💪', tags: [] },
-        { name: 'Tricep Pushup Pulses', detail: 'Pulse the tricep pushup.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Extend Arm & Leg', detail: 'Extend opposite arm and leg long.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Hold + Pulse Back In', detail: 'Hold extension, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Rainbows R & L', detail: 'Palm on ball, rainbow the leg right and left.', emoji: '🌈', tags: [] },
-        { name: 'Full Range Lift', detail: 'Lift the leg through full range.', emoji: '⬆️', tags: [] },
-        { name: 'Pulses', detail: 'Pulse the lift.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Elbow to Knee + Extend', detail: 'Draw elbow to knee, then extend long.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Taps to Corner + Lift', detail: 'Tap to corner of mat, lift. End with hold.', emoji: '💎', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block7', title: 'Block 7 · Standing Glute — Left', emoji: '🏃‍♀️', equipment: ['band', 'ball'],
-      color: 'var(--sage)', mirrorOf: 'block4',
-      steps: [
-        { name: 'Full Range Lunge — Lift & Lower', detail: 'Full range lunge with lift/lower + hinge. Left side.', emoji: '🦵', tags: [] },
-        { name: 'Single Pulses', detail: 'Pulse in the lunge.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Lift/Lower Front Heel', detail: 'Heel raises in lunge position.', emoji: '🦶', tags: [] },
-        { name: 'Warrior 3 — Tap & Lift', detail: 'Hinge to Warrior 3, tap down and lift.', emoji: '🧘‍♀️', tags: [] },
-        { name: 'Warrior 3 Pulses', detail: 'Hold Warrior 3, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Back to Lunge — Twists', detail: 'Return to lunge, full range rotational twists.', emoji: '🌀', tags: [] },
-        { name: 'Hold Twist + Pulse', detail: 'Hold the twist, pulse.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Flow Sequence', detail: 'Lunge → Inhale W3 arms up → Exhale twist → Back to lunge.', emoji: '🌊', tags: [] },
-      ]
-    },
-    {
-      type: 'transition', id: 't3', title: 'Transition: Side plank high L→R, land on left side', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
-    {
-      type: 'block', id: 'block8', title: 'Block 8 · Sideline — Right', emoji: '🤸‍♀️', equipment: [],
-      color: 'var(--rose)',
-      steps: [
-        { name: 'Up for 3, Down Fast', detail: 'Slow lift 3 counts, quick lower.', emoji: '⬆️', tags: [] },
-        { name: 'Up Fast, Down for 3', detail: 'Quick lift, slow lower 3 counts.', emoji: '⬇️', tags: [] },
-        { name: 'Pulses for 8', detail: '8 quick pulses at the top.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Circles Front & Back', detail: 'Small circles with top leg, both directions.', emoji: '⭕', tags: [] },
-        { name: 'Pulses', detail: 'Pulse at the top.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Front Leg Extends — Full Range', detail: 'Back leg flat to back of mat. Front leg extends and raises.', emoji: '🦵', tags: [] },
-        { name: 'Pulses', detail: 'Pulse the front leg raises.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Teaser Lifts', detail: 'Add teaser lifts.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Teaser Pulses', detail: 'Pulse in the teaser.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Inner Thigh — Full Range', detail: 'Back leg in front of mat. Inner thigh lifts, full range.', emoji: '🦵', tags: [] },
-        { name: 'Pulses — Inner Thigh', detail: 'Inner thigh pulses.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Circles Front & Back', detail: 'Inner thigh circles, both directions.', emoji: '⭕', tags: [] },
-        { name: 'Swings Forward & Back', detail: 'Swing bottom leg forward and back.', emoji: '🦿', tags: [] },
-        { name: 'Teaser Lifts — Hold to Finish', detail: 'Teaser lifts, hold full teaser to finish.', emoji: '💎', tags: [] },
-      ]
-    },
-    {
-      type: 'transition', id: 't4', title: 'Transition: Side plank high L→R, land on right side', emoji: '🔀', equipment: [], color: 'var(--surface2)', steps: []
-    },
-    {
-      type: 'block', id: 'block9', title: 'Block 9 · Sideline — Left', emoji: '🤸‍♀️', equipment: [],
-      color: 'var(--rose)', mirrorOf: 'block8',
-      steps: [
-        { name: 'Up for 3, Down Fast', detail: 'Slow lift 3 counts, quick lower.', emoji: '⬆️', tags: [] },
-        { name: 'Up Fast, Down for 3', detail: 'Quick lift, slow lower 3 counts.', emoji: '⬇️', tags: [] },
-        { name: 'Pulses for 8', detail: '8 quick pulses at the top.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Circles Front & Back', detail: 'Small circles with top leg, both directions.', emoji: '⭕', tags: [] },
-        { name: 'Pulses', detail: 'Pulse at the top.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Front Leg Extends — Full Range', detail: 'Back leg flat to back of mat. Front leg extends and raises.', emoji: '🦵', tags: [] },
-        { name: 'Pulses', detail: 'Pulse the front leg raises.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Teaser Lifts', detail: 'Add teaser lifts.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Teaser Pulses', detail: 'Pulse in the teaser.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Inner Thigh — Full Range', detail: 'Back leg in front of mat. Inner thigh lifts, full range.', emoji: '🦵', tags: [] },
-        { name: 'Pulses — Inner Thigh', detail: 'Inner thigh pulses.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Circles Front & Back', detail: 'Inner thigh circles, both directions.', emoji: '⭕', tags: [] },
-        { name: 'Swings Forward & Back', detail: 'Swing bottom leg forward and back.', emoji: '🦿', tags: [] },
-        { name: 'Teaser Lifts — Hold to Finish', detail: 'Teaser lifts, hold full teaser to finish.', emoji: '💎', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block10', title: 'Block 10 · Final Core & Stretch', emoji: '🧘‍♀️', equipment: [],
-      color: 'var(--amber)',
-      steps: [
-        { name: 'Hip Lifts × 8', detail: '8 controlled hip lifts.', emoji: '🍑', tags: [] },
-        { name: 'Pulses Up × 16', detail: '16 pulses lifting up.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Pulses — Legs Down × 16', detail: '16 pulses lowering legs.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Low Hold', detail: 'Hold low. Engage core. Breathe.', emoji: '💎', tags: [] },
-        { name: 'Stretch — Side Twists', detail: 'Gentle side twists to release.', emoji: '🌀', tags: [] },
-        { name: 'Happy Baby', detail: 'Happy baby pose. Let go.', emoji: '👶', tags: [] },
-        { name: 'Glute Bridge', detail: 'Gentle glute bridge stretch.', emoji: '🍑', tags: [] },
-        { name: 'Bound Angle', detail: 'Bound angle pose. Breathe and release.', emoji: '🦋', tags: [] },
-      ]
-    },
-  ]
-};
+// EQUIPMENT helpers
+function equipEmoji(e) { return {ball:'🔵', weights:'🏋🏻‍♀️', band:'🟢'}[e]||''; }
+function equipName(e) { return {ball:'Ball', weights:'Weights', band:'Band'}[e]||e; }
 
-const YOGA_DEFAULT = {
-  name: 'Yoga Sculpt',
-  discipline: 'yoga',
-  blocks: [
-    {
-      type: 'block', id: 'warmup', title: 'Warm-up', emoji: '🌅', equipment: [], color: 'var(--amber)',
-      steps: [
-        { name: 'Heart Bench', detail: 'Start in heart bench. Hand at heart, hand at belly.', emoji: '🫀', tags: [] },
-        { name: 'Bound Angle', detail: 'Settle into bound angle. Feel the hips open.', emoji: '🦋', tags: [] },
-        { name: '8 Deep Breaths', detail: 'Take 8 deep breaths. Set your intention for class.', emoji: '🫁', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block1', title: 'Block 1 · Core with Ball + Bridge Series', emoji: '🎯', equipment: ['ball'],
-      color: 'var(--slate)',
-      steps: [
-        { name: 'Right Leg — Roll Ball Up & Down', detail: 'Lift right leg, roll ball up and down the leg. Can hover bottom leg after 4th rep.', emoji: '🏐', tags: [] },
-        { name: 'Hold & Pulse × 8', detail: 'Hold position, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Hold on Right × 8', detail: 'Hold on the right side × 8.', emoji: '💎', tags: [] },
-        { name: 'Ball Weaves In & Out', detail: 'Weave ball in and out of legs.', emoji: '🏐', tags: [] },
-        { name: 'Repeat on Left', detail: 'Full sequence on left leg.', emoji: '🔄', tags: [] },
-        { name: 'Both Legs Straight', detail: 'Straighten both legs, repeat sequence with both legs up.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Bridge — Arms Rise with Ball', detail: 'Come to bridge. Arms rise with ball on the way up.', emoji: '🌉', tags: [] },
-        { name: 'Bridge Full Range', detail: 'Full range bridge — lift and lower.', emoji: '🍑', tags: [] },
-        { name: 'Bridge Pulses', detail: 'Pulse at the top of bridge.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Right Leg Lift — Full Range', detail: 'Lift right leg, continue bridge full range.', emoji: '🦵', tags: [] },
-        { name: 'Right Leg Pulses', detail: 'Pulse with right leg lifted.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Extend Arm & Leg', detail: 'Extend opposite arm and right leg long.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Hold Out & Pulse × 8', detail: 'Hold extension, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Repeat on Left', detail: 'Full bridge sequence on left leg.', emoji: '🔄', tags: [] },
-        { name: 'Roll Ups to Top of Mat', detail: 'Roll all the way up to standing at the top of mat.', emoji: '⬆️', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block2', title: 'Block 2 · Tabletop with Weights', emoji: '🏋️', equipment: ['weights'],
-      color: 'var(--rose)',
-      steps: [
-        { name: 'Cat/Cow', detail: 'Flow through cat and cow in tabletop.', emoji: '🐈', tags: [] },
-        { name: 'Side Twist with Weights', detail: 'Side twist holding weights. Hold, then extend leg.', emoji: '🌀', tags: [] },
-        { name: 'Bird Dog — Full Range', detail: 'Full range bird dog. Extend opposite arm and leg.', emoji: '🐦', tags: [] },
-        { name: 'Bird Dog Pulses', detail: 'Pulse at the extended position.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Elbow to Knee — Hold & Pulse', detail: 'Draw elbow to knee, hold, pulse.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Repeat Left Side', detail: 'Full sequence on left side.', emoji: '🔄', tags: [] },
-        { name: 'Top of Mat', detail: 'Make your way to top of mat for Block 3.', emoji: '⬆️', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block3', title: 'Block 3 · Sun Sals + Chair Series', emoji: '☀️', equipment: ['weights'],
-      color: 'var(--teal)',
-      steps: [
-        { name: '3 Sun Salutations', detail: '3 sun salutations with options. Build heat.', emoji: '☀️', tags: [] },
-        { name: 'Hold Forward Fold — Grab Weights', detail: 'Hold forward fold on last salutation. Grab weights, half lift.', emoji: '🏋️', tags: [] },
-        { name: 'Chair Pose — Lower & Lift Arms', detail: 'Rise to stand, come to chair. Lower and lift arms staying low.', emoji: '🪑', tags: [] },
-        { name: 'Twist Right — Full Range × 8', detail: 'Add twist to the right, stand at center. × 8.', emoji: '🌀', tags: [] },
-        { name: 'Hold Twist Right × 8', detail: 'Hold twist to the right × 8.', emoji: '💎', tags: [] },
-        { name: 'Pulse in Twist × 8', detail: 'Pulse in the held twist × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Repeat on Left', detail: 'Full chair twist sequence on left side.', emoji: '🔄', tags: [] },
-        { name: 'Vinyasa', detail: 'Flow through vinyasa to transition.', emoji: '🌊', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block4', title: 'Block 4 · Right Side Flow (Long Series)', emoji: '🏃‍♀️', equipment: ['weights'],
-      color: 'var(--sage)',
-      steps: [
-        { name: 'Lunge — Arms Back × 8', detail: 'Step right foot forward. Lunge with weights, arms flow back × 8.', emoji: '🦵', tags: [] },
-        { name: 'Twist Right — Full Range × 8', detail: 'Twist to the right, full range × 8.', emoji: '🌀', tags: [] },
-        { name: 'Hold Twist Right × 8', detail: 'Hold twist to the right × 8.', emoji: '💎', tags: [] },
-        { name: 'Warrior 3 to Lunge × 8', detail: 'Flow from warrior 3 to lunge × 8.', emoji: '✈️', tags: [] },
-        { name: 'Hold Warrior 3 — Pulse × 8', detail: 'Hold warrior 3, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'High Lunge to Twist with Arms × 8', detail: 'High lunge, twist with arms × 8.', emoji: '🌀', tags: [] },
-        { name: 'Hold Arms & Twist × 8', detail: 'Hold arms and twist × 8.', emoji: '💎', tags: [] },
-        { name: 'Radiant Warrior', detail: 'Flow through radiant warrior.', emoji: '✨', tags: [] },
-        { name: 'Skandasana', detail: 'Skandasana with arms extended, then bent and extended.', emoji: '🧘‍♀️', tags: [] },
-        { name: 'Warrior 2', detail: 'Warrior 2 — hips open, arms wide.', emoji: '⚔️', tags: [] },
-        { name: 'Dancing Warrior', detail: 'Flow through dancing warrior.', emoji: '💃', tags: [] },
-        { name: 'Arms Up Pulses × 8', detail: 'Arms up, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Arms Down Pulses × 8', detail: 'Arms down, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Arm Circles Forward & Back × 8', detail: 'Arm circles forward and back × 8.', emoji: '⭕', tags: [] },
-        { name: 'Curl & Extend × 8', detail: 'Curl and extend × 8.', emoji: '💪', tags: [] },
-        { name: 'Frame Foot', detail: 'Frame the foot. Transition to plank.', emoji: '🖼️', tags: [] },
-        { name: 'Side Plank Right — Twist with Weights × 8', detail: 'High plank → side plank right. Full range twist with weights × 8.', emoji: '💪', tags: [] },
-        { name: 'Hip Lifts × 8', detail: 'Hip lifts in side plank × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Knees Pull In × 8', detail: 'Drop weights, knees pull in × 8.', emoji: '🤸‍♀️', tags: [] },
-        { name: 'Hip Lifts with Weights Down × 8', detail: 'Hip lifts × 8.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Vinyasa', detail: 'Drop weights. Vinyasa to transition.', emoji: '🌊', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block5', title: 'Block 5 · Left Side Flow', emoji: '🏃‍♀️', equipment: ['weights'],
-      color: 'var(--sage)', mirrorOf: 'block4',
-      steps: [
-        { name: 'Repeat Full Block 4 on Left', detail: 'Mirror all of Block 4 on the left side.', emoji: '🔄', tags: [] },
-      ]
-    },
-    {
-      type: 'transition', id: 't1', title: 'Transition: Repeat flow faster — 4 pulses for everything', emoji: '⚡', equipment: [], color: 'var(--surface2)', steps: []
-    },
-    {
-      type: 'block', id: 'block6', title: 'Block 6 · Core Intermission', emoji: '🏐', equipment: ['ball'],
-      color: 'var(--slate)',
-      steps: [
-        { name: 'Pulses with Hip Lift × 16', detail: 'Pulse with hip lift × 16.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Pulse Hold × 16', detail: 'Hold and pulse × 16.', emoji: '💎', tags: [] },
-        { name: 'Plus Extended Leg × 16', detail: 'Extend leg, continue pulses × 16.', emoji: '🦵', tags: [] },
-        { name: 'Full Roll-Ups × 16', detail: 'Full roll-ups × 16.', emoji: '⬆️', tags: [] },
-        { name: 'Chaturanga', detail: 'Transition through chaturanga.', emoji: '💪', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block7', title: 'Block 7 · Balancing Flow — Right', emoji: '⚖️', equipment: ['weights'],
-      color: 'var(--teal)',
-      steps: [
-        { name: 'High Lunge — Hinge Forward', detail: 'High lunge, hinge forward.', emoji: '🦵', tags: [] },
-        { name: 'Tricep Kickbacks — Full Range', detail: 'Tricep quick backs, full range.', emoji: '💪', tags: [] },
-        { name: 'Tricep Kickbacks — Pulses', detail: 'Pulse the tricep kickbacks.', emoji: '🔥', tags: ['pulse'] },
-        { name: 'Squeeze In', detail: 'Squeeze in through the movement.', emoji: '💎', tags: [] },
-        { name: 'Drop & Fill Bucket', detail: 'Drop and fill bucket.', emoji: '🪣', tags: [] },
-        { name: 'Standing Mountain — Arms Rise', detail: 'Standing mountain with arms rising. Back to airplane.', emoji: '🏔️', tags: [] },
-        { name: 'Figure 4 Stretch', detail: 'Hold standing mountain → figure 4 stretch.', emoji: '🧘‍♀️', tags: [] },
-        { name: 'Tree Pose — Hold', detail: 'Tree pose hold.', emoji: '🌳', tags: [] },
-        { name: 'Balancing Half Moon', detail: 'Balancing half moon. Open up to warrior 2.', emoji: '🌙', tags: [] },
-        { name: 'Extended Side Angle', detail: 'Extended side angle.', emoji: '🌿', tags: [] },
-        { name: 'Revolved Warrior', detail: 'Revolved warrior.', emoji: '🌀', tags: [] },
-        { name: 'Triangle Pose', detail: 'Triangle pose.', emoji: '🔺', tags: [] },
-        { name: 'Drop Weights', detail: 'Set weights down.', emoji: '🏋️', tags: [] },
-        { name: 'Side Plank — Lift Leg', detail: 'Side plank, lift top leg.', emoji: '💪', tags: [] },
-        { name: 'Fallen Triangle to Flip Dog × 3', detail: 'Fallen triangle, flow to flip dog × 3.', emoji: '🌊', tags: [] },
-        { name: 'Pigeon Pose', detail: 'Settle into pigeon pose. Hold and breathe.', emoji: '🕊️', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block8', title: 'Block 8 · Balancing Flow — Left', emoji: '⚖️', equipment: ['weights'],
-      color: 'var(--teal)', mirrorOf: 'block7',
-      steps: [
-        { name: 'Repeat Full Block 7 on Left', detail: 'Mirror all of Block 7 on the left side.', emoji: '🔄', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block9', title: 'Block 9 · Optional Boat Pose', emoji: '⛵', equipment: [],
-      color: 'var(--rose)',
-      steps: [
-        { name: 'Boat Pose Sequence', detail: 'Optional boat pose sequence if more core work is needed.', emoji: '⛵', tags: [] },
-      ]
-    },
-    {
-      type: 'block', id: 'block10', title: 'Block 10 · Cool Down', emoji: '🧘‍♀️', equipment: [],
-      color: 'var(--amber)',
-      steps: [
-        { name: 'Bridge Lifts', detail: 'Gentle bridge lifts to release the spine.', emoji: '🌉', tags: [] },
-        { name: 'Side Twists', detail: 'Supine side twists — both sides.', emoji: '🌀', tags: [] },
-        { name: 'Final Rest / Savasana', detail: 'Final rest. Let everything go. Breathe and release.', emoji: '✨', tags: [] },
-      ]
-    },
-  ]
-};
+// RENDER HOME
+function renderHome() {
+  const list = document.getElementById('blockList');
+  list.innerHTML = '';
+  routine.forEach((block, i) => {
+    if (block.isTransition) return;
+    const card = document.createElement('div');
+    card.className = 'block-card' + (completedBlocks[block.id] ? ' completed' : '');
+    card.onclick = () => openBlock(i);
 
-// ===== STORE =====
+    const equipHTML = block.equipment.length > 0
+      ? '<div class="equip-tags">' + block.equipment.map(e =>
+          `<span class="equip-tag" style="background:${block.colorLight};color:${block.color}">${equipEmoji(e)} ${equipName(e)}</span>`
+        ).join('') + '</div>'
+      : '';
 
-const S = {
-  routineId: null,
-  routineName: 'Mat Pilates',
-  discipline: 'pilates',
-  blocks: JSON.parse(JSON.stringify(PILATES_DEFAULT.blocks)),
-  checked: {},
-  collapsed: {},
-  editMode: false,
-  quizMode: {},
-  quizRevealed: {},
-  eqFilter: new Set(),
-};
+    const steps = block.steps.length;
+    const pulses = block.steps.filter(s => s.isPulse).length;
+    const meta = `${steps} move${steps>1?'s':''}` + (pulses ? ` · ${pulses} pulse set${pulses>1?'s':''}` : '');
 
-function saveState() {
-  const data = {
-    routineId: S.routineId,
-    routineName: S.routineName,
-    discipline: S.discipline,
-    blocks: S.blocks,
-    checked: S.checked,
-    collapsed: Object.fromEntries(Object.entries(S.collapsed)),
-  };
-  localStorage.setItem('current_state', JSON.stringify(data));
-}
-
-function loadState() {
-  try {
-    const raw = localStorage.getItem('current_state');
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    S.routineId = data.routineId || null;
-    S.routineName = data.routineName || 'My Routine';
-    S.discipline = data.discipline || 'pilates';
-    S.blocks = data.blocks || [];
-    S.checked = data.checked || {};
-    S.collapsed = data.collapsed || {};
-  } catch(e) { /* ignore corrupt data */ }
-}
-
-function getRoutines() {
-  try { return JSON.parse(localStorage.getItem('routines_library') || '[]'); }
-  catch(e) { return []; }
-}
-
-function saveRoutineToLibrary(name) {
-  const routines = getRoutines();
-  const id = 'r_' + Date.now();
-  routines.push({
-    id, name, discipline: S.discipline,
-    savedAt: new Date().toISOString(),
-    blocks: JSON.parse(JSON.stringify(S.blocks)),
-  });
-  localStorage.setItem('routines_library', JSON.stringify(routines));
-  return id;
-}
-
-function loadRoutineFromLibrary(id) {
-  const routines = getRoutines();
-  const r = routines.find(x => x.id === id);
-  if (!r) return;
-  S.routineId = r.id;
-  S.routineName = r.name;
-  S.discipline = r.discipline;
-  S.blocks = JSON.parse(JSON.stringify(r.blocks));
-  S.checked = {};
-  S.collapsed = {};
-  S.quizMode = {};
-  S.quizRevealed = {};
-  saveState();
-}
-
-function deleteRoutineFromLibrary(id) {
-  const routines = getRoutines().filter(x => x.id !== id);
-  localStorage.setItem('routines_library', JSON.stringify(routines));
-}
-
-// ===== RENDER =====
-
-function getEquipmentList() {
-  const eq = new Set();
-  S.blocks.forEach(b => (b.equipment || []).forEach(e => eq.add(e)));
-  return [...eq].sort();
-}
-
-function shouldShow(block) {
-  if (S.eqFilter.size === 0) return true;
-  if (block.type === 'transition') return true;
-  return (block.equipment || []).some(e => S.eqFilter.has(e));
-}
-
-function renderHeader() {
-  const nameEl = document.getElementById('routineName');
-  if (S.editMode) {
-    if (!nameEl.querySelector('input')) {
-      nameEl.innerHTML = `<input type="text" value="${esc(S.routineName)}" id="routineNameInput">`;
-    }
-  } else {
-    nameEl.textContent = S.routineName;
-  }
-
-  const badge = document.getElementById('disciplineBadge');
-  badge.textContent = S.discipline === 'yoga' ? '🧘 Yoga' : '🏋️ Pilates';
-
-  const toggle = document.getElementById('editToggle');
-  toggle.textContent = S.editMode ? '✅ Done' : '✏️ Edit';
-  toggle.classList.toggle('active', S.editMode);
-
-  const editBar = document.getElementById('editBar');
-  if (S.editMode) {
-    editBar.classList.remove('hidden');
-    editBar.innerHTML = `
-      <button class="btn lg primary" data-action="save-routine">💾 Save</button>
-      <button class="btn lg" data-action="load-routines">📂 Routines</button>
-      <div class="dropdown">
-        <button class="btn lg" id="newBtn">📄 New</button>
-        <div id="newMenu" class="dropdown-menu hidden">
-          <button data-action="new-pilates">🏋️ New Pilates</button>
-          <button data-action="new-yoga">🧘 New Yoga</button>
-          <button data-action="new-blank">📄 Start Blank</button>
-        </div>
+    card.innerHTML = `
+      <div class="block-icon" style="background:${block.colorLight}">${block.homeEmoji}</div>
+      <div class="block-info">
+        <h3>${block.title}</h3>
+        <div class="meta">${meta}</div>
+        ${equipHTML}
       </div>
+      <span class="arrow">›</span>
+      <span class="check">✓</span>
     `;
-  } else {
-    editBar.classList.add('hidden');
-  }
-}
-
-function renderProgress() {
-  const section = document.getElementById('progressSection');
-  if (S.editMode) { section.innerHTML = ''; return; }
-
-  const visible = S.blocks.filter(shouldShow);
-  let total = 0, done = 0;
-  visible.forEach((b, _) => {
-    if (b.type === 'transition') return;
-    const bi = S.blocks.indexOf(b);
-    b.steps.forEach((_, si) => { total++; if (S.checked[`${bi}_${si}`]) done++; });
+    list.appendChild(card);
   });
-  const pct = total === 0 ? 0 : Math.round((done / total) * 100);
-  section.innerHTML = `
-    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-    <div class="progress-row">
-      <span class="progress-text">${pct}% complete</span>
-      <button class="btn" data-action="start-fresh">Start Fresh</button>
-    </div>
-  `;
+  updateTopBar();
 }
 
-function renderEqFilter() {
-  const el = document.getElementById('eqFilter');
-  const eqs = getEquipmentList();
-  if (eqs.length === 0) { el.innerHTML = ''; return; }
-  el.innerHTML = eqs.map(e => {
-    const info = EQUIPMENT[e] || { label: e, icon: '🔧' };
-    return `<button class="eq-chip ${S.eqFilter.has(e) ? 'active' : ''}" data-action="toggle-eq" data-eq="${e}">${info.icon} ${info.label}</button>`;
-  }).join('');
+// OPEN BLOCK
+function openBlock(index) {
+  currentBlockIndex = index;
+  currentStepIndex = 0;
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('exerciseView').classList.add('active');
+  document.getElementById('completionScreen').classList.remove('active');
+  renderBlock();
 }
 
-function renderBlocks() {
-  const el = document.getElementById('blocks');
-  const visible = S.blocks.filter(shouldShow);
+function renderBlock() {
+  const block = routine[currentBlockIndex];
+  document.getElementById('evTitle').textContent = block.title;
 
-  el.innerHTML = visible.map(block => {
-    const bi = S.blocks.indexOf(block);
-    if (block.type === 'transition') {
-      return `<div class="transition-card"><span style="font-size:20px">${block.emoji}</span><span>${block.title}</span></div>`;
-    }
-    const isCollapsed = S.collapsed[bi] !== false;
-    const isQuiz = S.quizMode[bi] === true;
-    const eqHtml = (block.equipment || []).map(e => {
-      const info = EQUIPMENT[e] || { label: e, icon: '🔧' };
-      return `<span class="eq-badge">${info.icon} ${info.label}</span>`;
-    }).join('');
+  // Equipment row
+  const equipRow = document.getElementById('evEquipRow');
+  if (block.equipment.length) {
+    equipRow.innerHTML = block.equipment.map(e =>
+      `<span class="equip-tag" style="background:${block.colorLight};color:${block.color}">${equipEmoji(e)} ${equipName(e)}</span>`
+    ).join('');
+    equipRow.style.display = 'flex';
+  } else {
+    equipRow.style.display = 'none';
+  }
 
-    let content = '';
-    if (S.editMode) {
-      content = renderEditSteps(block, bi);
-      content += `<button class="add-step-btn" data-action="add-step" data-bi="${bi}">+ Add Step</button>`;
+  renderStep();
+  renderList();
+  setMode(viewMode);
+}
+
+// RENDER CARD STEP
+function renderStep() {
+  const block = routine[currentBlockIndex];
+  const step = block.steps[currentStepIndex];
+  const total = block.steps.length;
+
+  document.getElementById('evProgressFill').style.width = ((currentStepIndex + 1) / total * 100) + '%';
+  document.getElementById('evProgressText').textContent = `${currentStepIndex + 1} of ${total}`;
+
+  const card = document.getElementById('evCard');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'fadeIn 0.25s ease';
+
+  document.getElementById('evEmoji').textContent = step.emoji || '✦';
+  document.getElementById('evName').textContent = step.name;
+  document.getElementById('evDetail').textContent = step.detail;
+
+  let badges = '';
+  if (step.isPulse) badges += '<span class="badge badge-pulse">🔥 60–80 pulses</span>';
+  if (step.isHold && !step.isPulse) badges += '<span class="badge badge-hold">🔒 Hold</span>';
+  if (step.isTransition) badges += '<span class="badge badge-transition">↔ Transition</span>';
+  if (step.isRepeat) badges += '<span class="badge badge-repeat">🔄 Mirror/Repeat</span>';
+  if (step.isFlow) badges += '<span class="badge badge-flow">🌊 Flow</span>';
+  if (step.side) badges += `<span class="badge badge-side">${step.side === 'L' ? '← Left' : '→ Right'}</span>`;
+  document.getElementById('evBadges').innerHTML = badges;
+
+  // Buttons
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  btnPrev.disabled = (currentStepIndex === 0 && currentBlockIndex === 0);
+
+  const isLast = currentStepIndex === total - 1;
+  const noMore = !routine[currentBlockIndex + 1];
+  if (isLast && noMore) {
+    btnNext.textContent = 'Finish ✨'; btnNext.className = 'ev-btn ev-btn-done';
+  } else if (isLast) {
+    btnNext.textContent = 'Next Block →'; btnNext.className = 'ev-btn ev-btn-next';
+  } else {
+    btnNext.textContent = 'Next →'; btnNext.className = 'ev-btn ev-btn-next';
+  }
+}
+
+// RENDER LIST
+function renderList() {
+  const block = routine[currentBlockIndex];
+  const listEl = document.getElementById('listMode');
+  listEl.innerHTML = '';
+
+  block.steps.forEach((step, i) => {
+    const classes = ['list-item'];
+    if (step.isPulse) classes.push('is-pulse');
+    if (step.isHold) classes.push('is-hold');
+    if (step.isRepeat) classes.push('is-repeat');
+    if (step.isTransition) classes.push('is-transition');
+
+    let badges = '';
+    if (step.isPulse) badges += '<span class="badge badge-pulse">🔥 60–80 pulses</span>';
+    if (step.isHold && !step.isPulse) badges += '<span class="badge badge-hold">🔒 Hold</span>';
+    if (step.isRepeat) badges += '<span class="badge badge-repeat">🔄 Mirror</span>';
+    if (step.isFlow) badges += '<span class="badge badge-flow">🌊 Flow</span>';
+    if (step.side) badges += `<span class="badge badge-side">${step.side === 'L' ? '← L' : '→ R'}</span>`;
+
+    const item = document.createElement('div');
+    item.className = classes.join(' ');
+    item.innerHTML = `
+      <div class="list-num">${i + 1}</div>
+      <div class="list-content">
+        <div class="list-name">${step.name}</div>
+        <div class="list-detail">${step.detail}</div>
+        ${badges ? '<div class="list-badges">' + badges + '</div>' : ''}
+      </div>
+      <div class="list-emoji">${step.emoji || ''}</div>
+    `;
+    listEl.appendChild(item);
+  });
+}
+
+// MODE TOGGLE
+function setMode(mode) {
+  viewMode = mode;
+  document.getElementById('cardMode').classList.toggle('hidden', mode !== 'card');
+  document.getElementById('listMode').classList.toggle('hidden', mode !== 'list');
+  document.getElementById('evNav').style.display = mode === 'card' ? 'flex' : 'none';
+  document.getElementById('btnModeCard').classList.toggle('active', mode === 'card');
+  document.getElementById('btnModeList').classList.toggle('active', mode === 'list');
+}
+
+// NAV
+function nextStep() {
+  const block = routine[currentBlockIndex];
+  if (currentStepIndex < block.steps.length - 1) {
+    currentStepIndex++; renderStep();
+  } else {
+    completedBlocks[block.id] = true;
+    localStorage.setItem('mp3', JSON.stringify(completedBlocks));
+    const next = currentBlockIndex + 1;
+    if (next < routine.length) {
+      openBlock(next);
     } else {
-      content = block.steps.map((step, si) => {
-        const key = `${bi}_${si}`;
-        const checked = S.checked[key];
-        const hasPulse = (step.tags || []).includes('pulse');
-        if (isQuiz) {
-          const revealed = S.quizRevealed[key];
-          return `<div class="step-row quiz-card ${revealed ? 'revealed' : ''}" data-action="reveal-quiz" data-bi="${bi}" data-si="${si}">
-            <div class="step-content">
-              <div class="step-emoji">${step.emoji}</div>
-              <div class="step-name">${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
-              <div class="step-detail">${esc(step.detail)}</div>
-            </div>
-          </div>`;
-        }
-        return `<div class="step-row ${checked ? 'checked' : ''}" data-bi="${bi}" data-si="${si}">
-          <input type="checkbox" class="step-checkbox" data-action="toggle-step" data-bi="${bi}" data-si="${si}" ${checked ? 'checked' : ''}>
-          <div class="step-content">
-            <div class="step-emoji">${step.emoji}</div>
-            <div class="step-name">${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
-            <div class="step-detail">${esc(step.detail)}</div>
-          </div>
-        </div>`;
-      }).join('');
+      document.getElementById('exerciseView').classList.remove('active');
+      document.getElementById('completionScreen').classList.add('active');
     }
+  }
+  updateTopBar();
+}
 
-    const editToolbar = S.editMode ? `<div class="edit-toolbar">
-      <button class="btn" data-action="move-up" data-bi="${bi}">↑</button>
-      <button class="btn" data-action="move-down" data-bi="${bi}">↓</button>
-      <div style="flex:1"></div>
-      <button class="btn danger" data-action="delete-block" data-bi="${bi}">🗑️</button>
-    </div>` : '';
-
-    const quizBtn = !S.editMode ? `<button class="quiz-toggle ${isQuiz ? 'active' : ''}" data-action="toggle-quiz" data-bi="${bi}">${isQuiz ? '❓ Quiz' : '📋 List'}</button>` : '';
-
-    return `<div class="block-card" data-bi="${bi}">
-      <div class="block-header" data-action="toggle-collapse" data-bi="${bi}">
-        <span class="block-emoji">${block.emoji}</span>
-        <div class="block-info">
-          <div class="block-title">${esc(block.title)}</div>
-          <div class="eq-badges">${eqHtml}</div>
-        </div>
-        <div class="block-actions">
-          ${quizBtn}
-          <div class="toggle-arrow ${isCollapsed ? 'collapsed' : ''}">▾</div>
-        </div>
-      </div>
-      ${editToolbar}
-      <div class="block-content ${isCollapsed ? 'collapsed' : ''}">${content}</div>
-    </div>`;
-  }).join('');
-
-  if (S.editMode) {
-    el.innerHTML += `<button class="add-block-btn" data-action="add-block">+ Add Block</button>`;
+function prevStep() {
+  if (currentStepIndex > 0) { currentStepIndex--; renderStep(); }
+  else if (currentBlockIndex > 0) {
+    currentBlockIndex--;
+    currentStepIndex = routine[currentBlockIndex].steps.length - 1;
+    renderBlock();
   }
 }
 
-function renderEditSteps(block, bi) {
-  if (block.steps.length === 0) {
-    return `<div style="padding:16px;text-align:center;color:var(--text-mid);font-size:13px">No steps yet</div>`;
-  }
-  return block.steps.map((step, si) => `
-    <div class="step-edit" data-bi="${bi}" data-si="${si}">
-      <input type="text" class="step-emoji-input" value="${step.emoji}" data-field="emoji" data-bi="${bi}" data-si="${si}">
-      <input type="text" placeholder="Name" value="${esc(step.name)}" data-field="name" data-bi="${bi}" data-si="${si}">
-      <input type="text" placeholder="Detail" value="${esc(step.detail)}" data-field="detail" data-bi="${bi}" data-si="${si}">
-      <div class="step-btns">
-        <button data-action="toggle-pulse" data-bi="${bi}" data-si="${si}" title="Pulse">${(step.tags||[]).includes('pulse') ? '🔥' : '○'}</button>
-        <button class="danger" data-action="delete-step" data-bi="${bi}" data-si="${si}">✕</button>
-      </div>
-    </div>
-  `).join('');
+function goHome() {
+  document.getElementById('exerciseView').classList.remove('active');
+  document.getElementById('completionScreen').classList.remove('active');
+  document.getElementById('homeScreen').classList.remove('hidden');
+  renderHome();
 }
 
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-function render() {
-  renderHeader();
-  renderProgress();
-  renderEqFilter();
-  renderBlocks();
+function resetAll() {
+  completedBlocks = {};
+  localStorage.setItem('mp3', '{}');
+  renderHome();
 }
 
-// ===== MODALS =====
-
-function showModal(html) {
-  document.getElementById('modalContainer').innerHTML = `
-    <div class="modal-overlay" data-action="close-modal">
-      <div class="modal">${html}</div>
-    </div>`;
-}
-function closeModal() { document.getElementById('modalContainer').innerHTML = ''; }
-
-function showSaveModal() {
-  showModal(`
-    <h3>Save Routine</h3>
-    <p>Save to your device for quick access anytime.</p>
-    <div class="modal-form">
-      <input type="text" class="form-input" id="saveNameInput" value="${esc(S.routineName)}">
-      <div class="modal-btns">
-        <button class="btn" data-action="close-modal">Cancel</button>
-        <button class="btn primary" data-action="confirm-save">💾 Save</button>
-      </div>
-      <div id="saveStatus"></div>
-    </div>
-  `);
-  document.getElementById('saveNameInput').select();
+function updateTopBar() {
+  const total = routine.filter(b => !b.isTransition).length;
+  const done = routine.filter(b => !b.isTransition && completedBlocks[b.id]).length;
+  document.getElementById('topBarFill').style.width = (done / total * 100) + '%';
 }
 
-function showLibrary() {
-  document.getElementById('libraryOverlay').classList.remove('hidden');
-  document.getElementById('libraryPanel').classList.remove('hidden');
-  const content = document.getElementById('libraryContent');
-  const routines = getRoutines();
-  if (routines.length === 0) {
-    content.innerHTML = '<div class="library-empty">No saved routines yet. Save your first!</div>';
-    return;
-  }
-  content.innerHTML = routines.map(r => `
-    <div class="routine-card">
-      <div class="routine-card-title">${esc(r.name)}</div>
-      <div class="routine-card-meta">${r.discipline === 'yoga' ? '🧘' : '🏋️'} ${r.discipline} · ${new Date(r.savedAt).toLocaleDateString()}</div>
-      <div class="routine-card-btns">
-        <button class="btn" data-action="load-routine" data-rid="${r.id}">Load</button>
-        <button class="btn danger" data-action="delete-routine" data-rid="${r.id}">Delete</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function closeLibrary() {
-  document.getElementById('libraryPanel').classList.add('hidden');
-  document.getElementById('libraryOverlay').classList.add('hidden');
-}
-
-function showDisciplineModal() {
-  showModal(`
-    <h3>Switch Discipline</h3>
-    <p>Load a template to start fresh.</p>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-      <button class="btn lg block" data-action="switch-to-pilates">🏋️ Pilates Template</button>
-      <button class="btn lg block" data-action="switch-to-yoga">🧘 Yoga Template</button>
-    </div>
-    <div class="modal-btns"><button class="btn" data-action="close-modal">Cancel</button></div>
-  `);
-}
-
-// ===== EVENTS =====
-
-document.addEventListener('click', (e) => {
-  const el = e.target.closest('[data-action]');
-  if (!el) return;
-  const action = el.dataset.action;
-  const bi = el.dataset.bi != null ? parseInt(el.dataset.bi) : null;
-  const si = el.dataset.si != null ? parseInt(el.dataset.si) : null;
-
-  switch (action) {
-    case 'toggle-edit':
-      S.editMode = !S.editMode;
-      S.collapsed = {};
-      render();
-      break;
-
-    case 'switch-discipline':
-      showDisciplineModal();
-      break;
-
-    case 'toggle-collapse':
-      if (bi !== null) {
-        S.collapsed[bi] = S.collapsed[bi] !== false ? false : true;
-        renderBlocks();
-      }
-      break;
-
-    case 'toggle-step':
-      // handled by change event
-      break;
-
-    case 'toggle-eq': {
-      const eq = el.dataset.eq;
-      S.eqFilter.has(eq) ? S.eqFilter.delete(eq) : S.eqFilter.add(eq);
-      render();
-      break;
-    }
-
-    case 'toggle-quiz':
-      e.stopPropagation();
-      if (bi !== null) {
-        S.quizMode[bi] = !S.quizMode[bi];
-        S.quizRevealed = {};
-        renderBlocks();
-      }
-      break;
-
-    case 'reveal-quiz':
-      if (bi !== null && si !== null) {
-        const key = `${bi}_${si}`;
-        S.quizRevealed[key] = !S.quizRevealed[key];
-        renderBlocks();
-      }
-      break;
-
-    case 'start-fresh':
-      S.checked = {};
-      S.quizRevealed = {};
-      saveState();
-      render();
-      break;
-
-    case 'move-up':
-      if (bi !== null && bi > 0) {
-        [S.blocks[bi - 1], S.blocks[bi]] = [S.blocks[bi], S.blocks[bi - 1]];
-        saveState(); render();
-      }
-      break;
-
-    case 'move-down':
-      if (bi !== null && bi < S.blocks.length - 1) {
-        [S.blocks[bi], S.blocks[bi + 1]] = [S.blocks[bi + 1], S.blocks[bi]];
-        saveState(); render();
-      }
-      break;
-
-    case 'delete-block':
-      if (bi !== null && confirm('Delete this block?')) {
-        S.blocks.splice(bi, 1);
-        saveState(); render();
-      }
-      break;
-
-    case 'add-step':
-      if (bi !== null) {
-        S.blocks[bi].steps.push({ name: '', detail: '', emoji: '✨', tags: [] });
-        saveState(); render();
-      }
-      break;
-
-    case 'delete-step':
-      if (bi !== null && si !== null) {
-        S.blocks[bi].steps.splice(si, 1);
-        saveState(); render();
-      }
-      break;
-
-    case 'toggle-pulse':
-      if (bi !== null && si !== null) {
-        const step = S.blocks[bi].steps[si];
-        const tags = step.tags || [];
-        const idx = tags.indexOf('pulse');
-        idx >= 0 ? tags.splice(idx, 1) : tags.push('pulse');
-        step.tags = tags;
-        saveState(); render();
-      }
-      break;
-
-    case 'add-block':
-      S.blocks.push({
-        type: 'block', id: `block${Date.now()}`, title: 'New Block', emoji: '✨',
-        equipment: [], color: 'var(--slate)', steps: []
-      });
-      saveState(); render();
-      break;
-
-    case 'save-routine':
-      showSaveModal();
-      break;
-
-    case 'confirm-save': {
-      const name = document.getElementById('saveNameInput').value.trim();
-      if (!name) return;
-      S.routineName = name;
-      const id = saveRoutineToLibrary(name);
-      S.routineId = id;
-      saveState();
-      document.getElementById('saveStatus').innerHTML = '<div class="success">Saved!</div>';
-      setTimeout(closeModal, 1000);
-      break;
-    }
-
-    case 'load-routines':
-      showLibrary();
-      break;
-
-    case 'close-library':
-      closeLibrary();
-      break;
-
-    case 'load-routine': {
-      const rid = el.dataset.rid;
-      loadRoutineFromLibrary(rid);
-      closeLibrary();
-      S.editMode = false;
-      render();
-      break;
-    }
-
-    case 'delete-routine': {
-      const rid = el.dataset.rid;
-      if (confirm('Delete this saved routine?')) {
-        deleteRoutineFromLibrary(rid);
-        showLibrary();
-      }
-      break;
-    }
-
-    case 'new-pilates':
-      if (confirm('Start new Pilates routine? Unsaved changes will be lost.')) {
-        S.blocks = JSON.parse(JSON.stringify(PILATES_DEFAULT.blocks));
-        S.discipline = 'pilates'; S.routineName = 'Mat Pilates';
-        S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
-        saveState(); render();
-      }
-      break;
-
-    case 'new-yoga':
-      if (confirm('Start new Yoga routine? Unsaved changes will be lost.')) {
-        S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
-        S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
-        S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
-        saveState(); render();
-      }
-      break;
-
-    case 'new-blank':
-      if (confirm('Start blank? Unsaved changes will be lost.')) {
-        S.blocks = [
-          { type: 'block', id: 'warmup', title: 'Warm-up', emoji: '🌅', equipment: [], color: 'var(--amber)', steps: [] },
-          { type: 'block', id: 'block1', title: 'Block 1', emoji: '✨', equipment: [], color: 'var(--slate)', steps: [] },
-        ];
-        S.discipline = 'custom'; S.routineName = 'My Routine';
-        S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
-        saveState(); render();
-      }
-      break;
-
-    case 'switch-to-pilates':
-      if (confirm('Switch to Pilates? Unsaved changes will be lost.')) {
-        S.blocks = JSON.parse(JSON.stringify(PILATES_DEFAULT.blocks));
-        S.discipline = 'pilates'; S.routineName = 'Mat Pilates';
-        S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
-        closeModal(); saveState(); render();
-      }
-      break;
-
-    case 'switch-to-yoga':
-      if (confirm('Switch to Yoga? Unsaved changes will be lost.')) {
-        S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
-        S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
-        S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
-        closeModal(); saveState(); render();
-      }
-      break;
-
-    case 'close-modal':
-      if (e.target.classList.contains('modal-overlay')) closeModal();
-      break;
-  }
-});
-
-// Handle checkbox changes
-document.addEventListener('change', (e) => {
-  if (e.target.classList.contains('step-checkbox')) {
-    const bi = parseInt(e.target.dataset.bi);
-    const si = parseInt(e.target.dataset.si);
-    const key = `${bi}_${si}`;
-    e.target.checked ? (S.checked[key] = true) : delete S.checked[key];
-    saveState();
-    renderProgress();
-    // Update just this row's style
-    const row = e.target.closest('.step-row');
-    if (row) row.classList.toggle('checked', e.target.checked);
-  }
-});
-
-// Handle edit inputs — update state without re-render
-document.addEventListener('input', (e) => {
-  const { bi, si, field } = e.target.dataset;
-  if (e.target.id === 'routineNameInput') {
-    S.routineName = e.target.value;
-    saveState();
-    return;
-  }
-  if (bi != null && si != null && field) {
-    const step = S.blocks[parseInt(bi)].steps[parseInt(si)];
-    if (field === 'name') step.name = e.target.value;
-    else if (field === 'detail') step.detail = e.target.value;
-    else if (field === 'emoji') step.emoji = e.target.value;
-    saveState();
-  }
-});
-
-// New routine dropdown
-document.addEventListener('click', (e) => {
-  const newBtn = document.getElementById('newBtn');
-  const newMenu = document.getElementById('newMenu');
-  if (!newBtn || !newMenu) return;
-  if (e.target === newBtn || newBtn.contains(e.target)) {
-    e.stopPropagation();
-    newMenu.classList.toggle('hidden');
-  } else if (!newMenu.contains(e.target)) {
-    newMenu.classList.add('hidden');
-  }
-});
-
-// ===== INIT =====
-loadState();
-render();
+renderHome();
 </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Mat Pilates Routine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+  :root {
+    --bg: #f8f6f3;
+    --card: #ffffff;
+    --accent: #8b7d6b;
+    --accent-dark: #5c5147;
+    --text: #2d2a26;
+    --text-mid: #6b6560;
+    --text-light: #9e9590;
+    --warm: #c9a87c;
+    --warm-light: #f5ede3;
+    --sage: #7a9178;
+    --sage-light: #e6efe5;
+    --rose: #b8878f;
+    --rose-light: #f5e6e9;
+    --slate: #7e8e9a;
+    --slate-light: #e4ebf0;
+    --clay: #b08968;
+    --clay-light: #f0e4d8;
+    --mauve: #9b8aa6;
+    --mauve-light: #ede6f2;
+    --shadow: 0 1px 8px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
+    --radius: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Top progress */
+  .top-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 3px; background: rgba(0,0,0,0.04); z-index: 100;
+  }
+  .top-bar-fill {
+    height: 100%; background: var(--sage);
+    transition: width 0.4s ease;
+  }
+
+  /* Header */
+  .header {
+    padding: 32px 20px 16px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 20px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--accent-dark);
+  }
+  .header .subtitle {
+    font-size: 13px; color: var(--text-light); margin-top: 6px;
+    font-weight: 400; letter-spacing: 0.3px;
+  }
+
+  /* Home */
+  .home { padding: 0 16px 100px; }
+
+  .block-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer;
+    transition: transform 0.15s;
+    border: 1.5px solid transparent;
+    position: relative; overflow: hidden;
+  }
+  .block-card:active { transform: scale(0.98); }
+  .block-card.completed { border-color: var(--sage); opacity: 0.75; }
+  .block-card.completed::before {
+    content: ''; position: absolute; top: 0; left: 0; bottom: 0;
+    width: 3px; background: var(--sage);
+  }
+
+  .block-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0; font-weight: 600;
+  }
+  .block-info { flex: 1; min-width: 0; }
+  .block-info h3 { font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text); }
+  .block-info .meta { font-size: 11.5px; color: var(--text-light); margin-top: 2px; letter-spacing: 0.2px; }
+
+  .equip-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .equip-tag {
+    font-size: 10.5px; padding: 2px 8px; border-radius: 20px;
+    font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase;
+  }
+
+  .block-card .arrow { color: var(--text-light); font-size: 16px; flex-shrink: 0; opacity: 0.4; }
+  .block-card .check { display: none; font-size: 16px; color: var(--sage); flex-shrink: 0; }
+  .block-card.completed .arrow { display: none; }
+  .block-card.completed .check { display: block; }
+
+  /* ──── Exercise View ──── */
+  .exercise-view {
+    display: none; min-height: 100dvh; flex-direction: column;
+  }
+  .exercise-view.active { display: flex; }
+
+  .ev-top {
+    padding: 20px 20px 12px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .ev-back {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--card); border: 1px solid rgba(0,0,0,0.06);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; color: var(--text-mid);
+    flex-shrink: 0;
+  }
+  .ev-block-title { font-size: 15px; font-weight: 600; flex: 1; color: var(--text); }
+
+  .ev-mode-toggle {
+    display: flex; background: rgba(0,0,0,0.04); border-radius: 8px; overflow: hidden;
+    flex-shrink: 0;
+  }
+  .ev-mode-btn {
+    padding: 6px 12px; font-size: 12px; font-weight: 600;
+    border: none; cursor: pointer; background: transparent;
+    color: var(--text-light); transition: all 0.2s;
+    font-family: inherit;
+  }
+  .ev-mode-btn.active {
+    background: var(--card); color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-radius: 6px;
+  }
+
+  .ev-equip-row {
+    display: flex; gap: 6px; padding: 0 20px; margin-bottom: 6px;
+  }
+
+  .ev-progress {
+    margin: 0 20px; height: 4px; background: rgba(0,0,0,0.04);
+    border-radius: 2px; overflow: hidden;
+  }
+  .ev-progress-fill {
+    height: 100%; background: var(--accent);
+    border-radius: 2px; transition: width 0.3s ease;
+  }
+  .ev-progress-text {
+    text-align: center; font-size: 11px; color: var(--text-light);
+    margin-top: 5px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+
+  /* ──── Card Mode ──── */
+  .card-mode { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+  .card-mode.hidden { display: none; }
+
+  .ev-card {
+    background: var(--card);
+    border-radius: 18px;
+    box-shadow: var(--shadow-md);
+    padding: 36px 28px 30px;
+    width: 100%; max-width: 400px;
+    text-align: center;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .ev-card .step-emoji { font-size: 40px; margin-bottom: 16px; line-height: 1; }
+  .ev-card .step-name {
+    font-size: 20px; font-weight: 700; line-height: 1.3; margin-bottom: 10px;
+    color: var(--text);
+  }
+  .ev-card .step-detail {
+    font-size: 14px; color: var(--text-mid); line-height: 1.6;
+  }
+
+  .badge-row { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; margin-top: 18px; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.2px;
+  }
+  .badge-pulse { background: var(--clay-light); color: var(--clay); }
+  .badge-hold { background: var(--rose-light); color: var(--rose); }
+  .badge-transition { background: var(--mauve-light); color: var(--mauve); }
+  .badge-repeat { background: var(--sage-light); color: var(--sage); }
+  .badge-flow { background: var(--slate-light); color: var(--slate); }
+  .badge-side { background: var(--warm-light); color: var(--clay); }
+
+  /* Nav */
+  .ev-nav {
+    padding: 14px 20px 30px; display: flex; gap: 10px;
+  }
+  .ev-btn {
+    flex: 1; padding: 14px; border-radius: 12px;
+    font-size: 15px; font-weight: 600; border: none;
+    cursor: pointer; transition: transform 0.1s;
+    font-family: inherit; letter-spacing: 0.3px;
+  }
+  .ev-btn:active { transform: scale(0.97); }
+  .ev-btn-prev { background: var(--card); color: var(--text-mid); border: 1.5px solid rgba(0,0,0,0.06); }
+  .ev-btn-next { background: var(--accent-dark); color: #fff; }
+  .ev-btn:disabled { opacity: 0.3; cursor: default; }
+  .ev-btn-done { background: var(--sage); color: #fff; }
+
+  /* ──── List Mode ──── */
+  .list-mode {
+    flex: 1; padding: 12px 20px 100px; overflow-y: auto;
+  }
+  .list-mode.hidden { display: none; }
+
+  .list-item {
+    display: flex; gap: 12px; padding: 14px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    align-items: flex-start;
+  }
+  .list-item:last-child { border-bottom: none; }
+
+  .list-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(0,0,0,0.04); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: var(--text-light);
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .list-item.is-pulse .list-num { background: var(--clay-light); color: var(--clay); }
+  .list-item.is-hold .list-num { background: var(--rose-light); color: var(--rose); }
+  .list-item.is-repeat .list-num { background: var(--sage-light); color: var(--sage); }
+  .list-item.is-transition .list-num { background: var(--mauve-light); color: var(--mauve); }
+
+  .list-content { flex: 1; }
+  .list-content .list-name {
+    font-size: 14px; font-weight: 600; line-height: 1.35; color: var(--text);
+  }
+  .list-content .list-detail {
+    font-size: 12.5px; color: var(--text-light); line-height: 1.45; margin-top: 2px;
+  }
+  .list-content .list-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+  .list-content .badge { font-size: 10.5px; padding: 3px 9px; }
+
+  .list-emoji { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+  /* Completion */
+  .completion-screen {
+    display: none; min-height: 100dvh; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px; text-align: center;
+  }
+  .completion-screen.active { display: flex; }
+  .completion-screen .done-icon { font-size: 56px; margin-bottom: 20px; }
+  .completion-screen h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .completion-screen p { font-size: 14px; color: var(--text-light); max-width: 280px; line-height: 1.5; }
+  .completion-screen .ev-btn { margin-top: 28px; width: 200px; }
+
+  .home-screen { display: block; }
+  .home-screen.hidden { display: none; }
+
+  .reset-bar { text-align: center; padding: 10px 0 24px; }
+  .reset-btn {
+    background: none; border: none; color: var(--text-light);
+    font-size: 12px; cursor: pointer; text-decoration: underline;
+    padding: 8px 16px; font-family: inherit;
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar"><div class="top-bar-fill" id="topBarFill"></div></div>
+
+<!-- HOME -->
+<div class="home-screen" id="homeScreen">
+  <div class="header">
+    <h1>Mat Pilates</h1>
+    <div class="subtitle">10 blocks · warm-up · finisher</div>
+  </div>
+  <div class="home" id="blockList"></div>
+  <div class="reset-bar">
+    <button class="reset-btn" onclick="resetAll()">Reset progress</button>
+  </div>
+</div>
+
+<!-- EXERCISE VIEW -->
+<div class="exercise-view" id="exerciseView">
+  <div class="ev-top">
+    <button class="ev-back" onclick="goHome()">←</button>
+    <div class="ev-block-title" id="evTitle"></div>
+    <div class="ev-mode-toggle">
+      <button class="ev-mode-btn active" id="btnModeCard" onclick="setMode('card')">Cards</button>
+      <button class="ev-mode-btn" id="btnModeList" onclick="setMode('list')">List</button>
+    </div>
+  </div>
+  <div class="ev-equip-row" id="evEquipRow"></div>
+  <div class="ev-progress"><div class="ev-progress-fill" id="evProgressFill"></div></div>
+  <div class="ev-progress-text" id="evProgressText"></div>
+
+  <!-- Card Mode -->
+  <div class="card-mode" id="cardMode">
+    <div class="ev-card" id="evCard">
+      <div class="step-emoji" id="evEmoji"></div>
+      <div class="step-name" id="evName"></div>
+      <div class="step-detail" id="evDetail"></div>
+      <div class="badge-row" id="evBadges"></div>
+    </div>
+  </div>
+
+  <!-- List Mode -->
+  <div class="list-mode hidden" id="listMode"></div>
+
+  <div class="ev-nav" id="evNav">
+    <button class="ev-btn ev-btn-prev" id="btnPrev" onclick="prevStep()">Back</button>
+    <button class="ev-btn ev-btn-next" id="btnNext" onclick="nextStep()">Next</button>
+  </div>
+</div>
+
+<!-- COMPLETION -->
+<div class="completion-screen" id="completionScreen">
+  <div class="done-icon">✨</div>
+  <h2>Routine Complete</h2>
+  <p>All blocks finished. Beautiful practice.</p>
+  <button class="ev-btn ev-btn-done" onclick="goHome()">Back to Overview</button>
+</div>
+
+<script>
+const routine = [
+  {
+    id: "warmup", title: "Warm-up", homeEmoji: "☀️",
+    equipment: [], color: "var(--sage)", colorLight: "var(--sage-light)",
+    steps: [
+      { name: "Seated Cross-Legged", detail: "Hand at heart, hand at belly. Find your breath.", emoji: "🧘🏻‍♀️" },
+      { name: "Seated Cat/Cow", detail: "Flow through spinal flexion and extension.", emoji: "🌊" },
+      { name: "Rolls L & R", detail: "Gentle lateral rolls, left and right.", emoji: "↔️" },
+      { name: "Cat/Cow Again", detail: "Repeat the seated cat/cow flow.", emoji: "🌊" },
+      { name: "Side Arm Stretch & Twist", detail: "Right and left sides. Open through the chest.", emoji: "🌿" },
+    ]
+  },
+  {
+    id: "block1", title: "Block 1 · Seated Ball Work + Weights", homeEmoji: "⚽",
+    equipment: ["ball", "weights"], color: "var(--slate)", colorLight: "var(--slate-light)",
+    steps: [
+      { name: "Full Range Curl — Hands at Chest", detail: "Ball behind back, feet flat on mat. Curl up and down through full range.", emoji: "💫" },
+      { name: "Pulses — Hands at Chest", detail: "Small pulse at the top of the curl.", emoji: "🔥", isPulse: true },
+      { name: "Full Range — Arms Extended", detail: "Same curl, arms extended out in front.", emoji: "➡️" },
+      { name: "Pulses — Arms Extended", detail: "Pulse with arms extended.", emoji: "🔥", isPulse: true },
+      { name: "Twist Right — Full Range", detail: "Rotate to the right, full range curl.", emoji: "↩️", side: "R" },
+      { name: "Hold Twist + Pulse", detail: "Hold the right twist, pulse.", emoji: "🔥", isPulse: true, side: "R" },
+      { name: "Add Right Leg Lift + Twist", detail: "Lift right leg as you twist, full range.", emoji: "🤵", side: "R" },
+      { name: "Pulse — Leg Up, Hold Twist", detail: "Pulse with right leg up, holding the twist.", emoji: "🔥", isPulse: true, side: "R" },
+      { name: "Extend Arms & Knee in Twist", detail: "Extend both arms and knee while holding the twist.", emoji: "⭐" },
+      { name: "Pulse — Fully Extended", detail: "Pulse with everything extended.", emoji: "🔥", isPulse: true },
+      { name: "Hold Wide", detail: "Open wide and hold.", emoji: "🔒", isHold: true },
+      { name: "Repeat on Left", detail: "Start with center work again, then full left side sequence.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "t1", title: "Transition", homeEmoji: "🔀",
+    equipment: ["band"], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "Equipment Swap", detail: "Remove ball, grab band. Band around knees, weights by side.", emoji: "🔀", isTransition: true },
+    ]
+  },
+  {
+    id: "block2", title: "Block 2 · Bridge Series — Band + Weights", homeEmoji: "🌉",
+    equipment: ["band", "weights"], color: "var(--clay)", colorLight: "var(--clay-light)",
+    steps: [
+      { name: "Arms Overhead with Weights", detail: "Extend arms over head holding weights.", emoji: "🙏" },
+      { name: "Full Range Bridge", detail: "Full range bridge pose — lift and lower.", emoji: "🌉" },
+      { name: "2 Up, 2 Down", detail: "2 counts to lift, 2 counts to lower.", emoji: "⏱️" },
+      { name: "Pulses", detail: "Pulse at the top of the bridge.", emoji: "🔥", isPulse: true },
+      { name: "Add Skull Crushers", detail: "Repeat bridge + skull crushers with weights as glutes drop.", emoji: "💀" },
+      { name: "Hold Weights High", detail: "Lock arms extended, hold weights high.", emoji: "🔒", isHold: true },
+      { name: "Knees Push Out on Band — Full Range", detail: "Press knees out against the band, full range.", emoji: "🤵" },
+      { name: "Pulses — Knees Out", detail: "Pulse knees out against the band.", emoji: "🔥", isPulse: true },
+      { name: "Tap R + Lift, Tap L + Lift", detail: "Alternate toe taps with lifts.", emoji: "👃" },
+      { name: "Circles Right", detail: "Circle the hips to the right.", emoji: "⭕", side: "R" },
+      { name: "Circles Left", detail: "Circle the hips to the left.", emoji: "⭕", side: "L" },
+      { name: "Full Range Bridge", detail: "End with full range bridge.", emoji: "🌉" },
+      { name: "Pulses", detail: "Final bridge pulses.", emoji: "🔥", isPulse: true },
+      { name: "Hold at Top", detail: "Hold the bridge at the top. Squeeze.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "block3", title: "Block 3 · Tabletop Glute — Right", homeEmoji: "🍑",
+    equipment: ["band", "ball"], color: "var(--rose)", colorLight: "var(--rose-light)",
+    steps: [
+      { name: "Setup", detail: "Ball under left hand. Tabletop position.", emoji: "📐" },
+      { name: "Donkey Kicks — Left Leg", detail: "Full range donkey kicks, left leg.", emoji: "🤵" },
+      { name: "Up an Inch, Down an Inch", detail: "Tiny controlled range at the top.", emoji: "📏" },
+      { name: "Pulses", detail: "Pulse at the top.", emoji: "🔥", isPulse: true },
+      { name: "Hold Kick + Tricep Pushup", detail: "Hold the kick, tricep pushup with hand on ball. Full range.", emoji: "💪" },
+      { name: "Tricep Pushup Pulses", detail: "Pulse the tricep pushup.", emoji: "🔥", isPulse: true },
+      { name: "Extend Arm & Leg", detail: "Extend opposite arm and leg long.", emoji: "⭐" },
+      { name: "Hold + Pulse Back In", detail: "Hold extension, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Rainbows R & L", detail: "Palm on ball, rainbow the leg right and left.", emoji: "🌈" },
+      { name: "Full Range Lift", detail: "Lift the leg through full range.", emoji: "⬆️" },
+      { name: "Pulses", detail: "Pulse the lift.", emoji: "🔥", isPulse: true },
+      { name: "Elbow to Knee + Extend", detail: "Draw elbow to knee, then extend long.", emoji: "🔗" },
+      { name: "Taps to Corner + Lift", detail: "Tap to corner of mat, lift. End with hold.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "block4", title: "Block 4 · Standing Glute — Right", homeEmoji: "🦵",
+    equipment: ["band", "ball"], color: "var(--slate)", colorLight: "var(--slate-light)",
+    steps: [
+      { name: "Full Range Lunge — Lift & Lower", detail: "Full range lunge with lift/lower + hinge.", emoji: "🤵" },
+      { name: "Single Pulses", detail: "Pulse in the lunge.", emoji: "🔥", isPulse: true },
+      { name: "Lift/Lower Front Heel", detail: "Heel raises in lunge position.", emoji: "👠" },
+      { name: "Warrior 3 — Tap & Lift", detail: "Hinge to Warrior 3, tap down and lift.", emoji: "⚔️" },
+      { name: "Warrior 3 Pulses", detail: "Hold Warrior 3, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Back to Lunge — Twists", detail: "Return to lunge, full range rotational twists.", emoji: "🌀" },
+      { name: "Hold Twist + Pulse", detail: "Hold the twist, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Flow Sequence", detail: "Lunge → Inhale W3 arms up → Exhale twist → Back to lunge", emoji: "🌊", isFlow: true },
+    ]
+  },
+  {
+    id: "t2", title: "Transition", homeEmoji: "🔀",
+    equipment: ["ball"], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "To High Plank", detail: "Standing mountain knee drives with ball. Come down to high plank.", emoji: "🔀", isTransition: true },
+    ]
+  },
+  {
+    id: "block5", title: "Block 5 · Core/Arm Series — Both Sides", homeEmoji: "💪",
+    equipment: [], color: "var(--sage)", colorLight: "var(--sage-light)",
+    steps: [
+      { name: "High Plank — Knee Drives + Toe Taps", detail: "x3 each side from high plank.", emoji: "🤸🏻‍♀️" },
+      { name: "Serve the Platter — Both Arms", detail: "Both arms serve the platter.", emoji: "🍽️" },
+      { name: "Alternate Serves R & L", detail: "Alternate right and left arm serves.", emoji: "↔️" },
+      { name: "Hold Out + Pulse", detail: "Hold arms extended, pulse.", emoji: "🔥", isPulse: true },
+      { name: "Flip Up & Down", detail: "Flip hands/arms up and down.", emoji: "↕️" },
+      { name: "Over Under", detail: "Over-under arm pattern.", emoji: "🔀" },
+      { name: "Open Wide", detail: "Repeat series with arms out wide.", emoji: "🦅" },
+      { name: "End with a Hold", detail: "Hold the final position. Breathe.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "block6", title: "Block 6 · Tabletop Glute — Left", homeEmoji: "🍑",
+    equipment: ["band", "ball"], color: "var(--rose)", colorLight: "var(--rose-light)",
+    steps: [
+      { name: "Mirror Block 3 — Left Side", detail: "Full tabletop glute series, opposite side. Ball under right hand, donkey kicks with right leg.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "block7", title: "Block 7 · Standing Glute — Left", homeEmoji: "🦵",
+    equipment: ["band", "ball"], color: "var(--slate)", colorLight: "var(--slate-light)",
+    steps: [
+      { name: "Mirror Block 4 — Left Side", detail: "Full standing glute series, opposite side.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "t3", title: "Transition", homeEmoji: "🔀",
+    equipment: [], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "Side Plank L → R", detail: "High side plank, left to right. Land on left side.", emoji: "🤸🏻‍♀️", isTransition: true },
+    ]
+  },
+  {
+    id: "block8", title: "Block 8 · Sideline — Right", homeEmoji: "🦀",
+    equipment: [], color: "var(--clay)", colorLight: "var(--clay-light)",
+    steps: [
+      { name: "Up for 3, Down Fast", detail: "Slow lift 3 counts, quick lower.", emoji: "⬆️" },
+      { name: "Up Fast, Down for 3", detail: "Quick lift, slow lower 3 counts.", emoji: "⬇️" },
+      { name: "Pulses for 8", detail: "8 quick pulses at the top.", emoji: "🔥", isPulse: true },
+      { name: "Circles Front & Back", detail: "Small circles with top leg, both directions.", emoji: "⭕" },
+      { name: "Pulses", detail: "Pulse at the top.", emoji: "🔥", isPulse: true },
+      { name: "Front Leg Extends — Full Range", detail: "Back leg flat to back of mat. Front leg extends and raises.", emoji: "🤵" },
+      { name: "Pulses", detail: "Pulse the front leg raises.", emoji: "🔥", isPulse: true },
+      { name: "Teaser Lifts", detail: "Add teaser lifts.", emoji: "🚀" },
+      { name: "Teaser Pulses", detail: "Pulse in the teaser.", emoji: "🔥", isPulse: true },
+      { name: "Inner Thigh — Full Range", detail: "Back leg in front of mat. Inner thigh lifts, full range.", emoji: "🤵" },
+      { name: "Pulses — Inner Thigh", detail: "Inner thigh pulses.", emoji: "🔥", isPulse: true },
+      { name: "Circles Front & Back", detail: "Inner thigh circles, both directions.", emoji: "⭕" },
+      { name: "Swings Forward & Back", detail: "Swing bottom leg forward and back.", emoji: "🏌️🏻‍♀️" },
+      { name: "Teaser Lifts — Hold to Finish", detail: "Teaser lifts, hold full teaser to finish.", emoji: "🔒", isHold: true },
+    ]
+  },
+  {
+    id: "t4", title: "Transition", homeEmoji: "🔀",
+    equipment: [], color: "var(--mauve)", colorLight: "var(--mauve-light)",
+    isTransition: true,
+    steps: [
+      { name: "Side Plank L → R", detail: "High side plank, left to right. Land on right side.", emoji: "🤸🏻‍♀️", isTransition: true },
+    ]
+  },
+  {
+    id: "block9", title: "Block 9 · Sideline — Left", homeEmoji: "🦀",
+    equipment: [], color: "var(--clay)", colorLight: "var(--clay-light)",
+    steps: [
+      { name: "Mirror Block 8 — Left Side", detail: "Full sideline series, opposite side.", emoji: "🔄", isRepeat: true, side: "L" },
+    ]
+  },
+  {
+    id: "block10", title: "Block 10 · Final Core & Stretch", homeEmoji: "✨",
+    equipment: [], color: "var(--sage)", colorLight: "var(--sage-light)",
+    steps: [
+      { name: "Hip Lifts × 8", detail: "8 controlled hip lifts.", emoji: "🌑" },
+      { name: "Pulses Up × 16", detail: "16 pulses lifting up.", emoji: "🔥", isPulse: true },
+      { name: "Pulses — Legs Down × 16", detail: "16 pulses lowering legs.", emoji: "🔥", isPulse: true },
+      { name: "Low Hold", detail: "Hold low. Engage core. Breathe.", emoji: "🔒", isHold: true },
+      { name: "Stretch — Side Twists", detail: "Gentle side twists to release.", emoji: "🌀" },
+      { name: "Happy Baby", detail: "Happy baby pose. Let go.", emoji: "👶" },
+      { name: "Glute Bridge", detail: "Gentle glute bridge stretch.", emoji: "🌉" },
+      { name: "Bound Angle", detail: "Bound angle pose. Breathe and release.", emoji: "🦋" },
+    ]
+  },
+];
+
+// STATE
+let currentBlockIndex = -1;
+let currentStepIndex = 0;
+let viewMode = 'card'; // 'card' or 'list'
+let completedBlocks = JSON.parse(localStorage.getItem('mp3') || '{}');
+
+// EQUIPMENT helpers
+function equipEmoji(e) { return {ball:'🔵', weights:'🏋🏻‍♀️', band:'🟢'}[e]||''; }
+function equipName(e) { return {ball:'Ball', weights:'Weights', band:'Band'}[e]||e; }
+
+// RENDER HOME
+function renderHome() {
+  const list = document.getElementById('blockList');
+  list.innerHTML = '';
+  routine.forEach((block, i) => {
+    if (block.isTransition) return;
+    const card = document.createElement('div');
+    card.className = 'block-card' + (completedBlocks[block.id] ? ' completed' : '');
+    card.onclick = () => openBlock(i);
+
+    const equipHTML = block.equipment.length > 0
+      ? '<div class="equip-tags">' + block.equipment.map(e =>
+          `<span class="equip-tag" style="background:${block.colorLight};color:${block.color}">${equipEmoji(e)} ${equipName(e)}</span>`
+        ).join('') + '</div>'
+      : '';
+
+    const steps = block.steps.length;
+    const pulses = block.steps.filter(s => s.isPulse).length;
+    const meta = `${steps} move${steps>1?'s':''}` + (pulses ? ` · ${pulses} pulse set${pulses>1?'s':''}` : '');
+
+    card.innerHTML = `
+      <div class="block-icon" style="background:${block.colorLight}">${block.homeEmoji}</div>
+      <div class="block-info">
+        <h3>${block.title}</h3>
+        <div class="meta">${meta}</div>
+        ${equipHTML}
+      </div>
+      <span class="arrow">›</span>
+      <span class="check">✓</span>
+    `;
+    list.appendChild(card);
+  });
+  updateTopBar();
+}
+
+// OPEN BLOCK
+function openBlock(index) {
+  currentBlockIndex = index;
+  currentStepIndex = 0;
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('exerciseView').classList.add('active');
+  document.getElementById('completionScreen').classList.remove('active');
+  renderBlock();
+}
+
+function renderBlock() {
+  const block = routine[currentBlockIndex];
+  document.getElementById('evTitle').textContent = block.title;
+
+  // Equipment row
+  const equipRow = document.getElementById('evEquipRow');
+  if (block.equipment.length) {
+    equipRow.innerHTML = block.equipment.map(e =>
+      `<span class="equip-tag" style="background:${block.colorLight};color:${block.color}">${equipEmoji(e)} ${equipName(e)}</span>`
+    ).join('');
+    equipRow.style.display = 'flex';
+  } else {
+    equipRow.style.display = 'none';
+  }
+
+  renderStep();
+  renderList();
+  setMode(viewMode);
+}
+
+// RENDER CARD STEP
+function renderStep() {
+  const block = routine[currentBlockIndex];
+  const step = block.steps[currentStepIndex];
+  const total = block.steps.length;
+
+  document.getElementById('evProgressFill').style.width = ((currentStepIndex + 1) / total * 100) + '%';
+  document.getElementById('evProgressText').textContent = `${currentStepIndex + 1} of ${total}`;
+
+  const card = document.getElementById('evCard');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'fadeIn 0.25s ease';
+
+  document.getElementById('evEmoji').textContent = step.emoji || '✦';
+  document.getElementById('evName').textContent = step.name;
+  document.getElementById('evDetail').textContent = step.detail;
+
+  let badges = '';
+  if (step.isPulse) badges += '<span class="badge badge-pulse">🔥 60–80 pulses</span>';
+  if (step.isHold && !step.isPulse) badges += '<span class="badge badge-hold">🔒 Hold</span>';
+  if (step.isTransition) badges += '<span class="badge badge-transition">↔ Transition</span>';
+  if (step.isRepeat) badges += '<span class="badge badge-repeat">🔄 Mirror/Repeat</span>';
+  if (step.isFlow) badges += '<span class="badge badge-flow">🌊 Flow</span>';
+  if (step.side) badges += `<span class="badge badge-side">${step.side === 'L' ? '← Left' : '→ Right'}</span>`;
+  document.getElementById('evBadges').innerHTML = badges;
+
+  // Buttons
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  btnPrev.disabled = (currentStepIndex === 0 && currentBlockIndex === 0);
+
+  const isLast = currentStepIndex === total - 1;
+  const noMore = !routine[currentBlockIndex + 1];
+  if (isLast && noMore) {
+    btnNext.textContent = 'Finish ✨'; btnNext.className = 'ev-btn ev-btn-done';
+  } else if (isLast) {
+    btnNext.textContent = 'Next Block →'; btnNext.className = 'ev-btn ev-btn-next';
+  } else {
+    btnNext.textContent = 'Next →'; btnNext.className = 'ev-btn ev-btn-next';
+  }
+}
+
+// RENDER LIST
+function renderList() {
+  const block = routine[currentBlockIndex];
+  const listEl = document.getElementById('listMode');
+  listEl.innerHTML = '';
+
+  block.steps.forEach((step, i) => {
+    const classes = ['list-item'];
+    if (step.isPulse) classes.push('is-pulse');
+    if (step.isHold) classes.push('is-hold');
+    if (step.isRepeat) classes.push('is-repeat');
+    if (step.isTransition) classes.push('is-transition');
+
+    let badges = '';
+    if (step.isPulse) badges += '<span class="badge badge-pulse">🔥 60–80 pulses</span>';
+    if (step.isHold && !step.isPulse) badges += '<span class="badge badge-hold">🔒 Hold</span>';
+    if (step.isRepeat) badges += '<span class="badge badge-repeat">🔄 Mirror</span>';
+    if (step.isFlow) badges += '<span class="badge badge-flow">🌊 Flow</span>';
+    if (step.side) badges += `<span class="badge badge-side">${step.side === 'L' ? '← L' : '→ R'}</span>`;
+
+    const item = document.createElement('div');
+    item.className = classes.join(' ');
+    item.innerHTML = `
+      <div class="list-num">${i + 1}</div>
+      <div class="list-content">
+        <div class="list-name">${step.name}</div>
+        <div class="list-detail">${step.detail}</div>
+        ${badges ? '<div class="list-badges">' + badges + '</div>' : ''}
+      </div>
+      <div class="list-emoji">${step.emoji || ''}</div>
+    `;
+    listEl.appendChild(item);
+  });
+}
+
+// MODE TOGGLE
+function setMode(mode) {
+  viewMode = mode;
+  document.getElementById('cardMode').classList.toggle('hidden', mode !== 'card');
+  document.getElementById('listMode').classList.toggle('hidden', mode !== 'list');
+  document.getElementById('evNav').style.display = mode === 'card' ? 'flex' : 'none';
+  document.getElementById('btnModeCard').classList.toggle('active', mode === 'card');
+  document.getElementById('btnModeList').classList.toggle('active', mode === 'list');
+}
+
+// NAV
+function nextStep() {
+  const block = routine[currentBlockIndex];
+  if (currentStepIndex < block.steps.length - 1) {
+    currentStepIndex++; renderStep();
+  } else {
+    completedBlocks[block.id] = true;
+    localStorage.setItem('mp3', JSON.stringify(completedBlocks));
+    const next = currentBlockIndex + 1;
+    if (next < routine.length) {
+      openBlock(next);
+    } else {
+      document.getElementById('exerciseView').classList.remove('active');
+      document.getElementById('completionScreen').classList.add('active');
+    }
+  }
+  updateTopBar();
+}
+
+function prevStep() {
+  if (currentStepIndex > 0) { currentStepIndex--; renderStep(); }
+  else if (currentBlockIndex > 0) {
+    currentBlockIndex--;
+    currentStepIndex = routine[currentBlockIndex].steps.length - 1;
+    renderBlock();
+  }
+}
+
+function goHome() {
+  document.getElementById('exerciseView').classList.remove('active');
+  document.getElementById('completionScreen').classList.remove('active');
+  document.getElementById('homeScreen').classList.remove('hidden');
+  renderHome();
+}
+
+function resetAll() {
+  completedBlocks = {};
+  localStorage.setItem('mp3', '{}');
+  renderHome();
+}
+
+function updateTopBar() {
+  const total = routine.filter(b => !b.isTransition).length;
+  const done = routine.filter(b => !b.isTransition && completedBlocks[b.id]).length;
+  document.getElementById('topBarFill').style.width = (done / total * 100) + '%';
+}
+
+renderHome();
+</script>
+</body>
+</html>
+
