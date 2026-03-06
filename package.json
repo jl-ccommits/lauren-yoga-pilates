@@ -1,0 +1,20 @@
+{
+  "name": "routine-tracker",
+  "version": "1.0.0",
+  "description": "Pilates & Yoga Routine Tracker",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 8080 --directory www",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "typescript": "^5.9.3"
+  }
+}
