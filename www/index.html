@@ -518,51 +518,156 @@ const PILATES_DEFAULT = {
 };
 
 const YOGA_DEFAULT = {
-  name: 'My Yoga Routine',
+  name: 'Yoga Sculpt',
   discipline: 'yoga',
   blocks: [
-    { type: 'block', id: 'warmup', title: 'Warm-up', emoji: '🌅', equipment: [], color: 'var(--amber)',
+    {
+      type: 'block', id: 'warmup', title: 'Warm-up', emoji: '🌅', equipment: [], color: 'var(--amber)',
       steps: [
-        { name: "Child's Pose", detail: 'Settle in. Hips to heels, arms extended. Breathe deeply.', emoji: '🙏', tags: [] },
-        { name: 'Cat/Cow', detail: 'Flow with breath. Inhale arch, exhale round.', emoji: '🌊', tags: [] },
-        { name: 'Downward Facing Dog', detail: 'Press through palms, lengthen spine, pedal heels.', emoji: '🐕', tags: [] },
-        { name: 'Standing Forward Fold', detail: 'Walk feet to hands. Sway gently. Release neck.', emoji: '🍃', tags: [] },
+        { name: 'Heart Bench', detail: 'Start in heart bench. Hand at heart, hand at belly.', emoji: '🫀', tags: [] },
+        { name: 'Bound Angle', detail: 'Settle into bound angle. Feel the hips open.', emoji: '🦋', tags: [] },
+        { name: '8 Deep Breaths', detail: 'Take 8 deep breaths. Set your intention for class.', emoji: '🫁', tags: [] },
       ]
     },
-    { type: 'block', id: 'block1', title: 'Sun Salutations', emoji: '☀️', equipment: [], color: 'var(--amber)',
+    {
+      type: 'block', id: 'block1', title: 'Block 1 · Core with Ball + Bridge Series', emoji: '🎯', equipment: ['ball'],
+      color: 'var(--slate)',
       steps: [
-        { name: 'Sun Salutation A × 3', detail: 'Mountain → Forward fold → Half lift → Chaturanga → Up dog → Down dog.', emoji: '☀️', tags: [] },
-        { name: 'Sun Salutation B × 2', detail: 'Add Chair and Warrior I. Build heat.', emoji: '🔥', tags: [] },
+        { name: 'Right Leg — Roll Ball Up & Down', detail: 'Lift right leg, roll ball up and down the leg. Can hover bottom leg after 4th rep.', emoji: '🏐', tags: [] },
+        { name: 'Hold & Pulse × 8', detail: 'Hold position, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Hold on Right × 8', detail: 'Hold on the right side × 8.', emoji: '💎', tags: [] },
+        { name: 'Ball Weaves In & Out', detail: 'Weave ball in and out of legs.', emoji: '🏐', tags: [] },
+        { name: 'Repeat on Left', detail: 'Full sequence on left leg.', emoji: '🔄', tags: [] },
+        { name: 'Both Legs Straight', detail: 'Straighten both legs, repeat sequence with both legs up.', emoji: '🤸‍♀️', tags: [] },
+        { name: 'Bridge — Arms Rise with Ball', detail: 'Come to bridge. Arms rise with ball on the way up.', emoji: '🌉', tags: [] },
+        { name: 'Bridge Full Range', detail: 'Full range bridge — lift and lower.', emoji: '🍑', tags: [] },
+        { name: 'Bridge Pulses', detail: 'Pulse at the top of bridge.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Right Leg Lift — Full Range', detail: 'Lift right leg, continue bridge full range.', emoji: '🦵', tags: [] },
+        { name: 'Right Leg Pulses', detail: 'Pulse with right leg lifted.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Extend Arm & Leg', detail: 'Extend opposite arm and right leg long.', emoji: '🤸‍♀️', tags: [] },
+        { name: 'Hold Out & Pulse × 8', detail: 'Hold extension, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Repeat on Left', detail: 'Full bridge sequence on left leg.', emoji: '🔄', tags: [] },
+        { name: 'Roll Ups to Top of Mat', detail: 'Roll all the way up to standing at the top of mat.', emoji: '⬆️', tags: [] },
       ]
     },
-    { type: 'block', id: 'block2', title: 'Standing Poses', emoji: '🧍', equipment: [], color: 'var(--slate)',
+    {
+      type: 'block', id: 'block2', title: 'Block 2 · Tabletop with Weights', emoji: '🏋️', equipment: ['weights'],
+      color: 'var(--rose)',
       steps: [
-        { name: 'Warrior I', detail: 'Back foot at 45°. Front knee over ankle. Arms rise. Hold 5 breaths each side.', emoji: '⚔️', tags: [] },
-        { name: 'Warrior II', detail: 'Hips open, arms wide. Gaze over front hand.', emoji: '🏹', tags: [] },
-        { name: 'Triangle Pose', detail: 'Front leg straight. Reach forward then down. Top arm to sky.', emoji: '🔺', tags: [] },
-        { name: 'Extended Side Angle', detail: 'Forearm on thigh or hand to floor. Top arm extends overhead.', emoji: '🌿', tags: [] },
+        { name: 'Cat/Cow', detail: 'Flow through cat and cow in tabletop.', emoji: '🐈', tags: [] },
+        { name: 'Side Twist with Weights', detail: 'Side twist holding weights. Hold, then extend leg.', emoji: '🌀', tags: [] },
+        { name: 'Bird Dog — Full Range', detail: 'Full range bird dog. Extend opposite arm and leg.', emoji: '🐦', tags: [] },
+        { name: 'Bird Dog Pulses', detail: 'Pulse at the extended position.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Elbow to Knee — Hold & Pulse', detail: 'Draw elbow to knee, hold, pulse.', emoji: '🤸‍♀️', tags: [] },
+        { name: 'Repeat Left Side', detail: 'Full sequence on left side.', emoji: '🔄', tags: [] },
+        { name: 'Top of Mat', detail: 'Make your way to top of mat for Block 3.', emoji: '⬆️', tags: [] },
       ]
     },
-    { type: 'block', id: 'block3', title: 'Balance', emoji: '⚖️', equipment: [], color: 'var(--teal)',
+    {
+      type: 'block', id: 'block3', title: 'Block 3 · Sun Sals + Chair Series', emoji: '☀️', equipment: ['weights'],
+      color: 'var(--teal)',
       steps: [
-        { name: 'Tree Pose', detail: 'Root foot, float the other to inner thigh or calf.', emoji: '🌳', tags: [] },
-        { name: 'Warrior III', detail: 'Hinge forward, one leg lifts. Body parallel to floor.', emoji: '✈️', tags: [] },
-        { name: 'Half Moon', detail: 'Balance on one hand and foot. Stack hips. Expand.', emoji: '🌙', tags: [] },
+        { name: '3 Sun Salutations', detail: '3 sun salutations with options. Build heat.', emoji: '☀️', tags: [] },
+        { name: 'Hold Forward Fold — Grab Weights', detail: 'Hold forward fold on last salutation. Grab weights, half lift.', emoji: '🏋️', tags: [] },
+        { name: 'Chair Pose — Lower & Lift Arms', detail: 'Rise to stand, come to chair. Lower and lift arms staying low.', emoji: '🪑', tags: [] },
+        { name: 'Twist Right — Full Range × 8', detail: 'Add twist to the right, stand at center. × 8.', emoji: '🌀', tags: [] },
+        { name: 'Hold Twist Right × 8', detail: 'Hold twist to the right × 8.', emoji: '💎', tags: [] },
+        { name: 'Pulse in Twist × 8', detail: 'Pulse in the held twist × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Repeat on Left', detail: 'Full chair twist sequence on left side.', emoji: '🔄', tags: [] },
+        { name: 'Vinyasa', detail: 'Flow through vinyasa to transition.', emoji: '🌊', tags: [] },
       ]
     },
-    { type: 'block', id: 'block4', title: 'Seated & Floor Poses', emoji: '🧘', equipment: [], color: 'var(--sage)',
+    {
+      type: 'block', id: 'block4', title: 'Block 4 · Right Side Flow (Long Series)', emoji: '🏃‍♀️', equipment: ['weights'],
+      color: 'var(--sage)',
       steps: [
-        { name: 'Seated Forward Fold', detail: 'Legs extended. Hinge from hips. Hold 8 breaths.', emoji: '🍃', tags: [] },
-        { name: 'Butterfly', detail: 'Soles of feet together. Gently press knees down.', emoji: '🦋', tags: [] },
-        { name: 'Supine Twist', detail: 'Both sides. Knee across body. Arms wide.', emoji: '🌀', tags: [] },
-        { name: 'Bridge Pose', detail: 'Feet flat, lift hips. Hold 5 breaths or pulse.', emoji: '🌉', tags: [] },
-        { name: 'Happy Baby', detail: 'Hold outer feet. Rock gently side to side.', emoji: '👶', tags: [] },
+        { name: 'Lunge — Arms Back × 8', detail: 'Step right foot forward. Lunge with weights, arms flow back × 8.', emoji: '🦵', tags: [] },
+        { name: 'Twist Right — Full Range × 8', detail: 'Twist to the right, full range × 8.', emoji: '🌀', tags: [] },
+        { name: 'Hold Twist Right × 8', detail: 'Hold twist to the right × 8.', emoji: '💎', tags: [] },
+        { name: 'Warrior 3 to Lunge × 8', detail: 'Flow from warrior 3 to lunge × 8.', emoji: '✈️', tags: [] },
+        { name: 'Hold Warrior 3 — Pulse × 8', detail: 'Hold warrior 3, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'High Lunge to Twist with Arms × 8', detail: 'High lunge, twist with arms × 8.', emoji: '🌀', tags: [] },
+        { name: 'Hold Arms & Twist × 8', detail: 'Hold arms and twist × 8.', emoji: '💎', tags: [] },
+        { name: 'Radiant Warrior', detail: 'Flow through radiant warrior.', emoji: '✨', tags: [] },
+        { name: 'Skandasana', detail: 'Skandasana with arms extended, then bent and extended.', emoji: '🧘‍♀️', tags: [] },
+        { name: 'Warrior 2', detail: 'Warrior 2 — hips open, arms wide.', emoji: '⚔️', tags: [] },
+        { name: 'Dancing Warrior', detail: 'Flow through dancing warrior.', emoji: '💃', tags: [] },
+        { name: 'Arms Up Pulses × 8', detail: 'Arms up, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Arms Down Pulses × 8', detail: 'Arms down, pulse × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Arm Circles Forward & Back × 8', detail: 'Arm circles forward and back × 8.', emoji: '⭕', tags: [] },
+        { name: 'Curl & Extend × 8', detail: 'Curl and extend × 8.', emoji: '💪', tags: [] },
+        { name: 'Frame Foot', detail: 'Frame the foot. Transition to plank.', emoji: '🖼️', tags: [] },
+        { name: 'Side Plank Right — Twist with Weights × 8', detail: 'High plank → side plank right. Full range twist with weights × 8.', emoji: '💪', tags: [] },
+        { name: 'Hip Lifts × 8', detail: 'Hip lifts in side plank × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Knees Pull In × 8', detail: 'Drop weights, knees pull in × 8.', emoji: '🤸‍♀️', tags: [] },
+        { name: 'Hip Lifts with Weights Down × 8', detail: 'Hip lifts × 8.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Vinyasa', detail: 'Drop weights. Vinyasa to transition.', emoji: '🌊', tags: [] },
       ]
     },
-    { type: 'block', id: 'block5', title: 'Final Rest', emoji: '✨', equipment: [], color: 'var(--rose)',
+    {
+      type: 'block', id: 'block5', title: 'Block 5 · Left Side Flow', emoji: '🏃‍♀️', equipment: ['weights'],
+      color: 'var(--sage)', mirrorOf: 'block4',
       steps: [
-        { name: 'Legs Up the Wall', detail: 'Scoot hips to wall. Legs vertical. Stay 2-5 min.', emoji: '🧘', tags: [] },
-        { name: 'Savasana', detail: 'Final rest. Eyes closed. Let everything go. 5+ minutes.', emoji: '✨', tags: [] },
+        { name: 'Repeat Full Block 4 on Left', detail: 'Mirror all of Block 4 on the left side.', emoji: '🔄', tags: [] },
+      ]
+    },
+    {
+      type: 'transition', id: 't1', title: 'Transition: Repeat flow faster — 4 pulses for everything', emoji: '⚡', equipment: [], color: 'var(--surface2)', steps: []
+    },
+    {
+      type: 'block', id: 'block6', title: 'Block 6 · Core Intermission', emoji: '🏐', equipment: ['ball'],
+      color: 'var(--slate)',
+      steps: [
+        { name: 'Pulses with Hip Lift × 16', detail: 'Pulse with hip lift × 16.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Pulse Hold × 16', detail: 'Hold and pulse × 16.', emoji: '💎', tags: [] },
+        { name: 'Plus Extended Leg × 16', detail: 'Extend leg, continue pulses × 16.', emoji: '🦵', tags: [] },
+        { name: 'Full Roll-Ups × 16', detail: 'Full roll-ups × 16.', emoji: '⬆️', tags: [] },
+        { name: 'Chaturanga', detail: 'Transition through chaturanga.', emoji: '💪', tags: [] },
+      ]
+    },
+    {
+      type: 'block', id: 'block7', title: 'Block 7 · Balancing Flow — Right', emoji: '⚖️', equipment: ['weights'],
+      color: 'var(--teal)',
+      steps: [
+        { name: 'High Lunge — Hinge Forward', detail: 'High lunge, hinge forward.', emoji: '🦵', tags: [] },
+        { name: 'Tricep Kickbacks — Full Range', detail: 'Tricep quick backs, full range.', emoji: '💪', tags: [] },
+        { name: 'Tricep Kickbacks — Pulses', detail: 'Pulse the tricep kickbacks.', emoji: '🔥', tags: ['pulse'] },
+        { name: 'Squeeze In', detail: 'Squeeze in through the movement.', emoji: '💎', tags: [] },
+        { name: 'Drop & Fill Bucket', detail: 'Drop and fill bucket.', emoji: '🪣', tags: [] },
+        { name: 'Standing Mountain — Arms Rise', detail: 'Standing mountain with arms rising. Back to airplane.', emoji: '🏔️', tags: [] },
+        { name: 'Figure 4 Stretch', detail: 'Hold standing mountain → figure 4 stretch.', emoji: '🧘‍♀️', tags: [] },
+        { name: 'Tree Pose — Hold', detail: 'Tree pose hold.', emoji: '🌳', tags: [] },
+        { name: 'Balancing Half Moon', detail: 'Balancing half moon. Open up to warrior 2.', emoji: '🌙', tags: [] },
+        { name: 'Extended Side Angle', detail: 'Extended side angle.', emoji: '🌿', tags: [] },
+        { name: 'Revolved Warrior', detail: 'Revolved warrior.', emoji: '🌀', tags: [] },
+        { name: 'Triangle Pose', detail: 'Triangle pose.', emoji: '🔺', tags: [] },
+        { name: 'Drop Weights', detail: 'Set weights down.', emoji: '🏋️', tags: [] },
+        { name: 'Side Plank — Lift Leg', detail: 'Side plank, lift top leg.', emoji: '💪', tags: [] },
+        { name: 'Fallen Triangle to Flip Dog × 3', detail: 'Fallen triangle, flow to flip dog × 3.', emoji: '🌊', tags: [] },
+        { name: 'Pigeon Pose', detail: 'Settle into pigeon pose. Hold and breathe.', emoji: '🕊️', tags: [] },
+      ]
+    },
+    {
+      type: 'block', id: 'block8', title: 'Block 8 · Balancing Flow — Left', emoji: '⚖️', equipment: ['weights'],
+      color: 'var(--teal)', mirrorOf: 'block7',
+      steps: [
+        { name: 'Repeat Full Block 7 on Left', detail: 'Mirror all of Block 7 on the left side.', emoji: '🔄', tags: [] },
+      ]
+    },
+    {
+      type: 'block', id: 'block9', title: 'Block 9 · Optional Boat Pose', emoji: '⛵', equipment: [],
+      color: 'var(--rose)',
+      steps: [
+        { name: 'Boat Pose Sequence', detail: 'Optional boat pose sequence if more core work is needed.', emoji: '⛵', tags: [] },
+      ]
+    },
+    {
+      type: 'block', id: 'block10', title: 'Block 10 · Cool Down', emoji: '🧘‍♀️', equipment: [],
+      color: 'var(--amber)',
+      steps: [
+        { name: 'Bridge Lifts', detail: 'Gentle bridge lifts to release the spine.', emoji: '🌉', tags: [] },
+        { name: 'Side Twists', detail: 'Supine side twists — both sides.', emoji: '🌀', tags: [] },
+        { name: 'Final Rest / Savasana', detail: 'Final rest. Let everything go. Breathe and release.', emoji: '✨', tags: [] },
       ]
     },
   ]
@@ -781,7 +886,7 @@ function renderBlocks() {
       <button class="btn danger" data-action="delete-block" data-bi="${bi}">🗑️</button>
     </div>` : '';
 
-    const quizBtn = !S.editMode ? `<button class="quiz-toggle ${isQuiz ? 'active' : ''}" data-action="toggle-quiz" data-bi="${bi}">${isQuiz ? '📋 List' : '❓ Quiz'}</button>` : '';
+    const quizBtn = !S.editMode ? `<button class="quiz-toggle ${isQuiz ? 'active' : ''}" data-action="toggle-quiz" data-bi="${bi}">${isQuiz ? '❓ Quiz' : '📋 List'}</button>` : '';
 
     return `<div class="block-card" data-bi="${bi}">
       <div class="block-header" data-action="toggle-collapse" data-bi="${bi}">
@@ -1065,7 +1170,7 @@ document.addEventListener('click', (e) => {
     case 'new-yoga':
       if (confirm('Start new Yoga routine? Unsaved changes will be lost.')) {
         S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
-        S.discipline = 'yoga'; S.routineName = 'My Yoga Routine';
+        S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         saveState(); render();
       }
@@ -1095,7 +1200,7 @@ document.addEventListener('click', (e) => {
     case 'switch-to-yoga':
       if (confirm('Switch to Yoga? Unsaved changes will be lost.')) {
         S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
-        S.discipline = 'yoga'; S.routineName = 'My Yoga Routine';
+        S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         closeModal(); saveState(); render();
       }
