@@ -5,26 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pilates & Yoga Routine Tracker</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&display=swap');
 
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #22263a;
-      --accent: #7c6af7;
-      --accent2: #a78bfa;
-      --text: #e8eaf6;
-      --text-mid: #9094b0;
-      --text-dim: #5a5f7a;
-      --slate: #3b4a6b;
-      --rose: #6b3b5a;
-      --teal: #2d5a5a;
-      --sage: #3b5a3b;
-      --amber: #5a4a2d;
-      --border: rgba(255,255,255,0.06);
-      --border-bright: rgba(255,255,255,0.12);
-      --radius: 16px;
-      --radius-sm: 10px;
+      --bg: #f5f0ea;
+      --surface: #ffffff;
+      --surface2: #ece7e0;
+      --accent: #5c6b4f;
+      --accent2: #7a8a6c;
+      --text: #3d3b2f;
+      --text-mid: #7a7768;
+      --text-dim: #a8a49a;
+      --slate: #b8c4b8;
+      --rose: #d4b5a8;
+      --teal: #a8c4bf;
+      --sage: #bcc4a8;
+      --amber: #d4c4a0;
+      --border: rgba(61,59,47,0.08);
+      --border-bright: rgba(61,59,47,0.15);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,27 +36,29 @@
       color: var(--text);
       line-height: 1.6;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container { max-width: 540px; margin: 0 auto; padding: 0 16px; }
 
     /* ---- Buttons ---- */
     .btn {
-      padding: 6px 12px;
-      background: var(--surface2);
-      border: 1px solid var(--border-bright);
+      padding: 8px 14px;
+      background: transparent;
+      border: 1.5px solid var(--border-bright);
       color: var(--text);
-      border-radius: var(--radius-sm);
+      border-radius: 24px;
       cursor: pointer;
       font: 500 13px/1.4 'Inter', sans-serif;
       transition: all 0.2s;
+      letter-spacing: 0.2px;
     }
-    .btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn.primary:hover { background: var(--accent2); border-color: var(--accent2); }
-    .btn.danger:hover { background: #ff6b6b; border-color: #ff6b6b; color: var(--bg); }
-    .btn.active { background: #16a34a; border-color: #22c55e; }
-    .btn.lg { padding: 10px 16px; font-weight: 600; }
+    .btn.danger:hover { background: #c45b5b; border-color: #c45b5b; color: #fff; }
+    .btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn.lg { padding: 10px 18px; font-weight: 600; }
     .btn.block { width: 100%; text-align: center; }
 
     /* ---- Header ---- */
@@ -69,17 +72,18 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .routine-name { flex: 1; font-size: 18px; font-weight: 600; min-width: 0; word-break: break-word; }
+    .routine-name { flex: 1; font: 500 24px/1.2 var(--font-serif); min-width: 0; word-break: break-word; letter-spacing: -0.3px; }
     .routine-name input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 4px 8px; border-radius: var(--radius-sm); font: 600 18px 'Inter', sans-serif; width: 100%;
+      background: var(--surface); color: var(--text); border: 1.5px solid var(--border-bright);
+      padding: 6px 10px; border-radius: var(--radius-sm); font: 500 24px var(--font-serif); width: 100%;
     }
     .discipline-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: 20px;
-      font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+      background: transparent; border: 1.5px solid var(--border-bright); border-radius: 24px;
+      font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+      text-transform: uppercase; letter-spacing: 0.8px;
     }
-    .discipline-badge:hover { background: var(--accent); border-color: var(--accent); }
+    .discipline-badge:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 
     /* ---- Progress ---- */
     .progress-section { margin-bottom: 16px; }
@@ -87,17 +91,17 @@
       width: 100%; height: 6px; background: var(--surface2);
       border-radius: 3px; overflow: hidden; margin-bottom: 8px; border: 1px solid var(--border);
     }
-    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.3s; border-radius: 3px; }
     .progress-text { font-size: 12px; color: var(--text-mid); }
     .progress-row { display: flex; justify-content: space-between; align-items: center; }
 
     /* ---- Equipment Filter ---- */
     .eq-filter { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
     .eq-chip {
-      padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border-bright);
-      border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+      padding: 6px 14px; background: transparent; border: 1.5px solid var(--border-bright);
+      border-radius: 24px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;
     }
-    .eq-chip.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .eq-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
     /* ---- Edit Top Bar ---- */
     .edit-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -106,21 +110,22 @@
     /* ---- Block Cards ---- */
     .blocks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
     .block-card {
-      background: var(--surface); border: 1px solid var(--border);
+      background: var(--surface); border: 1.5px solid var(--border);
       border-radius: var(--radius); overflow: hidden; transition: all 0.2s;
+      box-shadow: 0 1px 3px rgba(61,59,47,0.04);
     }
-    .block-card:hover { border-color: var(--border-bright); }
+    .block-card:hover { border-color: var(--border-bright); box-shadow: 0 2px 8px rgba(61,59,47,0.08); }
 
     .block-header {
       display: flex; align-items: center; gap: 12px; padding: 16px; cursor: pointer;
-      background: var(--surface); border-bottom: 1px solid var(--border);
+      background: var(--surface); border-bottom: 1.5px solid var(--border);
     }
     .block-emoji { font-size: 24px; min-width: 32px; text-align: center; }
     .block-info { flex: 1; min-width: 0; }
-    .block-title { font-weight: 600; font-size: 15px; }
+    .block-title { font: 500 17px/1.3 var(--font-serif); letter-spacing: -0.2px; }
     .block-title input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 4px 8px; border-radius: var(--radius-sm); font: 600 15px 'Inter', sans-serif; width: 100%;
+      background: var(--surface); color: var(--text); border: 1.5px solid var(--border-bright);
+      padding: 4px 8px; border-radius: var(--radius-sm); font: 500 17px var(--font-serif); width: 100%;
     }
     .eq-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
     .eq-badge {
@@ -137,8 +142,9 @@
 
     /* ---- Transition Card ---- */
     .transition-card {
-      padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: var(--radius); display: flex; align-items: center; gap: 12px; font-size: 14px;
+      padding: 12px 16px; background: var(--surface2); border: 1.5px dashed var(--border-bright);
+      border-radius: var(--radius); display: flex; align-items: center; gap: 12px; font-size: 13px;
+      font-style: italic; color: var(--text-mid);
     }
 
     /* ---- Step Rows ---- */
@@ -155,11 +161,12 @@
 
     .pulse-badge {
       display: inline-block; margin-left: 6px; padding: 2px 8px;
-      background: linear-gradient(90deg, #ff6b6b, #ff8c8c); color: white;
-      border-radius: 12px; font-size: 11px; font-weight: 600;
-      animation: pulse 1.5s ease-in-out infinite;
+      background: var(--rose); color: var(--text);
+      border-radius: 12px; font-size: 10px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      animation: pulse 2s ease-in-out infinite;
     }
-    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
 
     /* ---- Quiz Mode ---- */
     .quiz-card { cursor: pointer; user-select: none; }
@@ -211,44 +218,46 @@
 
     /* ---- Library Panel ---- */
     .library-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 8900; animation: fadeIn 0.2s;
+      position: fixed; inset: 0; background: rgba(61,59,47,0.25); z-index: 8900; animation: fadeIn 0.2s;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
     .library-panel {
       position: fixed; right: 0; top: 0; bottom: 0; width: 100%; max-width: 400px;
-      background: var(--surface); border-left: 1px solid var(--border-bright); z-index: 9000;
-      display: flex; flex-direction: column; animation: slideIn 0.3s; box-shadow: -8px 0 24px rgba(0,0,0,0.3);
+      background: var(--surface); border-left: 1.5px solid var(--border-bright); z-index: 9000;
+      display: flex; flex-direction: column; animation: slideIn 0.3s; box-shadow: -8px 0 24px rgba(61,59,47,0.1);
     }
     @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .library-header { padding: 16px; border-bottom: 1px solid var(--border-bright); display: flex; justify-content: space-between; align-items: center; }
-    .library-title { font-size: 16px; font-weight: 700; }
+    .library-title { font: 500 20px/1.2 var(--font-serif); }
     .library-content { flex: 1; overflow-y: auto; padding: 16px; }
     .library-empty { text-align: center; color: var(--text-mid); padding: 32px 16px; font-size: 14px; }
 
     .routine-card {
-      background: var(--surface2); border: 1px solid var(--border-bright); border-radius: var(--radius);
-      padding: 12px; margin-bottom: 12px; transition: all 0.2s;
+      background: var(--bg); border: 1.5px solid var(--border-bright); border-radius: var(--radius);
+      padding: 14px; margin-bottom: 12px; transition: all 0.2s;
     }
     .routine-card:hover { border-color: var(--accent); }
-    .routine-card-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .routine-card-title { font: 500 16px/1.2 var(--font-serif); margin-bottom: 4px; }
     .routine-card-meta { font-size: 12px; color: var(--text-mid); margin-bottom: 8px; }
     .routine-card-btns { display: flex; gap: 8px; }
     .routine-card-btns .btn { flex: 1; }
 
     /* ---- Modal ---- */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      position: fixed; inset: 0; background: rgba(61,59,47,0.3);
       display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
     .modal {
-      background: var(--surface); border: 1px solid var(--border-bright); border-radius: var(--radius);
-      padding: 24px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      background: var(--surface); border: 1.5px solid var(--border-bright); border-radius: var(--radius);
+      padding: 24px; max-width: 500px; width: 100%; box-shadow: 0 20px 60px rgba(61,59,47,0.15);
     }
-    .modal h3 { font-size: 18px; margin-bottom: 16px; }
+    .modal h3 { font: 500 22px/1.2 var(--font-serif); margin-bottom: 16px; }
     .modal p { color: var(--text-mid); font-size: 14px; margin-bottom: 16px; }
     .modal-form { display: flex; flex-direction: column; gap: 12px; }
     .form-input {
-      background: var(--surface2); border: 1px solid var(--border-bright); color: var(--text);
+      background: var(--bg); border: 1.5px solid var(--border-bright); color: var(--text);
       padding: 10px 12px; border-radius: var(--radius-sm); font: 14px 'Inter', sans-serif;
     }
     .form-input:focus { outline: none; border-color: var(--accent); }
@@ -258,8 +267,8 @@
     .dropdown { position: relative; display: inline-block; }
     .dropdown-menu {
       position: absolute; top: 100%; right: 0; background: var(--surface);
-      border: 1px solid var(--border-bright); border-radius: var(--radius-sm);
-      min-width: 200px; z-index: 1000; margin-top: 4px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      border: 1.5px solid var(--border-bright); border-radius: var(--radius-sm);
+      min-width: 200px; z-index: 1000; margin-top: 4px; box-shadow: 0 8px 24px rgba(61,59,47,0.1);
     }
     .dropdown-menu button {
       width: 100%; text-align: left; padding: 10px 16px; background: none;
@@ -271,8 +280,8 @@
 
     /* ---- Utility ---- */
     .hidden { display: none !important; }
-    .success { color: #22c55e; font-size: 12px; margin-top: 8px; }
-    .error { color: #ff6b6b; font-size: 12px; margin-top: 8px; }
+    .success { color: var(--accent); font-size: 12px; margin-top: 8px; }
+    .error { color: #c45b5b; font-size: 12px; margin-top: 8px; }
 
     @media (max-width: 540px) {
       .container { padding: 0 12px; }
@@ -285,9 +294,9 @@
 
     /* ---- Bottom Sheet ---- */
     .sheet-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      position: fixed; inset: 0; background: rgba(61,59,47,0.25);
       z-index: 9500; opacity: 0; transition: opacity 0.25s;
-      pointer-events: none;
+      pointer-events: none; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
     .sheet-overlay.open { opacity: 1; pointer-events: auto; }
 
@@ -302,13 +311,13 @@
     .sheet.open { transform: translateY(0); }
     .sheet-handle {
       width: 36px; height: 4px; background: var(--text-dim); border-radius: 2px;
-      margin: 10px auto 8px;
+      margin: 10px auto 8px; opacity: 0.5;
     }
     .sheet-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 0 20px 12px; border-bottom: 1px solid var(--border);
+      padding: 0 20px 12px; border-bottom: 1.5px solid var(--border);
     }
-    .sheet-header h3 { font-size: 16px; font-weight: 700; }
+    .sheet-header h3 { font: 500 20px/1.2 var(--font-serif); }
     .sheet-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 16px; }
     .sheet-field label {
       display: block; font-size: 12px; font-weight: 600; color: var(--text-mid);
@@ -316,8 +325,8 @@
     }
     .sheet-field input[type="text"],
     .sheet-field textarea {
-      width: 100%; background: var(--surface2); color: var(--text);
-      border: 1px solid var(--border-bright); padding: 12px;
+      width: 100%; background: var(--bg); color: var(--text);
+      border: 1.5px solid var(--border-bright); padding: 12px;
       border-radius: var(--radius-sm); font: 15px 'Inter', sans-serif;
       -webkit-appearance: none;
     }
@@ -345,12 +354,12 @@
     .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
     .emoji-pick {
       width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-      font-size: 22px; background: var(--surface2); border: 1px solid var(--border);
+      font-size: 22px; background: var(--bg); border: 1.5px solid var(--border);
       border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
     .emoji-pick:active { transform: scale(0.9); }
-    .emoji-pick.selected { border-color: var(--accent); background: rgba(124,106,247,0.15); }
+    .emoji-pick.selected { border-color: var(--accent); background: rgba(92,107,79,0.1); }
 
     .sheet-actions {
       display: flex; flex-direction: column; gap: 10px;
@@ -362,11 +371,11 @@
 
     .pulse-toggle {
       display: flex; align-items: center; gap: 12px; padding: 12px;
-      background: var(--surface2); border: 1px solid var(--border-bright);
+      background: var(--bg); border: 1.5px solid var(--border-bright);
       border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s;
       -webkit-tap-highlight-color: transparent;
     }
-    .pulse-toggle.active { border-color: #ff6b6b; background: rgba(255,107,107,0.1); }
+    .pulse-toggle.active { border-color: var(--rose); background: rgba(212,181,168,0.2); }
 
     .step-edit-row {
       display: flex; align-items: center; gap: 12px; padding: 14px 16px;
@@ -899,6 +908,7 @@ function renderHeader() {
     editBar.innerHTML = `
       <button class="btn lg primary" data-action="save-routine">💾 Save</button>
       <button class="btn lg" data-action="load-routines">📂 Routines</button>
+      <button class="btn lg" data-action="open-quick-build">⚡ Quick Build</button>
       <div class="dropdown">
         <button class="btn lg" id="newBtn">📄 New</button>
         <div id="newMenu" class="dropdown-menu hidden">
@@ -963,7 +973,10 @@ function renderBlocks() {
     let content = '';
     if (S.editMode) {
       content = renderEditSteps(block, bi);
-      content += `<button class="add-step-btn" data-action="add-step" data-bi="${bi}">+ Add Step</button>`;
+      content += `<div style="display:flex;gap:8px;padding:8px 16px">
+        <button class="add-step-btn" style="flex:1" data-action="add-step" data-bi="${bi}">+ Add Step</button>
+        <button class="add-step-btn" style="flex:1;border-color:var(--accent);color:var(--accent)" data-action="open-quick-add" data-bi="${bi}">⚡ Quick Add</button>
+      </div>`;
     } else {
       content = block.steps.map((step, si) => {
         const key = `${bi}_${si}`;
@@ -1094,11 +1107,11 @@ function closeLibrary() {
 // ===== BOTTOM SHEET =====
 
 const BLOCK_COLORS = [
-  { name: 'Slate', var: 'var(--slate)', hex: '#3b4a6b' },
-  { name: 'Rose', var: 'var(--rose)', hex: '#6b3b5a' },
-  { name: 'Teal', var: 'var(--teal)', hex: '#2d5a5a' },
-  { name: 'Sage', var: 'var(--sage)', hex: '#3b5a3b' },
-  { name: 'Amber', var: 'var(--amber)', hex: '#5a4a2d' },
+  { name: 'Slate', var: 'var(--slate)', hex: '#b8c4b8' },
+  { name: 'Rose', var: 'var(--rose)', hex: '#d4b5a8' },
+  { name: 'Teal', var: 'var(--teal)', hex: '#a8c4bf' },
+  { name: 'Sage', var: 'var(--sage)', hex: '#bcc4a8' },
+  { name: 'Amber', var: 'var(--amber)', hex: '#d4c4a0' },
 ];
 
 const EMOJI_OPTIONS = [
@@ -1224,6 +1237,61 @@ function openStepSheet(bi, si) {
       <button class="btn lg danger" data-action="sheet-delete-step" data-bi="${bi}" data-si="${si}">🗑️ Delete Step</button>
     </div>
   `);
+}
+
+// ===== QUICK ENTRY =====
+
+const COLOR_CYCLE = [
+  'var(--amber)', 'var(--slate)', 'var(--rose)', 'var(--teal)', 'var(--sage)'
+];
+
+function openQuickAddSheet(bi) {
+  const block = S.blocks[bi];
+  if (!block) return;
+  sheetContext = { type: 'quickadd', bi };
+
+  openSheet(`
+    <div class="sheet-header">
+      <h3>Quick Add Steps</h3>
+      <button class="btn" data-action="close-sheet">Cancel</button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-field">
+        <label>Type one exercise per line</label>
+        <textarea id="sheetQuickAddText" placeholder="Cat/Cow\nRolls L & R\nSide Arm Stretch\nBridge\nPulses" style="min-height:200px"></textarea>
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn lg primary block" data-action="confirm-quick-add" data-bi="${bi}">Add Steps</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('sheetQuickAddText')?.focus(), 300);
+}
+
+function openQuickBuildSheet() {
+  sheetContext = { type: 'quickbuild' };
+
+  openSheet(`
+    <div class="sheet-header">
+      <h3>Quick Build</h3>
+      <button class="btn" data-action="close-sheet">Cancel</button>
+    </div>
+    <div class="sheet-body">
+      <div class="sheet-field">
+        <label>Type your class plan</label>
+        <textarea id="sheetQuickBuildText" placeholder="## Warm-up\nCat/Cow\nRolls L & R\n\n## Core with Ball\nBridge\nPulses\n\n---\n\n## Standing Glute\nLunges\nWarrior 3" style="min-height:280px"></textarea>
+      </div>
+      <div style="font-size:12px;color:var(--text-dim);line-height:1.6">
+        <strong>## Block Name</strong> = new block<br>
+        <strong>---</strong> = transition<br>
+        Each line = one exercise
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn lg primary block" data-action="confirm-quick-build">Build Routine</button>
+    </div>
+  `);
+  setTimeout(() => document.getElementById('sheetQuickBuildText')?.focus(), 300);
 }
 
 function showDisciplineModal() {
@@ -1615,6 +1683,95 @@ document.addEventListener('click', (e) => {
     case 'open-step-sheet':
       if (bi !== null && si !== null) openStepSheet(bi, si);
       break;
+
+    case 'open-quick-add':
+      if (bi !== null) openQuickAddSheet(bi);
+      break;
+
+    case 'confirm-quick-add': {
+      if (sheetContext && sheetContext.type === 'quickadd') {
+        const text = document.getElementById('sheetQuickAddText')?.value || '';
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length === 0) break;
+        const sbi = sheetContext.bi;
+        lines.forEach(line => {
+          S.blocks[sbi].steps.push({ name: line, detail: '', emoji: '✨', tags: [] });
+        });
+        closeSheet(); saveState(); render();
+      }
+      break;
+    }
+
+    case 'open-quick-build':
+      openQuickBuildSheet();
+      break;
+
+    case 'confirm-quick-build': {
+      if (sheetContext && sheetContext.type === 'quickbuild') {
+        const text = document.getElementById('sheetQuickBuildText')?.value || '';
+        const lines = text.split('\n');
+        const newBlocks = [];
+        let currentBlock = null;
+        let colorIdx = S.blocks.length;
+
+        lines.forEach(line => {
+          const trimmed = line.trim();
+          if (!trimmed) return;
+
+          if (trimmed === '---') {
+            newBlocks.push({
+              type: 'transition',
+              id: `t${Date.now()}${Math.random().toString(36).slice(2,6)}`,
+              title: 'Transition',
+              emoji: '🔀',
+              equipment: [],
+              color: 'var(--surface2)',
+              steps: []
+            });
+            currentBlock = null;
+            return;
+          }
+
+          if (trimmed.startsWith('## ')) {
+            const title = trimmed.slice(3).trim();
+            currentBlock = {
+              type: 'block',
+              id: `block${Date.now()}${Math.random().toString(36).slice(2,6)}`,
+              title: title || 'New Block',
+              emoji: '✨',
+              equipment: [],
+              color: COLOR_CYCLE[colorIdx % COLOR_CYCLE.length],
+              steps: []
+            };
+            colorIdx++;
+            newBlocks.push(currentBlock);
+            return;
+          }
+
+          if (!currentBlock) {
+            currentBlock = {
+              type: 'block',
+              id: `block${Date.now()}${Math.random().toString(36).slice(2,6)}`,
+              title: 'Block',
+              emoji: '✨',
+              equipment: [],
+              color: COLOR_CYCLE[colorIdx % COLOR_CYCLE.length],
+              steps: []
+            };
+            colorIdx++;
+            newBlocks.push(currentBlock);
+          }
+          currentBlock.steps.push({ name: trimmed, detail: '', emoji: '✨', tags: [] });
+        });
+
+        if (newBlocks.length > 0) {
+          S.blocks.push(...newBlocks);
+          S.blocks.forEach((_, i) => { S.collapsed[i] = false; });
+          closeSheet(); saveState(); render();
+        }
+      }
+      break;
+    }
   }
 });
 
