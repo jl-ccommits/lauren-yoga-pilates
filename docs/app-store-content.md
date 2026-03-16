@@ -54,10 +54,10 @@ Health & Fitness
 4+ (no objectionable content)
 
 ## Support URL
-https://github.com/laurenlandman/routine-tracker (or wherever support contact is hosted)
+https://jl-ccommits.github.io/lauren-yoga-pilates/privacy-policy.html
 
 ## Privacy Policy URL
-(see privacy-policy.md — needs to be hosted at a public URL)
+https://jl-ccommits.github.io/lauren-yoga-pilates/privacy-policy.html
 
 ## Price
 Free

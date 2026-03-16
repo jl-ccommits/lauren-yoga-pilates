@@ -54,4 +54,4 @@ If we ever update this policy, we will update the "Last updated" date above. Giv
 
 ## Contact
 
-Questions? Email: [your contact email here]
+Questions? Email: jacob.a.landman.17@gmail.com
