@@ -178,24 +178,6 @@
     }
     .quiz-toggle:hover, .quiz-toggle.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 
-    /* ---- Edit Step Rows ---- */
-    .step-edit {
-      display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); align-items: flex-start;
-    }
-    .step-edit input {
-      background: var(--surface2); color: var(--text); border: 1px solid var(--border-bright);
-      padding: 6px 8px; border-radius: var(--radius-sm); font: 13px 'Inter', sans-serif;
-    }
-    .step-edit input[type="text"] { flex: 1; }
-    .step-emoji-input { width: 40px; text-align: center; font-size: 18px; }
-    .step-btns { display: flex; gap: 4px; }
-    .step-btns button {
-      padding: 4px 6px; background: var(--surface2); border: 1px solid var(--border-bright);
-      color: var(--text); border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; transition: all 0.2s;
-    }
-    .step-btns button:hover { background: var(--accent); border-color: var(--accent); }
-    .step-btns button.danger:hover { background: #ff6b6b; color: var(--bg); }
-
     .add-step-btn {
       padding: 10px 16px; background: var(--surface2); border: 1px dashed var(--border-bright);
       color: var(--text-mid); border-radius: var(--radius-sm); cursor: pointer; font: 500 13px 'Inter', sans-serif;
@@ -395,6 +377,25 @@
     .add-block-btn {
       min-height: 52px; display: flex; align-items: center; justify-content: center;
     }
+
+    /* ---- Confirm Overlay ---- */
+    .confirm-overlay {
+      position: fixed; inset: 0; background: rgba(61,59,47,0.3);
+      z-index: 11000; display: flex; align-items: flex-end;
+      animation: fadeIn 0.15s;
+    }
+    .confirm-sheet {
+      width: 100%; background: var(--surface);
+      border-radius: 16px 16px 0 0; padding: 24px 20px;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      border-top: 1.5px solid var(--border-bright);
+    }
+    .confirm-msg {
+      font-size: 15px; color: var(--text); margin-bottom: 20px;
+      text-align: center; line-height: 1.5;
+    }
+    .confirm-btns { display: flex; flex-direction: column; gap: 10px; }
+    .confirm-btns .btn { min-height: 48px; font-size: 15px; }
   </style>
 </head>
 <body>
@@ -961,7 +962,7 @@ function renderBlocks() {
   el.innerHTML = visible.map(block => {
     const bi = S.blocks.indexOf(block);
     if (block.type === 'transition') {
-      return `<div class="transition-card"><span style="font-size:20px">${block.emoji}</span><span>${block.title}</span></div>`;
+      return `<div class="transition-card"><span style="font-size:20px">${esc(block.emoji)}</span><span>${esc(block.title)}</span></div>`;
     }
     const isCollapsed = S.collapsed[bi] !== false;
     const isQuiz = S.quizMode[bi] === true;
@@ -986,7 +987,7 @@ function renderBlocks() {
           const revealed = S.quizRevealed[key];
           return `<div class="step-row quiz-card ${revealed ? 'revealed' : ''}" data-action="reveal-quiz" data-bi="${bi}" data-si="${si}">
             <div class="step-content">
-              <div class="step-emoji">${step.emoji}</div>
+              <div class="step-emoji">${esc(step.emoji)}</div>
               <div class="step-name">${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
               <div class="step-detail">${esc(step.detail)}</div>
             </div>
@@ -995,7 +996,7 @@ function renderBlocks() {
         return `<div class="step-row ${checked ? 'checked' : ''}" data-bi="${bi}" data-si="${si}">
           <input type="checkbox" class="step-checkbox" data-action="toggle-step" data-bi="${bi}" data-si="${si}" ${checked ? 'checked' : ''}>
           <div class="step-content">
-            <div class="step-emoji">${step.emoji}</div>
+            <div class="step-emoji">${esc(step.emoji)}</div>
             <div class="step-name">${esc(step.name)}${hasPulse ? '<span class="pulse-badge">PULSE</span>' : ''}</div>
             <div class="step-detail">${esc(step.detail)}</div>
           </div>
@@ -1009,7 +1010,7 @@ function renderBlocks() {
 
     return `<div class="block-card" data-bi="${bi}">
       <div class="block-header" data-action="${S.editMode ? 'open-block-sheet' : 'toggle-collapse'}" data-bi="${bi}">
-        <span class="block-emoji">${block.emoji}</span>
+        <span class="block-emoji">${esc(block.emoji)}</span>
         <div class="block-info">
           <div class="block-title">${esc(block.title)}</div>
           <div class="eq-badges">${eqHtml}</div>
@@ -1036,7 +1037,7 @@ function renderEditSteps(block, bi) {
   return block.steps.map((step, si) => {
     const hasPulse = (step.tags || []).includes('pulse');
     return `<div class="step-edit-row" data-action="open-step-sheet" data-bi="${bi}" data-si="${si}">
-      <span class="step-emoji">${step.emoji}</span>
+      <span class="step-emoji">${esc(step.emoji)}</span>
       <span class="step-name ${!step.name ? 'empty' : ''}">${step.name ? esc(step.name) : 'Tap to edit...'}${hasPulse ? ' <span class="pulse-badge">PULSE</span>' : ''}</span>
       <span class="step-chevron">›</span>
     </div>`;
@@ -1134,6 +1135,24 @@ function closeSheet() {
   document.getElementById('sheetOverlay').classList.remove('open');
   document.getElementById('sheet').classList.remove('open');
   sheetContext = null;
+}
+
+function showConfirm(message, confirmLabel, onConfirm) {
+  const el = document.createElement('div');
+  el.className = 'confirm-overlay';
+  el.innerHTML = `
+    <div class="confirm-sheet">
+      <p class="confirm-msg">${esc(message)}</p>
+      <div class="confirm-btns">
+        <button class="btn lg block danger" id="confirmOk">${esc(confirmLabel)}</button>
+        <button class="btn lg block" id="confirmCancel">Cancel</button>
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+  const cleanup = () => el.remove();
+  el.querySelector('#confirmOk').addEventListener('click', () => { cleanup(); onConfirm(); });
+  el.querySelector('#confirmCancel').addEventListener('click', cleanup);
+  el.addEventListener('click', (ev) => { if (ev.target === el) cleanup(); });
 }
 
 function openBlockSheet(bi) {
@@ -1374,48 +1393,9 @@ document.addEventListener('click', (e) => {
       render();
       break;
 
-    case 'move-up':
-      if (bi !== null && bi > 0) {
-        [S.blocks[bi - 1], S.blocks[bi]] = [S.blocks[bi], S.blocks[bi - 1]];
-        saveState(); render();
-      }
-      break;
-
-    case 'move-down':
-      if (bi !== null && bi < S.blocks.length - 1) {
-        [S.blocks[bi], S.blocks[bi + 1]] = [S.blocks[bi + 1], S.blocks[bi]];
-        saveState(); render();
-      }
-      break;
-
-    case 'delete-block':
-      if (bi !== null && confirm('Delete this block?')) {
-        S.blocks.splice(bi, 1);
-        saveState(); render();
-      }
-      break;
-
     case 'add-step':
       if (bi !== null) {
         S.blocks[bi].steps.push({ name: '', detail: '', emoji: '✨', tags: [] });
-        saveState(); render();
-      }
-      break;
-
-    case 'delete-step':
-      if (bi !== null && si !== null) {
-        S.blocks[bi].steps.splice(si, 1);
-        saveState(); render();
-      }
-      break;
-
-    case 'toggle-pulse':
-      if (bi !== null && si !== null) {
-        const step = S.blocks[bi].steps[si];
-        const tags = step.tags || [];
-        const idx = tags.indexOf('pulse');
-        idx >= 0 ? tags.splice(idx, 1) : tags.push('pulse');
-        step.tags = tags;
         saveState(); render();
       }
       break;
@@ -1463,33 +1443,33 @@ document.addEventListener('click', (e) => {
 
     case 'delete-routine': {
       const rid = el.dataset.rid;
-      if (confirm('Delete this saved routine?')) {
+      showConfirm('Delete this saved routine?', 'Delete', () => {
         deleteRoutineFromLibrary(rid);
         showLibrary();
-      }
+      });
       break;
     }
 
     case 'new-pilates':
-      if (confirm('Start new Pilates routine? Unsaved changes will be lost.')) {
+      showConfirm('Start new Pilates routine? Unsaved changes will be lost.', 'Start New', () => {
         S.blocks = JSON.parse(JSON.stringify(PILATES_DEFAULT.blocks));
         S.discipline = 'pilates'; S.routineName = 'Mat Pilates';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         saveState(); render();
-      }
+      });
       break;
 
     case 'new-yoga':
-      if (confirm('Start new Yoga routine? Unsaved changes will be lost.')) {
+      showConfirm('Start new Yoga routine? Unsaved changes will be lost.', 'Start New', () => {
         S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
         S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         saveState(); render();
-      }
+      });
       break;
 
     case 'new-blank':
-      if (confirm('Start blank? Unsaved changes will be lost.')) {
+      showConfirm('Start blank? Unsaved changes will be lost.', 'Start Blank', () => {
         S.blocks = [
           { type: 'block', id: 'warmup', title: 'Warm-up', emoji: '🌅', equipment: [], color: 'var(--amber)', steps: [] },
           { type: 'block', id: 'block1', title: 'Block 1', emoji: '✨', equipment: [], color: 'var(--slate)', steps: [] },
@@ -1497,25 +1477,25 @@ document.addEventListener('click', (e) => {
         S.discipline = 'custom'; S.routineName = 'My Routine';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         saveState(); render();
-      }
+      });
       break;
 
     case 'switch-to-pilates':
-      if (confirm('Switch to Pilates? Unsaved changes will be lost.')) {
+      showConfirm('Switch to Pilates? Unsaved changes will be lost.', 'Switch', () => {
         S.blocks = JSON.parse(JSON.stringify(PILATES_DEFAULT.blocks));
         S.discipline = 'pilates'; S.routineName = 'Mat Pilates';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         closeModal(); saveState(); render();
-      }
+      });
       break;
 
     case 'switch-to-yoga':
-      if (confirm('Switch to Yoga? Unsaved changes will be lost.')) {
+      showConfirm('Switch to Yoga? Unsaved changes will be lost.', 'Switch', () => {
         S.blocks = JSON.parse(JSON.stringify(YOGA_DEFAULT.blocks));
         S.discipline = 'yoga'; S.routineName = 'Yoga Sculpt';
         S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.routineId = null;
         closeModal(); saveState(); render();
-      }
+      });
       break;
 
     case 'close-modal':
@@ -1626,10 +1606,11 @@ document.addEventListener('click', (e) => {
     }
 
     case 'sheet-delete-block': {
-      if (sheetContext && confirm('Delete this block?')) {
+      if (!sheetContext) break;
+      showConfirm('Delete this block?', 'Delete', () => {
         S.blocks.splice(sheetContext.bi, 1);
         closeSheet(); saveState(); render();
-      }
+      });
       break;
     }
 
@@ -1669,10 +1650,11 @@ document.addEventListener('click', (e) => {
     }
 
     case 'sheet-delete-step': {
-      if (sheetContext && confirm('Delete this step?')) {
+      if (!sheetContext) break;
+      showConfirm('Delete this step?', 'Delete', () => {
         S.blocks[sheetContext.bi].steps.splice(sheetContext.si, 1);
         closeSheet(); saveState(); render();
-      }
+      });
       break;
     }
 
