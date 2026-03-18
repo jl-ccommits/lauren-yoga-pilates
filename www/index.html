@@ -263,6 +263,7 @@
     .library-title { font: 500 20px/1.2 var(--font-serif); }
     .library-content { flex: 1; overflow-y: auto; padding: 16px; }
     .library-empty { text-align: center; color: var(--text-mid); padding: 32px 16px; font-size: 14px; }
+    .library-section-title { font: 600 11px/1 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--text-mid); padding: 12px 4px 8px; }
 
     .routine-card {
       background: var(--bg); border: 1.5px solid var(--border-bright); border-radius: var(--radius);
@@ -1375,25 +1376,46 @@ function showSaveModal() {
   document.getElementById('saveNameInput').select();
 }
 
+const TEMPLATES = [
+  { key: 'pilates',   name: 'Mat Pilates',   discipline: 'pilates', data: () => PILATES_DEFAULT },
+  { key: 'pilates-2', name: 'Mat Pilates 2', discipline: 'pilates', data: () => MAT_PILATES_2_DEFAULT },
+  { key: 'yoga',      name: 'Yoga Sculpt',   discipline: 'yoga',    data: () => YOGA_DEFAULT },
+  { key: 'yoga-2',    name: 'Yoga Sculpt 2', discipline: 'yoga',    data: () => YOGA_SCULPT_2_DEFAULT },
+];
+
 function showLibrary() {
   document.getElementById('libraryOverlay').classList.remove('hidden');
   document.getElementById('libraryPanel').classList.remove('hidden');
   const content = document.getElementById('libraryContent');
   const routines = getRoutines();
-  if (routines.length === 0) {
-    content.innerHTML = '<div class="library-empty">No saved routines yet. Save your first!</div>';
-    return;
-  }
-  content.innerHTML = routines.map(r => `
-    <div class="routine-card">
-      <div class="routine-card-title">${esc(r.name)}</div>
-      <div class="routine-card-meta">${r.discipline === 'yoga' ? '🧘' : '🏋️'} ${r.discipline} · ${new Date(r.savedAt).toLocaleDateString()}</div>
-      <div class="routine-card-btns">
-        <button class="btn" data-action="load-routine" data-rid="${r.id}">Load</button>
-        <button class="btn danger" data-action="delete-routine" data-rid="${r.id}">Delete</button>
+
+  const templatesHtml = `
+    <div class="library-section-title">Templates</div>
+    ${TEMPLATES.map(t => `
+      <div class="routine-card">
+        <div class="routine-card-title">${esc(t.name)}</div>
+        <div class="routine-card-meta">${t.discipline === 'yoga' ? '🧘' : '🏋️'} ${t.discipline}</div>
+        <div class="routine-card-btns">
+          <button class="btn" data-action="load-template" data-tkey="${t.key}">Load</button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('')}
+  `;
+
+  const savedHtml = routines.length === 0
+    ? '<div class="library-empty">No saved routines yet. Save your first!</div>'
+    : routines.map(r => `
+        <div class="routine-card">
+          <div class="routine-card-title">${esc(r.name)}</div>
+          <div class="routine-card-meta">${r.discipline === 'yoga' ? '🧘' : '🏋️'} ${r.discipline} · ${new Date(r.savedAt).toLocaleDateString()}</div>
+          <div class="routine-card-btns">
+            <button class="btn" data-action="load-routine" data-rid="${r.id}">Load</button>
+            <button class="btn danger" data-action="delete-routine" data-rid="${r.id}">Delete</button>
+          </div>
+        </div>
+      `).join('');
+
+  content.innerHTML = templatesHtml + '<div class="library-section-title">Saved</div>' + savedHtml;
 }
 
 function closeLibrary() {
@@ -1731,6 +1753,20 @@ document.addEventListener('click', (e) => {
     case 'close-library':
       closeLibrary();
       break;
+
+    case 'load-template': {
+      const tkey = el.dataset.tkey;
+      const tmpl = TEMPLATES.find(t => t.key === tkey);
+      if (tmpl) {
+        const d = tmpl.data();
+        S.blocks = JSON.parse(JSON.stringify(d.blocks));
+        S.discipline = tmpl.discipline;
+        S.routineName = tmpl.name;
+        S.checked = {}; S.collapsed = {}; S.quizMode = {}; S.quizRevealed = {}; S.routineId = null;
+        closeLibrary(); S.editMode = false; saveState(); render();
+      }
+      break;
+    }
 
     case 'load-routine': {
       const rid = el.dataset.rid;
