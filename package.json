@@ -3,18 +3,29 @@
   "version": "1.0.0",
   "description": "Pilates & Yoga Routine Tracker",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "python3 -m http.server 8080 --directory www",
+    "serve": "npm run dev",
+    "lint:js": "node scripts/check-js.mjs",
+    "test": "node --test",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc capacitor.config.ts --noEmit --target es2020 --module esnext --moduleResolution node --skipLibCheck",
+    "check": "npm run lint:js && npm run test && npm run typecheck && npm run test:e2e",
     "cap:add:ios": "npx cap add ios",
-    "cap:sync": "npx cap sync",
+    "ios:clear-xattrs": "node scripts/clear-ios-xattrs.mjs",
+    "ios:sim:build": "node scripts/ios-sim.mjs build",
+    "ios:sim:run": "node scripts/ios-sim.mjs run",
+    "cap:sync": "npx cap sync && npm run ios:clear-xattrs",
     "cap:open:ios": "npx cap open ios"
   },
   "dependencies": {
-    "@capacitor/core": "^6.0.0",
-    "@capacitor/ios": "^6.0.0"
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.0.0",
+    "@capacitor/cli": "^8.3.4",
+    "@playwright/test": "^1.60.0",
     "typescript": "^5.9.3"
   }
 }

@@ -1,0 +1,30 @@
+{
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/Plugins/SystemBars.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/SystemBars.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/SystemBars.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/SystemBars.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/SystemBars.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/SystemBars.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/Router.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/Router.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/Router.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/Router.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/Router.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/Router.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/TmpViewController.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/TmpViewController.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/TmpViewController.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/TmpViewController.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/TmpViewController.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/TmpViewController.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/UIColor.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/UIColor.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/UIColor.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/UIColor.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/UIColor.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/UIColor.swiftdeps"
+  }
+}

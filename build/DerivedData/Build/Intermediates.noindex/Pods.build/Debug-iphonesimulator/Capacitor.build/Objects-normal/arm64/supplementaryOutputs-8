@@ -1,0 +1,30 @@
+{
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/NotificationHandlerProtocol.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationHandlerProtocol.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationHandlerProtocol.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationHandlerProtocol.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationHandlerProtocol.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationHandlerProtocol.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/NotificationRouter.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationRouter.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationRouter.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationRouter.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationRouter.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/NotificationRouter.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/PluginCallResult.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginCallResult.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginCallResult.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginCallResult.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginCallResult.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginCallResult.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/PluginConfig.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginConfig.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginConfig.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginConfig.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginConfig.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/PluginConfig.swiftdeps"
+  }
+}

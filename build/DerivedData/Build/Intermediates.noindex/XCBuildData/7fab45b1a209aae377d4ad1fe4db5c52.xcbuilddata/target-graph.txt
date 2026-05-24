@@ -1,0 +1,16 @@
+Target dependency graph (6 targets)
+Target 'App' in project 'App'
+➜ Implicit dependency on target 'Pods-App' in project 'Pods' via file 'Pods_App.framework' in build phase 'Link Binary'
+➜ Implicit dependency on target 'Capacitor' in project 'Pods' via options '-framework Capacitor' in build setting 'OTHER_LDFLAGS'
+➜ Implicit dependency on target 'CapacitorCordova' in project 'Pods' via options '-framework Cordova' in build setting 'OTHER_LDFLAGS'
+Target 'Pods-App' in project 'Pods'
+➜ Explicit dependency on target 'Capacitor' in project 'Pods'
+➜ Explicit dependency on target 'CapacitorCordova' in project 'Pods'
+Target 'Capacitor' in project 'Pods'
+➜ Explicit dependency on target 'Capacitor-Capacitor' in project 'Pods'
+➜ Explicit dependency on target 'CapacitorCordova' in project 'Pods'
+Target 'Capacitor-Capacitor' in project 'Pods'
+➜ Implicit dependency on target 'CapacitorCordova' in project 'Pods' via options '-framework Cordova' in build setting 'OTHER_LDFLAGS'
+Target 'CapacitorCordova' in project 'Pods'
+➜ Explicit dependency on target 'CapacitorCordova-CapacitorCordova' in project 'Pods'
+Target 'CapacitorCordova-CapacitorCordova' in project 'Pods' (no dependencies)

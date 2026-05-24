@@ -1,0 +1,30 @@
+{
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/Plugins/WebView.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebView.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebView.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebView.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebView.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebView.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/WKWebView+Capacitor.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WKWebView+Capacitor-c03b4e7c55c854bfc8be8f85d5458008.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WKWebView+Capacitor-c03b4e7c55c854bfc8be8f85d5458008.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WKWebView+Capacitor-c03b4e7c55c854bfc8be8f85d5458008.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WKWebView+Capacitor-c03b4e7c55c854bfc8be8f85d5458008.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WKWebView+Capacitor-c03b4e7c55c854bfc8be8f85d5458008.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/WebViewAssetHandler.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewAssetHandler.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewAssetHandler.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewAssetHandler.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewAssetHandler.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewAssetHandler.swiftdeps"
+  },
+  "/Users/jacoblandman/Documents/Namast App/node_modules/@capacitor/ios/Capacitor/Capacitor/WebViewDelegationHandler.swift" : {
+    "const-values" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewDelegationHandler.swiftconstvalues",
+    "dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewDelegationHandler.d",
+    "diagnostics" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewDelegationHandler.dia",
+    "object" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewDelegationHandler.o",
+    "swift-dependencies" : "/Users/jacoblandman/Documents/Namast App/build/DerivedData/Build/Intermediates.noindex/Pods.build/Debug-iphonesimulator/Capacitor.build/Objects-normal/arm64/WebViewDelegationHandler.swiftdeps"
+  }
+}
