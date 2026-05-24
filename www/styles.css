@@ -1141,6 +1141,7 @@ body {
   color: var(--surface);
   border-radius: var(--radius);
   box-shadow: 0 12px 34px rgba(38,49,51,0.24);
+  pointer-events: none;
 }
 .undo-message {
   min-width: 0;
@@ -1161,6 +1162,7 @@ body {
   color: var(--surface);
   font: 700 13px/1 var(--font-sans);
   cursor: pointer;
+  pointer-events: auto;
 }
 .undo-button {
   min-height: 36px;

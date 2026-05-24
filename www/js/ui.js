@@ -1,6 +1,6 @@
-import { BLOCK_COLORS, EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-notes';
-import { getRoutines, getScheduleItems, getUpcomingSchedule, S } from './store.js?v=20260523-notes';
-import { esc, assertElement, markerFrom } from './utils.js?v=20260523-notes';
+import { BLOCK_COLORS, EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-duration50';
+import { getRoutines, getScheduleItems, getUpcomingSchedule, S } from './store.js?v=20260523-duration50';
+import { esc, assertElement, markerFrom } from './utils.js?v=20260523-duration50';
 
 export let sheetContext = null;
 
@@ -345,6 +345,7 @@ export function showScheduleForm() {
       <select class="form-input" id="scheduleDurationInput">
         <option value="30">30 minutes</option>
         <option value="45" selected>45 minutes</option>
+        <option value="50">50 minutes</option>
         <option value="60">60 minutes</option>
         <option value="75">75 minutes</option>
         <option value="90">90 minutes</option>
@@ -519,7 +520,8 @@ export function openPlanningGoalsSheet() {
         <label>Length</label>
         <select id="planningDuration">
           <option value="30" ${prefs.duration === '30' ? 'selected' : ''}>30 minutes</option>
-          <option value="45" ${prefs.duration !== '30' && prefs.duration !== '60' ? 'selected' : ''}>45 minutes</option>
+          <option value="45" ${prefs.duration === '45' ? 'selected' : ''}>45 minutes</option>
+          <option value="50" ${prefs.duration === '50' ? 'selected' : ''}>50 minutes</option>
           <option value="60" ${prefs.duration === '60' ? 'selected' : ''}>60 minutes</option>
         </select>
       </div>

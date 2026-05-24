@@ -1,12 +1,12 @@
-import { TEMPLATES } from './templates.js?v=20260523-notes';
+import { TEMPLATES } from './templates.js?v=20260523-duration50';
 import {
   detectEquipment,
   formatQuickBuildText,
   parseQuickBuild,
   parseStepLine,
   routineToText,
-} from './parser.js?v=20260523-notes';
-import { isBlockCollapsed, render, renderProgress } from './render.js?v=20260523-notes';
+} from './parser.js?v=20260523-duration50';
+import { isBlockCollapsed, render, renderProgress } from './render.js?v=20260523-duration50';
 import {
   createScheduleItem,
   deleteScheduleItem,
@@ -22,8 +22,8 @@ import {
   saveRoutineToLibrary,
   saveState,
   updateScheduleItem,
-} from './store.js?v=20260523-notes';
-import { suggestRoutineCompletion, suggestStepsForBlock } from './suggestions.js?v=20260523-notes';
+} from './store.js?v=20260523-duration50';
+import { suggestRoutineCompletion, suggestStepsForBlock } from './suggestions.js?v=20260523-duration50';
 import {
   closeLibrary,
   closeModal,
@@ -46,8 +46,8 @@ import {
   showUndoSnackbar,
   showSaveModal,
   dismissFirstRunTour,
-} from './ui.js?v=20260523-notes';
-import { esc } from './utils.js?v=20260523-notes';
+} from './ui.js?v=20260523-duration50';
+import { esc } from './utils.js?v=20260523-duration50';
 
 function contextFrom(el, event) {
   return {

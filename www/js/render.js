@@ -1,8 +1,8 @@
-import { EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-notes';
-import { detectEquipment } from './parser.js?v=20260523-notes';
-import { S } from './store.js?v=20260523-notes';
-import { inferBlockCategory } from './suggestions.js?v=20260523-notes';
-import { esc, assertElement, markerFrom } from './utils.js?v=20260523-notes';
+import { EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-duration50';
+import { detectEquipment } from './parser.js?v=20260523-duration50';
+import { S } from './store.js?v=20260523-duration50';
+import { inferBlockCategory } from './suggestions.js?v=20260523-duration50';
+import { esc, assertElement, markerFrom } from './utils.js?v=20260523-duration50';
 
 const CATEGORY_LABELS = {
   arms: 'Arms',

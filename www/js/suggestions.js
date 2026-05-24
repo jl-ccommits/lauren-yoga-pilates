@@ -1,4 +1,4 @@
-import { detectEquipment, guessEmoji } from './parser.js?v=20260523-notes';
+import { detectEquipment, guessEmoji } from './parser.js?v=20260523-duration50';
 
 const LEGACY_STEP_LIBRARY = [
   { name: 'Breath + Intention', detail: 'Settle in, hands at heart and belly. Take 8 full breaths.', category: 'warmup', disciplines: ['yoga', 'pilates'], equipment: [], emoji: '🫁' },
@@ -1017,6 +1017,7 @@ function preferredEquipment(state) {
 function completionLimit(state, fallbackLimit) {
   if (Number.isFinite(fallbackLimit)) return fallbackLimit;
   if (state.planningPrefs?.duration === '30') return 2;
+  if (state.planningPrefs?.duration === '50') return 4;
   if (state.planningPrefs?.duration === '60') return 4;
   return 3;
 }

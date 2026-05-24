@@ -72,6 +72,16 @@ test('saveState stores a versioned local payload', () => {
   assert.deepEqual(payload.state.planningPrefs, { duration: '60', focus: 'core', intensity: 'strong', equipment: ['weights'] });
 });
 
+test('50 minute class goals save and reload locally', () => {
+  S.routineName = 'Lauren Standard Class';
+  S.planningPrefs = { duration: '50', focus: 'glute', intensity: 'steady', equipment: ['ball', 'ring'] };
+  saveState();
+
+  resetRoutine({ name: 'Reset', discipline: 'custom', blocks: [] }, 'Reset', 'custom');
+  assert.equal(loadState(), true);
+  assert.deepEqual(S.planningPrefs, { duration: '50', focus: 'glute', intensity: 'steady', equipment: ['ball', 'ring'] });
+});
+
 test('loadState migrates legacy localStorage shape', () => {
   localStorage.setItem(CURRENT_STATE_KEY, JSON.stringify({
     routineName: 'Legacy',
@@ -279,11 +289,12 @@ test('schedule items save locally, update status, and delete cleanly', () => {
     discipline: 'yoga',
     date: isoInDays(1),
     time: '08:30',
-    duration: '60',
+    duration: '50',
     note: 'Bring weights',
   });
 
   assert.equal(getScheduleItems().length, 1);
+  assert.equal(getScheduleItems()[0].duration, '50');
   assert.equal(getScheduleItems()[0].status, 'needs-plan');
   assert.equal(getUpcomingSchedule(7)[0].title, 'Saturday Sub Class');
 

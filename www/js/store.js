@@ -1,5 +1,5 @@
-import { PILATES_DEFAULT } from './templates.js?v=20260523-notes';
-import { clone } from './utils.js?v=20260523-notes';
+import { PILATES_DEFAULT } from './templates.js?v=20260523-duration50';
+import { clone } from './utils.js?v=20260523-duration50';
 
 export const STORAGE_VERSION = 1;
 export const CURRENT_STATE_KEY = 'current_state';
@@ -117,7 +117,7 @@ function normalizeState(data) {
 }
 
 function normalizePlanningPrefs(prefs = {}) {
-  const duration = ['30', '45', '60'].includes(String(prefs.duration)) ? String(prefs.duration) : DEFAULT_PLANNING_PREFS.duration;
+  const duration = ['30', '45', '50', '60'].includes(String(prefs.duration)) ? String(prefs.duration) : DEFAULT_PLANNING_PREFS.duration;
   const intensity = ['gentle', 'steady', 'strong'].includes(prefs.intensity) ? prefs.intensity : DEFAULT_PLANNING_PREFS.intensity;
   const focus = ['balanced', 'core', 'glute', 'arms', 'balance', 'stretch'].includes(prefs.focus) ? prefs.focus : DEFAULT_PLANNING_PREFS.focus;
   const equipment = Array.isArray(prefs.equipment)
@@ -186,7 +186,7 @@ function normalizeScheduleItem(item, index = 0) {
     discipline: ['pilates', 'yoga', 'custom'].includes(item.discipline) ? item.discipline : 'custom',
     date,
     time: normalizeTime(item.time),
-    duration: ['30', '45', '60', '75', '90'].includes(String(item.duration)) ? String(item.duration) : '45',
+    duration: ['30', '45', '50', '60', '75', '90'].includes(String(item.duration)) ? String(item.duration) : '45',
     repeat: item.repeat === 'weekly' ? 'weekly' : 'once',
     note: String(item.note || '').trim(),
     routineId: item.routineId || null,

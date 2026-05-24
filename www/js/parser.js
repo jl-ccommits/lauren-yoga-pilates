@@ -1,4 +1,4 @@
-import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260523-notes';
+import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260523-duration50';
 
 export function detectEquipment(text) {
   const lower = (text || '').toLowerCase();
