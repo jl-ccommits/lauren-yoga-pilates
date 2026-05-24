@@ -1,5 +1,5 @@
-import { PILATES_DEFAULT } from './templates.js?v=20260524-adversarial';
-import { clone } from './utils.js?v=20260524-adversarial';
+import { PILATES_DEFAULT } from './templates.js?v=20260524-llmark';
+import { clone } from './utils.js?v=20260524-llmark';
 
 export const STORAGE_VERSION = 1;
 export const CURRENT_STATE_KEY = 'current_state';

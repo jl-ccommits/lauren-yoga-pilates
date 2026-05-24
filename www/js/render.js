@@ -1,8 +1,9 @@
-import { EQUIPMENT, TEMPLATES } from './templates.js?v=20260524-adversarial';
-import { detectEquipment } from './parser.js?v=20260524-adversarial';
-import { S } from './store.js?v=20260524-adversarial';
-import { inferBlockCategory } from './suggestions.js?v=20260524-adversarial';
-import { esc, assertElement, markerFrom } from './utils.js?v=20260524-adversarial';
+import { EQUIPMENT, TEMPLATES } from './templates.js?v=20260524-llmark';
+import { getBrand } from './brand.js?v=20260524-llmark';
+import { detectEquipment } from './parser.js?v=20260524-llmark';
+import { S } from './store.js?v=20260524-llmark';
+import { inferBlockCategory } from './suggestions.js?v=20260524-llmark';
+import { esc, assertElement, markerFrom } from './utils.js?v=20260524-llmark';
 
 const CATEGORY_LABELS = {
   arms: 'Arms',
@@ -304,6 +305,13 @@ function renderHeader() {
   document.body.classList.toggle('teach-mode', S.teachMode === true && !S.editMode);
   document.body.classList.toggle('study-mode', S.memorizeMode === true && !S.editMode && !S.teachMode);
   document.body.classList.toggle('editing-mode', S.editMode === true);
+  const brand = getBrand();
+  const brandLockup = assertElement('brandLockup');
+  const brandMark = assertElement('brandMark');
+  const brandOwner = assertElement('brandOwner');
+  brandMark.textContent = brand.monogram;
+  brandOwner.textContent = brand.ownerName;
+  brandLockup.setAttribute('aria-label', brand.ariaLabel);
   const nameEl = assertElement('routineName');
   if (S.editMode) {
     const existingInput = nameEl.querySelector('input');

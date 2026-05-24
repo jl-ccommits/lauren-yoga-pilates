@@ -1,12 +1,12 @@
-import { TEMPLATES } from './templates.js?v=20260524-adversarial';
+import { TEMPLATES } from './templates.js?v=20260524-llmark';
 import {
   detectEquipment,
   formatQuickBuildText,
   parseQuickBuild,
   parseStepLine,
   routineToText,
-} from './parser.js?v=20260524-adversarial';
-import { isBlockCollapsed, render, renderProgress } from './render.js?v=20260524-adversarial';
+} from './parser.js?v=20260524-llmark';
+import { isBlockCollapsed, render, renderProgress } from './render.js?v=20260524-llmark';
 import {
   createScheduleItem,
   deleteScheduleItem,
@@ -24,8 +24,8 @@ import {
   saveState,
   updateScheduleOccurrence,
   updateScheduleItem,
-} from './store.js?v=20260524-adversarial';
-import { suggestRoutineCompletion, suggestStepsForBlock } from './suggestions.js?v=20260524-adversarial';
+} from './store.js?v=20260524-llmark';
+import { suggestRoutineCompletion, suggestStepsForBlock } from './suggestions.js?v=20260524-llmark';
 import {
   closeLibrary,
   closeModal,
@@ -49,8 +49,8 @@ import {
   showUndoSnackbar,
   showSaveModal,
   dismissFirstRunTour,
-} from './ui.js?v=20260524-adversarial';
-import { esc } from './utils.js?v=20260524-adversarial';
+} from './ui.js?v=20260524-llmark';
+import { esc } from './utils.js?v=20260524-llmark';
 
 if (typeof window !== 'undefined') {
   window.addEventListener('planner-storage-error', () => {

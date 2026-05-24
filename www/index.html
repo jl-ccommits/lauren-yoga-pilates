@@ -6,15 +6,19 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
   <title>Lauren's Class Planner</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=20260524-adversarial">
+  <link rel="stylesheet" href="styles.css?v=20260524-llmark">
 </head>
 <body>
   <div class="container">
     <div class="header">
       <div class="header-main">
-        <div class="routine-meta">
-          <div class="routine-name" id="routineName"></div>
-          <button class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></button>
+        <div class="brand-lockup" id="brandLockup">
+          <div class="brand-mark" id="brandMark" aria-hidden="true">LL</div>
+          <div class="routine-meta">
+            <div class="brand-owner" id="brandOwner">Lauren Landman</div>
+            <div class="routine-name" id="routineName"></div>
+            <button class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></button>
+          </div>
         </div>
         <button class="btn primary header-plan" id="editToggle" data-action="toggle-edit" title="Edit this class plan">Edit Plan</button>
       </div>
@@ -47,6 +51,6 @@
     <div id="sheetContent"></div>
   </div>
 
-<script type="module" src="js/app.js?v=20260524-adversarial"></script>
+<script type="module" src="js/app.js?v=20260524-llmark"></script>
 </body>
 </html>

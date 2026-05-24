@@ -1,4 +1,4 @@
-import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260524-adversarial';
+import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260524-llmark';
 
 export function detectEquipment(text) {
   const lower = (text || '').toLowerCase();
