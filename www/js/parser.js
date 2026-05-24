@@ -1,4 +1,4 @@
-import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260523-duration50';
+import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260524-adversarial';
 
 export function detectEquipment(text) {
   const lower = (text || '').toLowerCase();
@@ -131,6 +131,7 @@ function isCommonHeading(value) {
   const text = cleanHeading(value);
   if (!text) return false;
   if (/[|]/.test(text)) return false;
+  if (/\b[x×]\s*\d+\b/i.test(text)) return false;
   if (words(text).length > 7) return false;
   if (/:$/.test(value.trim())) return true;
   if (isAllCapsHeading(text)) return true;

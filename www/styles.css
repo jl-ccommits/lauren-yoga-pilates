@@ -165,8 +165,8 @@ body {
 }
 .header-actions .btn {
   justify-content: center;
-  min-height: 32px;
-  padding: 7px 12px;
+  min-height: 40px;
+  padding: 9px 14px;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -181,9 +181,9 @@ body {
   box-shadow: 0 1px 4px rgba(38,49,51,0.08);
 }
 .header-actions .help-button {
-  flex: 0 0 32px;
-  width: 32px;
-  min-width: 32px;
+  flex: 0 0 40px;
+  width: 40px;
+  min-width: 40px;
   padding: 0;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -565,8 +565,16 @@ body {
 /* ---- Step Rows ---- */
 .step-row {
   display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--border);
+  min-height: 56px;
 }
-.step-checkbox { width: 20px; height: 20px; min-width: 20px; margin-top: 2px; cursor: pointer; accent-color: var(--accent); }
+.step-checkbox {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
 .step-content { flex: 1; min-width: 0; }
 .step-emoji {
   width: 26px;
@@ -601,7 +609,8 @@ body {
 .quiz-card .step-detail { display: none; }
 .quiz-card.revealed .step-detail { display: block; }
 .quiz-toggle {
-  padding: 2px 8px; background: var(--surface2); border: 1px solid var(--border-bright);
+  min-height: 34px;
+  padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border-bright);
   border-radius: 12px; font-size: 11px; cursor: pointer; color: var(--text-mid); transition: all 0.2s;
 }
 .quiz-toggle:hover, .quiz-toggle.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
@@ -891,7 +900,7 @@ body {
   .header-plan { min-height: 40px; padding-inline: 14px; }
   .header-actions { width: 100%; justify-content: space-between; }
   .header-actions .btn { flex: 1 0 auto; }
-  .header-actions .help-button { flex: 0 0 32px; }
+  .header-actions .help-button { flex: 0 0 40px; }
   .editing-mode .header-actions { width: fit-content; }
   .class-glance { gap: 8px; padding: 9px 10px; }
   .class-glance-secondary { display: none !important; }
@@ -950,8 +959,16 @@ body {
   border-radius: 16px 16px 0 0; z-index: 9600;
   transform: translate3d(0,100%,0);
   visibility: hidden; pointer-events: none;
-  max-height: 85vh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 16px);
+  max-height: calc(100vh - 28px - env(safe-area-inset-top, 0px));
+  overflow-y: auto;
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 16px));
+  scroll-padding-bottom: calc(128px + env(safe-area-inset-bottom, 16px));
   -webkit-overflow-scrolling: touch;
+}
+@supports (height: 100dvh) {
+  .sheet {
+    max-height: calc(100dvh - 28px - env(safe-area-inset-top, 0px));
+  }
 }
 .sheet.open { transform: none !important; visibility: visible; pointer-events: auto; }
 .sheet-handle {
@@ -967,6 +984,11 @@ body {
 .sheet-field label {
   display: block; font-size: 12px; font-weight: 600; color: var(--text-mid);
   margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0;
+}
+.field-help {
+  margin: -2px 0 10px;
+  color: var(--text-mid);
+  font: 500 13px/1.45 var(--font-sans);
 }
 .sheet-field input[type="text"],
 .sheet-field textarea,
@@ -1003,6 +1025,7 @@ body {
   border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer;
   transition: all 0.2s; color: var(--text);
   -webkit-tap-highlight-color: transparent;
+  min-height: 44px;
 }
 .eq-toggle.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 
@@ -1019,8 +1042,9 @@ body {
 .sheet-actions {
   display: flex; flex-direction: column; gap: 10px;
   position: sticky; bottom: 0; z-index: 2;
-  padding: 16px 20px; border-top: 1px solid var(--border); margin-top: 8px;
-  background: var(--surface);
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border); margin-top: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0), var(--surface) 18%);
 }
 .sheet-actions .btn { min-height: 48px; font-size: 15px; }
 .sheet-row-actions { display: flex; gap: 10px; }

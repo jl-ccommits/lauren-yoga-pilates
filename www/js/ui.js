@@ -1,6 +1,6 @@
-import { BLOCK_COLORS, EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-duration50';
-import { getRoutines, getScheduleItems, getUpcomingSchedule, S } from './store.js?v=20260523-duration50';
-import { esc, assertElement, markerFrom } from './utils.js?v=20260523-duration50';
+import { BLOCK_COLORS, EQUIPMENT, TEMPLATES } from './templates.js?v=20260524-adversarial';
+import { getRoutines, getScheduleItems, getUpcomingSchedule, S } from './store.js?v=20260524-adversarial';
+import { esc, assertElement, markerFrom } from './utils.js?v=20260524-adversarial';
 
 export let sheetContext = null;
 
@@ -14,7 +14,7 @@ function shouldAutoFocusForms() {
 export function showModal(html, overlayAction = 'close-modal') {
   assertElement('modalContainer').innerHTML = `
     <div class="modal-overlay" data-action="${esc(overlayAction)}">
-      <div class="modal">${html}</div>
+      <div class="modal" role="dialog" aria-modal="true">${html}</div>
     </div>`;
 }
 
@@ -62,6 +62,18 @@ function displayScheduleDate(value) {
     month: 'short',
     day: 'numeric',
   });
+}
+
+function todayISO() {
+  const today = new Date();
+  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+function addDaysISO(value, days) {
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
 function displayTime(value) {
@@ -141,6 +153,7 @@ function statusLabel(status) {
 function scheduleCard(item, routinesById) {
   const routine = item.routineId ? routinesById.get(item.routineId) : null;
   const repeat = item.isRecurring ? 'weekly' : 'one-time';
+  const occurrenceAttrs = `data-sid="${esc(item.id)}" data-date="${esc(item.occurrenceDate)}"`;
   const linked = routine
     ? `Linked plan: ${routine.name}`
     : 'No plan linked yet';
@@ -156,13 +169,13 @@ function scheduleCard(item, routinesById) {
       ${item.note ? `<div class="routine-card-description">${esc(item.note)}</div>` : ''}
       <div class="schedule-linked">${esc(linked)}</div>
       <div class="routine-card-btns schedule-actions">
-        ${routine ? `<button class="btn primary" data-action="schedule-open-routine" data-sid="${esc(item.id)}">Open Plan</button>` : ''}
-        <button class="btn ${routine ? '' : 'primary'}" data-action="schedule-use-recent" data-sid="${esc(item.id)}" data-date="${esc(item.occurrenceDate)}">Use Recent</button>
-        <button class="btn" data-action="schedule-start-blank" data-sid="${esc(item.id)}" data-date="${esc(item.occurrenceDate)}">Start Blank</button>
-        <button class="btn" data-action="schedule-use-current" data-sid="${esc(item.id)}" data-date="${esc(item.occurrenceDate)}">Use Current</button>
-        ${item.status !== 'ready' ? `<button class="btn" data-action="schedule-mark-ready" data-sid="${esc(item.id)}">Ready</button>` : ''}
-        ${item.status !== 'taught' ? `<button class="btn" data-action="schedule-mark-taught" data-sid="${esc(item.id)}">Taught</button>` : ''}
-        <button class="btn danger" data-action="delete-schedule-class" data-sid="${esc(item.id)}">Delete</button>
+        ${routine ? `<button class="btn primary" data-action="schedule-open-routine" ${occurrenceAttrs}>Open Plan</button>` : ''}
+        <button class="btn ${routine ? '' : 'primary'}" data-action="schedule-use-recent" ${occurrenceAttrs}>Use Recent</button>
+        <button class="btn" data-action="schedule-start-blank" ${occurrenceAttrs}>Start Blank</button>
+        <button class="btn" data-action="schedule-use-current" ${occurrenceAttrs}>Use Current</button>
+        ${item.status !== 'ready' ? `<button class="btn" data-action="schedule-mark-ready" ${occurrenceAttrs}>Ready</button>` : ''}
+        ${item.status !== 'taught' ? `<button class="btn" data-action="schedule-mark-taught" ${occurrenceAttrs}>Taught</button>` : ''}
+        <button class="btn danger" data-action="delete-schedule-class" ${occurrenceAttrs}>Delete</button>
       </div>
     </div>
   `;
@@ -174,21 +187,36 @@ export function showSchedulePanel() {
   const routines = getRoutines();
   const routinesById = new Map(routines.map(routine => [routine.id, routine]));
   const upcoming = getUpcomingSchedule(14);
+  const upcomingIds = new Set(upcoming.map(item => item.id));
+  const nextWindowEnd = addDaysISO(todayISO(), 13);
+  const later = getUpcomingSchedule(180)
+    .filter(item => item.occurrenceDate > nextWindowEnd)
+    .filter(item => !item.isRecurring || !upcomingIds.has(item.id))
+    .reduce((items, item) => {
+      if (items.some(existing => existing.id === item.id)) return items;
+      return [...items, item];
+    }, [])
+    .slice(0, 6);
   const scheduledCount = getScheduleItems().length;
 
   const scheduleHtml = upcoming.length
     ? upcoming.map(item => scheduleCard(item, routinesById)).join('')
     : `<div class="library-empty">${scheduledCount ? 'No classes in the next two weeks.' : 'No classes scheduled yet.'}</div>`;
 
+  const laterHtml = later.length
+    ? `<div class="library-section-title">Later</div>${later.map(item => scheduleCard(item, routinesById)).join('')}`
+    : '';
+
   content.innerHTML = `
     <div class="schedule-intro">
       <strong>Upcoming Classes</strong>
       <span>Keep usual classes and sub classes in one place. Everything stays on this device.</span>
     </div>
-    <button class="btn lg primary block schedule-add" data-action="open-schedule-form">+ Add Class</button>
-    <div class="library-section-title">Next 2 Weeks</div>
-    ${scheduleHtml}
-  `;
+	    <button class="btn lg primary block schedule-add" data-action="open-schedule-form">+ Add Class</button>
+	    <div class="library-section-title">Next 2 Weeks</div>
+	    ${scheduleHtml}
+	    ${laterHtml}
+	  `;
 }
 
 export function closeLibrary() {
@@ -200,6 +228,8 @@ export function openSheet(html) {
   assertElement('sheetContent').innerHTML = html;
   assertElement('sheetOverlay').removeAttribute('aria-hidden');
   assertElement('sheet').removeAttribute('aria-hidden');
+  assertElement('sheet').setAttribute('role', 'dialog');
+  assertElement('sheet').setAttribute('aria-modal', 'true');
   assertElement('sheetOverlay').classList.add('open');
   assertElement('sheet').classList.add('open');
 }
@@ -212,6 +242,8 @@ export function closeSheet() {
   sheet.classList.remove('open');
   overlay.setAttribute('aria-hidden', 'true');
   sheet.setAttribute('aria-hidden', 'true');
+  sheet.removeAttribute('role');
+  sheet.removeAttribute('aria-modal');
   assertElement('sheetContent').innerHTML = '';
   sheetContext = null;
 }
@@ -265,6 +297,31 @@ export function showUndoSnackbar(message, onUndo, options = {}) {
   undoTimer = setTimeout(cleanup, options.timeout || 12000);
 }
 
+export function showNoticeSnackbar(message, options = {}) {
+  document.getElementById('undoSnackbar')?.remove();
+  if (undoTimer) clearTimeout(undoTimer);
+
+  const el = document.createElement('div');
+  el.id = 'undoSnackbar';
+  el.className = 'undo-snackbar';
+  el.setAttribute('role', 'status');
+  el.innerHTML = `
+    <span class="undo-message">${esc(message)}</span>
+    <div class="undo-actions">
+      <button class="undo-close" type="button" aria-label="Dismiss">×</button>
+    </div>`;
+
+  const cleanup = () => {
+    if (undoTimer) clearTimeout(undoTimer);
+    undoTimer = null;
+    el.remove();
+  };
+
+  el.querySelector('.undo-close').addEventListener('click', cleanup);
+  document.body.appendChild(el);
+  undoTimer = setTimeout(cleanup, options.timeout || 10000);
+}
+
 export function dismissFirstRunTour() {
   try {
     globalThis.localStorage?.setItem(TOUR_STORAGE_KEY, 'true');
@@ -287,26 +344,26 @@ export function maybeShowFirstRunTour() {
 export function showFirstRunTour() {
   showModal(`
     <h3>Quick Tour</h3>
-    <p class="tour-intro">Everything saves on this device. No account needed, no setup.</p>
+    <p class="tour-intro">Paste messy Apple Notes and turn them into a teachable class plan. Everything saves on this device. No account needed.</p>
     <div class="tour-list">
       <div class="tour-item">
-        <strong>Plan</strong>
-        <span>Edit the class, paste Apple Notes, add exercises, or ask for suggestions.</span>
+        <strong>Edit Plan</strong>
+        <span>Paste Apple Notes, change exercises, set goals, or ask for suggestions.</span>
       </div>
       <div class="tour-item">
         <strong>Saved</strong>
         <span>Open last week's class, duplicate it, or make a backup.</span>
       </div>
       <div class="tour-item">
-        <strong>Review</strong>
+        <strong>Preview</strong>
         <span>Study the class shape before teaching.</span>
       </div>
       <div class="tour-item">
-        <strong>Teach</strong>
+        <strong>Teach Mode</strong>
         <span>Use bigger text and check off exercises during class.</span>
       </div>
       <div class="tour-item">
-        <strong>Schedule</strong>
+        <strong>Classes</strong>
         <span>Track usual classes, sub classes, and which plans are ready.</span>
       </div>
     </div>
@@ -361,10 +418,10 @@ export function showScheduleForm() {
   if (shouldAutoFocusForms()) assertElement('scheduleTitleInput').focus();
 }
 
-export function openBlockSheet(bi) {
+export function openBlockSheet(bi, options = {}) {
   const block = S.blocks[bi];
   if (!block) return;
-  sheetContext = { type: 'block', bi };
+  sheetContext = { type: 'block', bi, ...options };
 
   const colorSwatches = BLOCK_COLORS.map(c =>
     `<div class="color-swatch ${block.color === c.var ? 'selected' : ''}" style="background:${c.hex}" data-action="sheet-color" data-color="${c.var}"></div>`,
@@ -404,12 +461,12 @@ export function openBlockSheet(bi) {
   `);
 }
 
-export function openStepSheet(bi, si) {
+export function openStepSheet(bi, si, options = {}) {
   const block = S.blocks[bi];
   if (!block) return;
   const step = block.steps[si];
   if (!step) return;
-  sheetContext = { type: 'step', bi, si };
+  sheetContext = { type: 'step', bi, si, ...options };
   const hasPulse = (step.tags || []).includes('pulse');
   openSheet(`
     <div class="sheet-header">
@@ -470,20 +527,22 @@ export function openQuickAddSheet(bi) {
       <button class="btn lg primary block" data-action="confirm-quick-add" data-bi="${bi}">Add Exercises</button>
     </div>
   `);
-  setTimeout(() => document.getElementById('sheetQuickAddText')?.focus(), 300);
+  if (shouldAutoFocusForms()) setTimeout(() => document.getElementById('sheetQuickAddText')?.focus(), 300);
 }
 
-export function openQuickBuildSheet() {
+export function openQuickBuildSheet(draft = '') {
   sheetContext = { type: 'quickbuild' };
+  const defaultPlaceholder = 'Paste from Apple Notes or type like normal.\n\nGrab ball - ankle weights on\nUpper body lifts up with the ball x 16\nHold and pulse x 8\n\nSeated roll up\nHands back lift up legs to teaser x 8\n\nTable top\nBall under left hand, lengthen right leg x 8\n\nStretch';
   openSheet(`
     <div class="sheet-header">
-      <h3>Quick Build</h3>
+      <h3>Paste Notes</h3>
       <button class="btn" data-action="close-sheet">Cancel</button>
     </div>
     <div class="sheet-body">
       <div class="sheet-field">
         <label>Apple Notes</label>
-        <textarea id="sheetQuickBuildText" placeholder="Paste from Apple Notes or type like normal.\n\nGrab ball - ankle weights on\nUpper body lifts up with the ball x 16\nHold and pulse x 8\n\nSeated roll up\nHands back lift up legs to teaser x 8\n\nTable top\nBall under left hand, lengthen right leg x 8\n\nStretch" style="min-height:280px"></textarea>
+        <p class="field-help">Paste your own notes below. The app will turn them into sections, exercises, cues, reps, and equipment.</p>
+        <textarea id="sheetQuickBuildText" placeholder="${esc(defaultPlaceholder)}" style="min-height:280px">${esc(draft)}</textarea>
       </div>
       <label class="switch-row">
         <input type="checkbox" id="quickBuildReplace" checked>
@@ -500,7 +559,7 @@ export function openQuickBuildSheet() {
       <button class="btn lg primary block" data-action="confirm-quick-build">Build Class</button>
     </div>
   `);
-  setTimeout(() => document.getElementById('sheetQuickBuildText')?.focus(), 300);
+  if (shouldAutoFocusForms()) setTimeout(() => document.getElementById('sheetQuickBuildText')?.focus(), 300);
 }
 
 export function openPlanningGoalsSheet() {

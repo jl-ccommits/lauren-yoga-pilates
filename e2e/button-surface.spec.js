@@ -24,12 +24,12 @@ test('top-level phone navigation, class switching, and overlays are forgiving', 
   await expect(page.locator('#routineName')).toHaveText('Mat Pilates - Core + Glutes');
   await expect(page.locator('#disciplineBadge')).toHaveText('Templates');
   await expect(page.locator('[data-action="load-routines"]')).toHaveText('Saved');
-  await expect(page.locator('[data-action="load-schedule"]')).toHaveText('Schedule');
+  await expect(page.locator('[data-action="load-schedule"]')).toHaveText('Classes');
   await expect(page.locator('[data-action="show-tour"]')).toHaveText('?');
-  await expect(page.locator('#studyToggle')).toHaveText('Review');
-  await expect(page.locator('#teachToggle')).toHaveText('Teach');
-  await expect(page.locator('#headerActions .btn')).toHaveText(['Saved', 'Review', 'Teach', 'Schedule', '?']);
-  await expect(page.locator('#editToggle')).toHaveText('Plan Class');
+  await expect(page.locator('#studyToggle')).toHaveText('Preview');
+  await expect(page.locator('#teachToggle')).toHaveText('Teach Mode');
+  await expect(page.locator('#headerActions .btn')).toHaveText(['Saved', 'Preview', 'Teach Mode', 'Classes', '?']);
+  await expect(page.locator('#editToggle')).toHaveText('Edit Plan');
   await expectNoHorizontalOverflow(page);
 
   await page.locator('[data-action="load-schedule"]').click();
@@ -40,7 +40,7 @@ test('top-level phone navigation, class switching, and overlays are forgiving', 
 
   await page.locator('[data-action="show-tour"]').click();
   await expect(page.getByText('Quick Tour')).toBeVisible();
-  await expect(page.getByText('Everything saves on this device. No account needed, no setup.')).toBeVisible();
+  await expect(page.getByText('Paste messy Apple Notes and turn them into a teachable class plan. Everything saves on this device. No account needed.')).toBeVisible();
   await page.getByRole('button', { name: 'Got It' }).click();
   await expect(page.locator('#modalContainer')).toBeEmpty();
 
@@ -55,6 +55,8 @@ test('top-level phone navigation, class switching, and overlays are forgiving', 
   await page.locator('[data-action="load-routines"]').click();
   await expect(page.locator('#libraryPanel')).not.toHaveClass(/hidden/);
   await page.locator('[data-action="load-template"][data-tkey="blank-yoga"]').click();
+  await expect(page.getByText('Open Blank Yoga Class? Unsaved changes will be lost.')).toBeVisible();
+  await page.locator('#confirmOk').click();
   await expect(page.locator('#routineName')).toHaveText('Blank Yoga Class');
   await expect(page.locator('#disciplineBadge')).toHaveText('Templates');
 
@@ -153,7 +155,7 @@ Only Replacement Move | should disappear after undo`);
   await page.locator('[data-action="confirm-quick-build"]').click();
   await expect(page.locator('#blocks')).toContainText('Only Replacement Move');
   await expect(page.locator('#blocks')).not.toContainText('Seated Cross-Legged');
-  await expect(page.locator('#undoSnackbar')).toContainText('Replaced class.');
+  await expect(page.locator('#undoSnackbar')).toContainText('Class built from notes.');
 
   await page.locator('#undoSnackbar .undo-button').click();
   await expect(page.locator('#blocks')).toContainText('Seated Cross-Legged');
@@ -223,7 +225,13 @@ test('sheet overlay dismissal saves typed edits and leaves the app usable', asyn
   await page.locator('[data-action="open-quick-build"]').click();
   await page.locator('#sheetQuickBuildText').fill('Dismissed Draft Should Not Build');
   await page.locator('#sheetOverlay').click({ position: { x: 10, y: 10 } });
+  await expect(page.getByText('Keep these pasted notes for later?')).toBeVisible();
+  await page.locator('#confirmOk').click();
   await expect(page.locator('#sheet')).not.toHaveClass(/open/);
   await expect(page.getByText('Dismissed Draft Should Not Build')).toHaveCount(0);
+  await page.locator('[data-action="open-quick-build"]').click();
+  await expect(page.locator('#sheetQuickBuildText')).toHaveValue('Dismissed Draft Should Not Build');
+  await page.locator('#sheetQuickBuildText').fill('');
+  await page.locator('[data-action="close-sheet"]').click();
   await expectNoHorizontalOverflow(page);
 });

@@ -1,12 +1,12 @@
-import { TEMPLATES } from './templates.js?v=20260523-duration50';
+import { TEMPLATES } from './templates.js?v=20260524-adversarial';
 import {
   detectEquipment,
   formatQuickBuildText,
   parseQuickBuild,
   parseStepLine,
   routineToText,
-} from './parser.js?v=20260523-duration50';
-import { isBlockCollapsed, render, renderProgress } from './render.js?v=20260523-duration50';
+} from './parser.js?v=20260524-adversarial';
+import { isBlockCollapsed, render, renderProgress } from './render.js?v=20260524-adversarial';
 import {
   createScheduleItem,
   deleteScheduleItem,
@@ -14,6 +14,7 @@ import {
   duplicateRoutineFromLibrary,
   exportBackup,
   getRoutines,
+  getStorageRevision,
   getScheduleItems,
   importBackup,
   loadRoutineFromLibrary,
@@ -21,9 +22,10 @@ import {
   S,
   saveRoutineToLibrary,
   saveState,
+  updateScheduleOccurrence,
   updateScheduleItem,
-} from './store.js?v=20260523-duration50';
-import { suggestRoutineCompletion, suggestStepsForBlock } from './suggestions.js?v=20260523-duration50';
+} from './store.js?v=20260524-adversarial';
+import { suggestRoutineCompletion, suggestStepsForBlock } from './suggestions.js?v=20260524-adversarial';
 import {
   closeLibrary,
   closeModal,
@@ -43,11 +45,21 @@ import {
   showScheduleForm,
   showSchedulePanel,
   showFirstRunTour,
+  showNoticeSnackbar,
   showUndoSnackbar,
   showSaveModal,
   dismissFirstRunTour,
-} from './ui.js?v=20260523-duration50';
-import { esc } from './utils.js?v=20260523-duration50';
+} from './ui.js?v=20260524-adversarial';
+import { esc } from './utils.js?v=20260524-adversarial';
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('planner-storage-error', () => {
+    const now = Date.now();
+    if (now - lastStorageWarningAt < 3000) return;
+    lastStorageWarningAt = now;
+    showNoticeSnackbar('This device had trouble saving locally. Export a backup if this keeps happening.', { timeout: 14000 });
+  });
+}
 
 function contextFrom(el, event) {
   return {
@@ -62,6 +74,10 @@ function finishRender() {
   saveState();
   render();
 }
+
+let pendingBackupPayload = null;
+let lastStorageWarningAt = 0;
+let quickBuildDraft = '';
 
 function captureUndoSnapshot() {
   return {
@@ -94,7 +110,14 @@ function restoreUndoSnapshot(snapshot, options = {}) {
 }
 
 function showUndo(message, snapshot, options = {}) {
-  showUndoSnackbar(message, () => restoreUndoSnapshot(snapshot, options));
+  const validRevision = getStorageRevision();
+  showUndoSnackbar(message, () => {
+    if (getStorageRevision() !== validRevision) {
+      showNoticeSnackbar('Undo expired because you made more changes.');
+      return;
+    }
+    restoreUndoSnapshot(snapshot, options);
+  });
 }
 
 function clearIndexedInteractionState() {
@@ -134,6 +157,19 @@ function scheduleItemById(id) {
   return getScheduleItems().find(item => item.id === id);
 }
 
+function scheduleOccurrenceFromElement(el) {
+  const item = scheduleItemById(el.dataset.sid);
+  if (!item) return null;
+  const occurrenceDate = el.dataset.date || item.date;
+  if (item.repeat !== 'weekly') return { ...item, occurrenceDate: item.date, isRecurring: false };
+  return {
+    ...item,
+    ...(item.occurrences?.[occurrenceDate] || {}),
+    occurrenceDate,
+    isRecurring: true,
+  };
+}
+
 function formatScheduleDateForName(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return '';
   const [year, month, day] = value.split('-').map(Number);
@@ -165,8 +201,9 @@ function openPlannedScheduleRoutine(item) {
   return true;
 }
 
-function saveScheduleRoutineLink(item, routineId, status = 'ready') {
-  updateScheduleItem(item.id, { routineId, status });
+function saveScheduleRoutineLink(item, routineId, status = 'ready', occurrenceDate = item.date) {
+  if (item.repeat === 'weekly') updateScheduleOccurrence(item.id, occurrenceDate, { routineId, status });
+  else updateScheduleItem(item.id, { routineId, status });
 }
 
 function prepareScheduleFromRoutine(item, sourceRoutine, occurrenceDate) {
@@ -176,7 +213,7 @@ function prepareScheduleFromRoutine(item, sourceRoutine, occurrenceDate) {
   S.classDate = occurrenceDate;
   if (['pilates', 'yoga'].includes(item.discipline)) S.discipline = item.discipline;
   S.routineId = saveRoutineToLibrary(S.routineName);
-  saveScheduleRoutineLink(item, S.routineId);
+  saveScheduleRoutineLink(item, S.routineId, 'ready', occurrenceDate);
   closeLibrary();
   S.editMode = true;
   S.blocks.forEach((_, i) => { S.collapsed[i] = false; });
@@ -189,7 +226,7 @@ function prepareBlankScheduleRoutine(item, occurrenceDate) {
   resetRoutine(tmpl.data(), scheduleRoutineName(item, occurrenceDate), item.discipline);
   S.classDate = occurrenceDate;
   S.routineId = saveRoutineToLibrary(S.routineName);
-  saveScheduleRoutineLink(item, S.routineId);
+  saveScheduleRoutineLink(item, S.routineId, 'ready', occurrenceDate);
   closeLibrary();
   S.editMode = true;
   S.blocks.forEach((_, i) => { S.collapsed[i] = false; });
@@ -216,6 +253,86 @@ function showCopyFallback(text) {
   `);
 }
 
+function normalizedSaveName(value) {
+  return String(value || '').trim().toLocaleLowerCase();
+}
+
+function routineSaveConflict(name, classDate) {
+  const targetName = normalizedSaveName(name);
+  return getRoutines().find(routine =>
+    routine.id !== S.routineId
+    && normalizedSaveName(routine.name) === targetName
+    && routine.classDate === classDate
+    && routine.discipline === S.discipline,
+  );
+}
+
+function isBlankStep(step) {
+  return !String(step?.name || '').trim()
+    && !String(step?.detail || '').trim()
+    && (!step?.tags || step.tags.length === 0);
+}
+
+function cleanupEmptyDraftSheet() {
+  if (!sheetContext) return false;
+  if (sheetContext.type === 'step' && sheetContext.isNewStep) {
+    const steps = S.blocks[sheetContext.bi]?.steps;
+    if (steps?.[sheetContext.si] && isBlankStep(steps[sheetContext.si])) {
+      steps.splice(sheetContext.si, 1);
+      return true;
+    }
+  }
+  if (sheetContext.type === 'block' && sheetContext.isNewBlock) {
+    const block = S.blocks[sheetContext.bi];
+    if (
+      block
+      && String(block.title || '').trim() === 'New Section'
+      && (!block.steps || block.steps.length === 0)
+      && (!block.equipment || block.equipment.length === 0)
+    ) {
+      S.blocks.splice(sheetContext.bi, 1);
+      return true;
+    }
+  }
+  return false;
+}
+
+function closeSheetAndFinish() {
+  cleanupEmptyDraftSheet();
+  closeSheet();
+  finishRender();
+}
+
+function backupPreview(payload) {
+  const routineCount = Array.isArray(payload)
+    ? payload.length
+    : Array.isArray(payload?.routines) ? payload.routines.length : null;
+  const scheduleCount = Array.isArray(payload?.schedule)
+    ? payload.schedule.length
+    : Array.isArray(payload?.scheduleItems) ? payload.scheduleItems.length : null;
+  const hasCurrentState = Boolean(payload?.currentState || payload?.state || (!Array.isArray(payload) && Array.isArray(payload?.blocks)));
+  return { routineCount, scheduleCount, hasCurrentState };
+}
+
+function rememberQuickBuildDraft() {
+  if (sheetContext?.type !== 'quickbuild') return;
+  quickBuildDraft = quickBuildTextArea()?.value || '';
+}
+
+function maybeCloseSheet() {
+  if (sheetContext?.type === 'quickbuild') {
+    rememberQuickBuildDraft();
+    if (quickBuildDraft.trim()) {
+      showConfirm('Keep these pasted notes for later?', 'Keep Notes', () => {
+        closeSheetAndFinish();
+        showNoticeSnackbar('Quick Build notes kept.');
+      });
+      return;
+    }
+  }
+  closeSheetAndFinish();
+}
+
 function stepToQuickBuildLine(step) {
   const tag = (step.tags || []).includes('pulse') ? ' [pulse]' : '';
   return `- ${step.name}${step.detail ? ` | ${step.detail}` : ''}${tag}`;
@@ -232,9 +349,9 @@ function quickBuildTextArea() {
   return document.getElementById('sheetQuickBuildText');
 }
 
-function setQuickBuildStatus(message) {
+function setQuickBuildStatus(message, type = 'success') {
   const status = document.getElementById('quickBuildStatus');
-  if (status) status.innerHTML = `<div class="success">${esc(message)}</div>`;
+  if (status) status.innerHTML = `<div class="${type === 'error' ? 'error' : 'success'}">${esc(message)}</div>`;
 }
 
 function defaultQuickBuildName() {
@@ -374,9 +491,7 @@ const actionHandlers = {
     if (bi == null) return;
     S.blocks[bi].steps.push({ name: '', detail: '', emoji: '✨', tags: [] });
     const newSi = S.blocks[bi].steps.length - 1;
-    saveState();
-    render();
-    openStepSheet(bi, newSi);
+    openStepSheet(bi, newSi, { isNewStep: true });
   },
 
   'add-block': () => {
@@ -390,9 +505,7 @@ const actionHandlers = {
       color: 'var(--slate)',
       steps: [],
     });
-    saveState();
-    render();
-    openBlockSheet(newBi);
+    openBlockSheet(newBi, { isNewBlock: true });
   },
 
   'save-routine': () => showSaveModal(),
@@ -402,8 +515,14 @@ const actionHandlers = {
     const dateInput = document.getElementById('saveDateInput');
     const name = input?.value.trim();
     if (!name) return;
+    const classDate = dateInput?.value || S.classDate;
+    const conflict = routineSaveConflict(name, classDate);
+    if (conflict) {
+      document.getElementById('saveStatus').innerHTML = '<div class="error">A saved class already uses that name and date. Change the name, or open that saved class to update it.</div>';
+      return;
+    }
     S.routineName = name;
-    S.classDate = dateInput?.value || S.classDate;
+    S.classDate = classDate;
     S.routineId = saveRoutineToLibrary(name);
     saveState();
     render();
@@ -446,7 +565,7 @@ const actionHandlers = {
   },
 
   'schedule-open-routine': ({ el }) => {
-    const item = scheduleItemById(el.dataset.sid);
+    const item = scheduleOccurrenceFromElement(el);
     if (!openPlannedScheduleRoutine(item)) {
       showModal(`
         <h3>Plan Not Found</h3>
@@ -482,7 +601,7 @@ const actionHandlers = {
     S.classDate = el.dataset.date || item.date || S.classDate;
     if (!S.routineName || S.routineName === 'My Routine') S.routineName = scheduleRoutineName(item, S.classDate);
     S.routineId = saveRoutineToLibrary(S.routineName);
-    saveScheduleRoutineLink(item, S.routineId);
+    saveScheduleRoutineLink(item, S.routineId, 'ready', S.classDate);
     closeLibrary();
     S.editMode = true;
     S.blocks.forEach((_, i) => { S.collapsed[i] = false; });
@@ -490,18 +609,32 @@ const actionHandlers = {
   },
 
   'schedule-mark-ready': ({ el }) => {
-    if (!updateScheduleItem(el.dataset.sid, { status: 'ready' })) return;
+    const item = scheduleItemById(el.dataset.sid);
+    if (!item) return;
+    const updated = item.repeat === 'weekly'
+      ? updateScheduleOccurrence(item.id, el.dataset.date || item.date, { status: 'ready' })
+      : updateScheduleItem(item.id, { status: 'ready' });
+    if (!updated) return;
     showSchedulePanel();
   },
 
   'schedule-mark-taught': ({ el }) => {
-    if (!updateScheduleItem(el.dataset.sid, { status: 'taught' })) return;
+    const item = scheduleItemById(el.dataset.sid);
+    if (!item) return;
+    const updated = item.repeat === 'weekly'
+      ? updateScheduleOccurrence(item.id, el.dataset.date || item.date, { status: 'taught' })
+      : updateScheduleItem(item.id, { status: 'taught' });
+    if (!updated) return;
     showSchedulePanel();
   },
 
   'delete-schedule-class': ({ el }) => {
     const snapshot = captureUndoSnapshot();
-    showConfirm('Delete this scheduled class?', 'Delete', () => {
+    const item = scheduleItemById(el.dataset.sid);
+    const message = item?.repeat === 'weekly'
+      ? 'Delete this weekly class from the schedule? This removes the whole weekly series.'
+      : 'Delete this scheduled class?';
+    showConfirm(message, 'Delete', () => {
       deleteScheduleItem(el.dataset.sid);
       showSchedulePanel();
       showUndo('Deleted scheduled class.', snapshot, { refreshSchedule: true });
@@ -511,11 +644,13 @@ const actionHandlers = {
   'load-template': ({ el }) => {
     const tmpl = findTemplate(el.dataset.tkey);
     if (!tmpl) return;
-    const wasEditing = S.editMode;
-    resetRoutine(tmpl.data(), tmpl.name, tmpl.discipline);
-    keepEditingIfNeeded(wasEditing);
-    closeLibrary();
-    finishRender();
+    showConfirm(`Open ${tmpl.name}? Unsaved changes will be lost.`, 'Open Template', () => {
+      const wasEditing = S.editMode;
+      resetRoutine(tmpl.data(), tmpl.name, tmpl.discipline);
+      keepEditingIfNeeded(wasEditing);
+      closeLibrary();
+      finishRender();
+    });
   },
 
   'load-routine': ({ el }) => {
@@ -564,7 +699,7 @@ const actionHandlers = {
   'close-modal': () => closeModal(),
   'show-tour': () => showFirstRunTour(),
   'dismiss-tour': () => dismissFirstRunTour(),
-  'close-sheet': () => { closeSheet(); finishRender(); },
+  'close-sheet': () => maybeCloseSheet(),
 
   'sheet-color': ({ el }) => {
     if (!sheetContext || sheetContext.type !== 'block') return;
@@ -690,7 +825,7 @@ const actionHandlers = {
     const newSi = S.blocks[sbi].steps.length - 1;
     closeSheet();
     finishRender();
-    openStepSheet(sbi, newSi);
+    openStepSheet(sbi, newSi, { isNewStep: true });
   },
 
   'sheet-delete-step': () => {
@@ -719,7 +854,7 @@ const actionHandlers = {
   'copy-plan': () => copyPlanText(),
   'open-planning-goals': () => openPlanningGoalsSheet(),
   'open-quick-add': ({ bi }) => { if (bi != null) openQuickAddSheet(bi); },
-  'open-quick-build': () => openQuickBuildSheet(),
+  'open-quick-build': () => openQuickBuildSheet(quickBuildDraft),
   'finish-routine': () => openFinishRoutineSheet(suggestRoutineCompletion(S)),
   'suggest-step': ({ bi }) => {
     if (bi == null) return;
@@ -874,7 +1009,11 @@ const actionHandlers = {
     if (!sheetContext || sheetContext.type !== 'quickbuild') return;
     const text = document.getElementById('sheetQuickBuildText')?.value || '';
     const parsed = parseQuickBuild(text, S.discipline);
-    if (parsed.blocks.length === 0) return;
+    if (parsed.blocks.length === 0) {
+      setQuickBuildStatus('Paste notes first, then I will build the class.', 'error');
+      return;
+    }
+    quickBuildDraft = '';
 
     const replacing = document.getElementById('quickBuildReplace')?.checked;
     const snapshot = replacing ? captureUndoSnapshot() : null;
@@ -895,18 +1034,43 @@ const actionHandlers = {
     S.blocks.forEach((_, i) => { S.collapsed[i] = false; });
     closeSheet();
     finishRender();
-    if (snapshot) showUndo('Replaced class.', snapshot);
+    if (snapshot) showUndo('Class built from notes.', snapshot);
+    else showNoticeSnackbar('Class notes added.');
   },
 
   'export-backup': () => downloadBackup(),
   'choose-import-backup': () => document.getElementById('backupFileInput')?.click(),
+  'cancel-import-backup': () => {
+    pendingBackupPayload = null;
+    closeModal();
+  },
+  'confirm-import-backup': () => {
+    if (!pendingBackupPayload) return;
+    try {
+      const result = importBackup(pendingBackupPayload);
+      pendingBackupPayload = null;
+      showLibrary();
+      render();
+      showModal(`
+        <h3>Backup Imported</h3>
+        <p>Imported ${result.routines} saved class${result.routines === 1 ? '' : 'es'} and ${result.schedule} scheduled class${result.schedule === 1 ? '' : 'es'}.</p>
+        <div class="modal-btns"><button class="btn primary" data-action="close-modal">Done</button></div>
+      `);
+    } catch (error) {
+      pendingBackupPayload = null;
+      showModal(`
+        <h3>Import Failed</h3>
+        <p>${esc(error.message || 'The selected file could not be imported. Your existing classes were kept.')}</p>
+        <div class="modal-btns"><button class="btn primary" data-action="close-modal">Done</button></div>
+      `);
+    }
+  },
 };
 
 export function initActions() {
   document.addEventListener('click', event => {
     if (event.target.id === 'sheetOverlay') {
-      closeSheet();
-      finishRender();
+      maybeCloseSheet();
       return;
     }
     const el = event.target.closest('[data-action]');
@@ -933,13 +1097,20 @@ export function initActions() {
       if (!file) return;
       file.text()
         .then(text => {
-          const result = importBackup(JSON.parse(text));
-          showLibrary();
-          render();
+          pendingBackupPayload = JSON.parse(text);
+          const preview = backupPreview(pendingBackupPayload);
           showModal(`
-            <h3>Backup Imported</h3>
-            <p>Imported ${result.routines} saved class${result.routines === 1 ? '' : 'es'}.</p>
-            <div class="modal-btns"><button class="btn primary" data-action="close-modal">Done</button></div>
+            <h3>Import Backup?</h3>
+            <p>This will replace the local planner data on this device with the selected backup.</p>
+            <div class="routine-card-meta">
+              ${preview.hasCurrentState ? 'Current class included. ' : ''}
+              ${preview.routineCount == null ? '' : `${preview.routineCount} saved class${preview.routineCount === 1 ? '' : 'es'}. `}
+              ${preview.scheduleCount == null ? '' : `${preview.scheduleCount} scheduled class${preview.scheduleCount === 1 ? '' : 'es'}.`}
+            </div>
+            <div class="modal-btns">
+              <button class="btn" data-action="cancel-import-backup">Cancel</button>
+              <button class="btn primary" data-action="confirm-import-backup">Import Backup</button>
+            </div>
           `);
         })
         .catch(() => {

@@ -182,6 +182,28 @@ Stretch`, 'pilates');
   assert.equal(parsed.blocks.at(-1).title, 'Stretch');
 });
 
+test('parseQuickBuild keeps counted exercises after equipment transitions as exercises', () => {
+  const parsed = parseQuickBuild(`Thursday Yoga Sculpt
+Warm-up
+Breath to movement
+
+Grab weights
+Chair pulses x 16
+Crescent lunge kickbacks x 8
+
+Stretch
+Pigeon hold`, 'yoga');
+
+  assert.equal(parsed.name, 'Thursday Yoga Sculpt');
+  assert.equal(parsed.blocks[1].type, 'transition');
+  assert.equal(parsed.blocks[1].title, 'Grab weights');
+  assert.equal(parsed.blocks[2].title, 'Weighted Work');
+  assert.equal(parsed.blocks[2].steps[0].name, 'Chair pulses');
+  assert.equal(parsed.blocks[2].steps[0].detail, '16 reps');
+  assert.equal(parsed.blocks[2].steps[1].name, 'Crescent lunge kickbacks');
+  assert.equal(parsed.blocks[3].title, 'Stretch');
+});
+
 test('routineToText exports a plan that can round trip through quick build conventions', () => {
   const text = routineToText({
     routineName: 'Mini Flow',

@@ -115,6 +115,17 @@ test('schedule validation and recent-plan matching prevent cross-type confusion'
   await expect(page.locator('#routineName')).toContainText('Yoga Sub No Cross');
   await expect(page.locator('#blocks')).toContainText('Main Yoga Flow');
   await expectNoHorizontalOverflow(page);
+
+  await openSchedule(page);
+  await addScheduleClass(page, {
+    title: 'Far Out Saturday Sub',
+    discipline: 'pilates',
+    date: isoInDays(30),
+    time: '09:45',
+    note: 'Future sub should still be visible.',
+  });
+  await expect(page.getByText('Later')).toBeVisible();
+  await expect(scheduleCard(page, 'Far Out Saturday Sub')).toContainText('Future sub should still be visible.');
 });
 
 test('weekly schedule items persist through use-current, reload, delete undo, and backup export', async ({ page }, testInfo) => {
@@ -152,7 +163,8 @@ test('weekly schedule items persist through use-current, reload, delete undo, an
   weeklyCards = scheduleCard(page, 'Weekly Pilates Reliability');
   await expect(weeklyCards).toHaveCount(2);
   await expect(weeklyCards.first()).toContainText('Taught');
-  await expect(weeklyCards.last()).toContainText('Taught');
+  await expect(weeklyCards.last()).toContainText('Needs Plan');
+  await expect(weeklyCards.last()).toContainText('No plan linked yet');
 
   await page.reload();
   await dismissTourIfVisible(page);
@@ -160,9 +172,10 @@ test('weekly schedule items persist through use-current, reload, delete undo, an
   weeklyCards = scheduleCard(page, 'Weekly Pilates Reliability');
   await expect(weeklyCards).toHaveCount(2);
   await expect(weeklyCards.first()).toContainText('Taught');
+  await expect(weeklyCards.last()).toContainText('Needs Plan');
 
   await weeklyCards.first().getByRole('button', { name: 'Delete' }).click();
-  await expect(page.getByText('Delete this scheduled class?')).toBeVisible();
+  await expect(page.getByText('Delete this weekly class from the schedule? This removes the whole weekly series.')).toBeVisible();
   await page.locator('#confirmOk').click();
   await expect(scheduleCard(page, 'Weekly Pilates Reliability')).toHaveCount(0);
   await expect(page.locator('#undoSnackbar')).toContainText('Deleted scheduled class.');
@@ -185,6 +198,7 @@ test('weekly schedule items persist through use-current, reload, delete undo, an
   expect(backup.schedule).toHaveLength(1);
   expect(backup.schedule[0].title).toBe('Weekly Pilates Reliability');
   expect(backup.schedule[0].repeat).toBe('weekly');
-  expect(backup.schedule[0].status).toBe('taught');
-  expect(backup.schedule[0].routineId).toBeTruthy();
+  expect(backup.schedule[0].status).toBe('needs-plan');
+  const taughtOccurrence = Object.values(backup.schedule[0].occurrences).find(occurrence => occurrence.status === 'taught');
+  expect(taughtOccurrence.routineId).toBeTruthy();
 });

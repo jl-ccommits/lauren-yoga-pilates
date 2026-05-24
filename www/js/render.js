@@ -1,8 +1,8 @@
-import { EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-duration50';
-import { detectEquipment } from './parser.js?v=20260523-duration50';
-import { S } from './store.js?v=20260523-duration50';
-import { inferBlockCategory } from './suggestions.js?v=20260523-duration50';
-import { esc, assertElement, markerFrom } from './utils.js?v=20260523-duration50';
+import { EQUIPMENT, TEMPLATES } from './templates.js?v=20260524-adversarial';
+import { detectEquipment } from './parser.js?v=20260524-adversarial';
+import { S } from './store.js?v=20260524-adversarial';
+import { inferBlockCategory } from './suggestions.js?v=20260524-adversarial';
+import { esc, assertElement, markerFrom } from './utils.js?v=20260524-adversarial';
 
 const CATEGORY_LABELS = {
   arms: 'Arms',
@@ -322,17 +322,17 @@ function renderHeader() {
   disciplineBadge.setAttribute('aria-label', `${getTemplatePickerLabel()}. Tap to choose a starter class template.`);
 
   const toggle = assertElement('editToggle');
-  toggle.textContent = S.editMode ? 'Done' : 'Plan Class';
-  toggle.title = S.editMode ? 'Finish planning' : 'Plan this class';
+  toggle.textContent = S.editMode ? 'Done' : 'Edit Plan';
+  toggle.title = S.editMode ? 'Finish planning' : 'Edit this class plan';
   toggle.classList.toggle('active', S.editMode);
 
   const editBar = assertElement('editBar');
   if (S.editMode) {
     editBar.classList.remove('hidden');
     editBar.innerHTML = `
-      <button class="btn lg primary" data-action="save-routine">Save Class</button>
+      <button class="btn lg primary" data-action="open-quick-build">Paste Notes</button>
+      <button class="btn lg" data-action="save-routine">Save Class</button>
       <button class="btn lg" data-action="open-planning-goals">Class Goals</button>
-      <button class="btn lg" data-action="open-quick-build">Quick Build</button>
       <button class="btn lg" data-action="finish-routine">Suggest Missing Sections</button>
       <button class="btn lg" data-action="copy-plan">Copy Plan</button>
       <div class="dropdown">
@@ -358,8 +358,8 @@ function renderHeader() {
     if (S.editMode) {
       studyBtn.remove();
     } else {
-      studyBtn.textContent = 'Review';
-      studyBtn.title = 'Review before class';
+      studyBtn.textContent = 'Preview';
+      studyBtn.title = 'Preview before class';
       studyBtn.classList.toggle('active', S.memorizeMode === true);
     }
   }
@@ -376,7 +376,7 @@ function renderHeader() {
     if (S.editMode) {
       teachBtn.remove();
     } else {
-      teachBtn.textContent = 'Teach';
+      teachBtn.textContent = 'Teach Mode';
       teachBtn.title = 'Teach from this class';
       teachBtn.classList.toggle('active', S.teachMode === true);
     }

@@ -20,6 +20,7 @@ import {
   resetRoutine,
   saveRoutineToLibrary,
   saveState,
+  updateScheduleOccurrence,
   updateScheduleItem,
 } from '../www/js/store.js';
 
@@ -321,6 +322,27 @@ test('weekly schedule classes expand into upcoming occurrences', () => {
   assert.equal(occurrences[0].time, '10:30');
 });
 
+test('weekly schedule occurrence updates do not affect the next occurrence', () => {
+  const item = createScheduleItem({
+    title: 'Monday Usual Pilates',
+    discipline: 'pilates',
+    date: isoInDays(0),
+    time: '10:30',
+    repeat: 'weekly',
+  });
+  const [first, second] = getUpcomingSchedule(8).filter(occurrence => occurrence.id === item.id);
+
+  updateScheduleOccurrence(item.id, first.occurrenceDate, { status: 'taught', routineId: 'routine_first' });
+
+  const updated = getUpcomingSchedule(8).filter(occurrence => occurrence.id === item.id);
+  assert.equal(updated[0].status, 'taught');
+  assert.equal(updated[0].routineId, 'routine_first');
+  assert.equal(updated[1].occurrenceDate, second.occurrenceDate);
+  assert.equal(updated[1].status, 'needs-plan');
+  assert.equal(updated[1].routineId, null);
+  assert.equal(getScheduleItems()[0].occurrences[first.occurrenceDate].status, 'taught');
+});
+
 test('weekly schedule classes wait for their first scheduled date', () => {
   const item = createScheduleItem({
     title: 'Future Weekly Yoga',
@@ -359,4 +381,28 @@ test('legacy or malformed schedule payloads normalize to safe local defaults', (
   assert.equal(item.repeat, 'once');
   assert.equal(item.status, 'needs-plan');
   assert.equal(item.note, 'bring blocks');
+});
+
+test('deleting a saved routine unlinks schedule references safely', () => {
+  S.routineName = 'Linked Routine';
+  S.blocks = [{ type: 'block', title: 'Linked', equipment: [], steps: [] }];
+  const routineId = saveRoutineToLibrary('Linked Routine');
+  const item = createScheduleItem({
+    title: 'Weekly Linked',
+    discipline: 'pilates',
+    date: isoInDays(0),
+    repeat: 'weekly',
+    routineId,
+    status: 'ready',
+  });
+  const occurrenceDate = getUpcomingSchedule(8).find(occurrence => occurrence.id === item.id).occurrenceDate;
+  updateScheduleOccurrence(item.id, occurrenceDate, { routineId, status: 'ready' });
+
+  deleteRoutineFromLibrary(routineId);
+
+  const [schedule] = getScheduleItems();
+  assert.equal(schedule.routineId, null);
+  assert.equal(schedule.status, 'needs-plan');
+  assert.equal(schedule.occurrences[occurrenceDate].routineId, null);
+  assert.equal(schedule.occurrences[occurrenceDate].status, 'needs-plan');
 });

@@ -44,6 +44,9 @@ async function exactRoutineCard(page, routineName) {
 async function clickSavedRoutineButton(page, routineName, buttonName) {
   const card = await exactRoutineCard(page, routineName);
   await card.getByRole('button', { name: buttonName }).click();
+  if (buttonName === 'Open' && await page.locator('#confirmOk').isVisible().catch(() => false)) {
+    await page.locator('#confirmOk').click();
+  }
 }
 
 async function expectNoHorizontalOverflow(page) {
@@ -153,7 +156,7 @@ Weighted Tabletop Pulses | Small controlled pulses
 
   await page.locator('#studyToggle').click();
   await expect(page.locator('body')).toHaveClass(/study-mode/);
-  await expect(page.locator('#studyToggle')).toHaveText('Review');
+  await expect(page.locator('#studyToggle')).toHaveText('Preview');
   await expect(page.locator('.memory-card').first()).toBeVisible();
   await expect(page.locator('.memory-steps').first()).toBeVisible();
   await expect(page.locator('.timeline-chip').first()).toBeVisible();
@@ -171,10 +174,10 @@ Weighted Tabletop Pulses | Small controlled pulses
 test('first-run tour is short, local-only, and skippable', async ({ page }) => {
   await freshPage(page, '/', { keepTour: true });
   await expect(page.getByText('Quick Tour')).toBeVisible();
-  await expect(page.getByText('Everything saves on this device. No account needed, no setup.')).toBeVisible();
+  await expect(page.getByText('Paste messy Apple Notes and turn them into a teachable class plan. Everything saves on this device. No account needed.')).toBeVisible();
   await expect(page.locator('.tour-item')).toHaveCount(5);
-  await expect(page.locator('.tour-item strong')).toHaveText(['Plan', 'Saved', 'Review', 'Teach', 'Schedule']);
-  await expect(page.getByText('Edit the class, paste Apple Notes, add exercises, or ask for suggestions.')).toBeVisible();
+  await expect(page.locator('.tour-item strong')).toHaveText(['Edit Plan', 'Saved', 'Preview', 'Teach Mode', 'Classes']);
+  await expect(page.getByText('Paste Apple Notes, change exercises, set goals, or ask for suggestions.')).toBeVisible();
   await expect(page.getByText("Open last week's class, duplicate it, or make a backup.")).toBeVisible();
   await expect(page.getByText('Track usual classes, sub classes, and which plans are ready.')).toBeVisible();
   await expect(page.getByText('Study the class shape before teaching.')).toBeVisible();
@@ -219,6 +222,8 @@ test('mobile planning controls stay reachable and new-template flow keeps editin
   await expect(page.locator('#sheetQuickBuildText')).toHaveValue(/##/);
   await expect(page.getByText('Added routine suggestions.')).toBeVisible();
   await page.locator('[data-action="close-sheet"]').click();
+  await expect(page.getByText('Keep these pasted notes for later?')).toBeVisible();
+  await page.locator('#confirmOk').click();
 
   await page.locator('#newBtn').click();
   await expect(page.locator('#newMenu')).not.toHaveClass(/hidden/);
@@ -322,6 +327,8 @@ test('fresh device, backup download, invalid import, and restore all work locall
   await expect(page.getByText('No saved classes yet. Save your first class!')).toBeVisible();
 
   await page.locator('#backupFileInput').setInputFiles(backupPath);
+  await expect(page.getByText('Import Backup?')).toBeVisible();
+  await page.locator('[data-action="confirm-import-backup"]').click();
   await expect(page.getByText('Backup Imported')).toBeVisible();
   await page.locator('#modalContainer button[data-action="close-modal"]').click();
   await expect(await exactRoutineCard(page, 'Backup Export Class')).toBeVisible();

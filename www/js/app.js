@@ -1,7 +1,7 @@
-import { initActions } from './actions.js?v=20260523-duration50';
-import { render } from './render.js?v=20260523-duration50';
-import { loadState } from './store.js?v=20260523-duration50';
-import { maybeShowFirstRunTour } from './ui.js?v=20260523-duration50';
+import { initActions } from './actions.js?v=20260524-adversarial';
+import { render } from './render.js?v=20260524-adversarial';
+import { loadState } from './store.js?v=20260524-adversarial';
+import { maybeShowFirstRunTour } from './ui.js?v=20260524-adversarial';
 
 loadState();
 initActions();

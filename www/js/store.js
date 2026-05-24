@@ -1,5 +1,5 @@
-import { PILATES_DEFAULT } from './templates.js?v=20260523-duration50';
-import { clone } from './utils.js?v=20260523-duration50';
+import { PILATES_DEFAULT } from './templates.js?v=20260524-adversarial';
+import { clone } from './utils.js?v=20260524-adversarial';
 
 export const STORAGE_VERSION = 1;
 export const CURRENT_STATE_KEY = 'current_state';
@@ -15,6 +15,7 @@ const DEFAULT_PLANNING_PREFS = {
 
 let generatedRoutineCounter = 0;
 let generatedScheduleCounter = 0;
+let storageRevision = 0;
 
 export const S = createDefaultState();
 
@@ -40,6 +41,36 @@ function createDefaultState() {
 function storage() {
   if (!globalThis.localStorage) throw new Error('localStorage is not available');
   return globalThis.localStorage;
+}
+
+function recordStorageError(error) {
+  try {
+    console.warn('Lauren Class Planner could not save locally.', error);
+  } catch {
+    // Ignore logging failures in constrained browsers.
+  }
+
+  if (typeof globalThis.dispatchEvent === 'function' && typeof globalThis.CustomEvent === 'function') {
+    globalThis.dispatchEvent(new CustomEvent('planner-storage-error', {
+      detail: { message: 'This device is having trouble saving locally.' },
+    }));
+  }
+}
+
+function writeRawStorage(key, value, options = {}) {
+  try {
+    storage().setItem(key, value);
+    storageRevision += 1;
+    return true;
+  } catch (error) {
+    recordStorageError(error);
+    if (options.throwOnError) throw error;
+    return false;
+  }
+}
+
+function writeJSON(key, value, options = {}) {
+  return writeRawStorage(key, JSON.stringify(value), options);
 }
 
 function readJSON(key, fallback = null) {
@@ -191,9 +222,29 @@ function normalizeScheduleItem(item, index = 0) {
     note: String(item.note || '').trim(),
     routineId: item.routineId || null,
     status: normalizeScheduleStatus(item.status),
+    occurrences: normalizeScheduleOccurrences(item.occurrences),
     createdAt: item.createdAt || new Date().toISOString(),
     updatedAt: item.updatedAt || item.createdAt || new Date().toISOString(),
   };
+}
+
+function normalizeScheduleOccurrence(override, date) {
+  if (!override || typeof override !== 'object') return null;
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+  const next = {};
+  if (Object.prototype.hasOwnProperty.call(override, 'routineId')) next.routineId = override.routineId || null;
+  if (override.status) next.status = normalizeScheduleStatus(override.status);
+  if (override.updatedAt) next.updatedAt = override.updatedAt;
+  return Object.keys(next).length ? next : null;
+}
+
+function normalizeScheduleOccurrences(occurrences) {
+  if (!occurrences || typeof occurrences !== 'object' || Array.isArray(occurrences)) return {};
+  return Object.entries(occurrences).reduce((result, [date, override]) => {
+    const normalized = normalizeScheduleOccurrence(override, date);
+    if (normalized) result[date] = normalized;
+    return result;
+  }, {});
 }
 
 function serializeCurrentState() {
@@ -228,21 +279,25 @@ function replaceState(next) {
 }
 
 function saveRoutines(routines) {
-  storage().setItem(
-    ROUTINES_LIBRARY_KEY,
-    JSON.stringify({ version: STORAGE_VERSION, routines: routines.map(normalizeRoutine).filter(Boolean) }),
-  );
+  return writeJSON(ROUTINES_LIBRARY_KEY, {
+    version: STORAGE_VERSION,
+    routines: routines.map(normalizeRoutine).filter(Boolean),
+  });
 }
 
 function saveScheduleItems(items) {
-  storage().setItem(
-    SCHEDULE_KEY,
-    JSON.stringify({ version: STORAGE_VERSION, items: items.map(normalizeScheduleItem).filter(Boolean) }),
-  );
+  return writeJSON(SCHEDULE_KEY, {
+    version: STORAGE_VERSION,
+    items: items.map(normalizeScheduleItem).filter(Boolean),
+  });
 }
 
 export function saveState() {
-  storage().setItem(CURRENT_STATE_KEY, JSON.stringify(serializeCurrentState()));
+  return writeJSON(CURRENT_STATE_KEY, serializeCurrentState());
+}
+
+export function getStorageRevision() {
+  return storageRevision;
 }
 
 export function loadState() {
@@ -294,7 +349,9 @@ export function getUpcomingSchedule(days = 14) {
       cursor.setDate(cursor.getDate() + offset);
       while (isoFromLocalDate(cursor) < firstDate) cursor.setDate(cursor.getDate() + 7);
       while (isoFromLocalDate(cursor) <= end) {
-        occurrences.push({ ...item, occurrenceDate: isoFromLocalDate(cursor), isRecurring: true });
+        const occurrenceDate = isoFromLocalDate(cursor);
+        const override = item.occurrences?.[occurrenceDate] || {};
+        occurrences.push({ ...item, ...override, occurrenceDate, isRecurring: true });
         cursor.setDate(cursor.getDate() + 7);
       }
       return;
@@ -336,6 +393,34 @@ export function updateScheduleItem(id, patch) {
   items[index] = updated;
   saveScheduleItems(items);
   return updated;
+}
+
+export function updateScheduleOccurrence(id, occurrenceDate, patch) {
+  const items = getScheduleItems();
+  const index = items.findIndex(item => item.id === id);
+  if (index < 0) return false;
+  if (items[index].repeat !== 'weekly') return updateScheduleItem(id, patch);
+
+  const date = normalizeClassDate(occurrenceDate, items[index].date);
+  const occurrences = { ...(items[index].occurrences || {}) };
+  const next = normalizeScheduleOccurrence({
+    ...(occurrences[date] || {}),
+    ...patch,
+    updatedAt: new Date().toISOString(),
+  }, date);
+
+  if (next) occurrences[date] = next;
+  else delete occurrences[date];
+
+  const updated = normalizeScheduleItem({
+    ...items[index],
+    occurrences,
+    updatedAt: new Date().toISOString(),
+  });
+  if (!updated) return false;
+  items[index] = updated;
+  saveScheduleItems(items);
+  return { ...updated, ...(updated.occurrences[date] || {}), occurrenceDate: date, isRecurring: true };
 }
 
 export function deleteScheduleItem(id) {
@@ -400,6 +485,35 @@ export function duplicateRoutineFromLibrary(id) {
 export function deleteRoutineFromLibrary(id) {
   saveRoutines(getRoutines().filter(item => item.id !== id));
   if (S.routineId === id) S.routineId = null;
+
+  const scheduleItems = getScheduleItems();
+  let scheduleChanged = false;
+  const unlinked = scheduleItems.map(item => {
+    let itemChanged = false;
+    let next = item;
+    if (item.routineId === id) {
+      next = { ...next, routineId: null, status: item.status === 'taught' ? 'taught' : 'needs-plan' };
+      itemChanged = true;
+      scheduleChanged = true;
+    }
+
+    const occurrences = { ...(next.occurrences || {}) };
+    Object.entries(occurrences).forEach(([date, override]) => {
+      if (override.routineId !== id) return;
+      occurrences[date] = {
+        ...override,
+        routineId: null,
+        status: override.status === 'taught' ? 'taught' : 'needs-plan',
+        updatedAt: new Date().toISOString(),
+      };
+      itemChanged = true;
+      scheduleChanged = true;
+    });
+
+    return itemChanged ? { ...next, occurrences } : next;
+  });
+
+  if (scheduleChanged) saveScheduleItems(unlinked);
 }
 
 export function resetRoutine(data, name, discipline) {
@@ -440,12 +554,29 @@ export function importBackup(payload) {
 
   if (!currentState && !hasRoutines && !hasSchedule) throw new Error('Backup does not contain a class, saved classes, or schedule');
 
-  if (currentState) {
-    storage().setItem(CURRENT_STATE_KEY, JSON.stringify({ version: STORAGE_VERSION, state: currentState }));
-    replaceState(currentState);
+  const writes = [];
+  if (currentState) writes.push([CURRENT_STATE_KEY, JSON.stringify({ version: STORAGE_VERSION, state: currentState })]);
+  if (hasRoutines) writes.push([ROUTINES_LIBRARY_KEY, JSON.stringify({ version: STORAGE_VERSION, routines })]);
+  if (hasSchedule) writes.push([SCHEDULE_KEY, JSON.stringify({ version: STORAGE_VERSION, items: schedule })]);
+
+  const previous = {};
+  try {
+    writes.forEach(([key]) => {
+      previous[key] = storage().getItem(key);
+    });
+    writes.forEach(([key, value]) => writeRawStorage(key, value, { throwOnError: true }));
+  } catch (error) {
+    Object.entries(previous).forEach(([key, value]) => {
+      try {
+        if (value == null) storage().removeItem(key);
+        else storage().setItem(key, value);
+      } catch (rollbackError) {
+        recordStorageError(rollbackError);
+      }
+    });
+    throw new Error('Could not save the backup on this device. Your existing classes were kept.');
   }
-  if (hasRoutines) saveRoutines(routines);
-  if (hasSchedule) saveScheduleItems(schedule);
-  saveState();
+
+  if (currentState) replaceState(currentState);
   return { routines: routines.length, schedule: schedule.length, hasCurrentState: Boolean(currentState) };
 }

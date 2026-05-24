@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
   <title>Lauren's Class Planner</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260524-adversarial">
 </head>
 <body>
   <div class="container">
@@ -16,11 +16,11 @@
           <div class="routine-name" id="routineName"></div>
           <button class="discipline-badge" id="disciplineBadge" data-action="switch-discipline"></button>
         </div>
-        <button class="btn primary header-plan" id="editToggle" data-action="toggle-edit" title="Plan this class">Plan</button>
+        <button class="btn primary header-plan" id="editToggle" data-action="toggle-edit" title="Edit this class plan">Edit Plan</button>
       </div>
       <div class="header-actions" id="headerActions" aria-label="Class tools">
         <button class="btn" data-action="load-routines" title="Open saved classes">Saved</button>
-        <button class="btn" data-action="load-schedule" title="Open upcoming classes">Schedule</button>
+        <button class="btn" data-action="load-schedule" title="Open upcoming classes">Classes</button>
       </div>
     </div>
     <div id="editBar" class="edit-bar hidden"></div>
@@ -47,6 +47,6 @@
     <div id="sheetContent"></div>
   </div>
 
-<script type="module" src="js/app.js?v=20260523-duration50"></script>
+<script type="module" src="js/app.js?v=20260524-adversarial"></script>
 </body>
 </html>
