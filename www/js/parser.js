@@ -1,9 +1,10 @@
-import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260523-schedule';
+import { COLOR_CYCLE, EQUIPMENT } from './templates.js?v=20260523-notes';
 
 export function detectEquipment(text) {
   const lower = (text || '').toLowerCase();
   return Object.keys(EQUIPMENT).filter(key => {
-    if (key === 'weights') return /\b(weight|weights|dumbbell|dumbbells)\b/.test(lower);
+    if (key === 'weights') return /\b(weight|weights|dumbbell|dumbbells|ankle weights?)\b/.test(lower);
+    if (key === 'ring') return /\b(ring|pilates ring|magic circle)\b/.test(lower);
     return new RegExp(`\\b${key}\\b`).test(lower);
   });
 }
@@ -37,6 +38,9 @@ export function parseStepLine(line) {
   const tags = [];
   if (/\[(pulse|pulses)\]/i.test(raw) || /\bpuls(e|es|ing)\b/i.test(raw)) tags.push('pulse');
   raw = raw.replace(/\[(pulse|pulses)\]/ig, '').trim();
+  const countMatch = raw.match(/\s+[x×]\s*(\d+)\s*$/i);
+  const countDetail = countMatch ? `${countMatch[1]} reps` : '';
+  if (countMatch) raw = raw.slice(0, countMatch.index).trim();
 
   const separators = [' :: ', ' | ', ' — ', ' – ', ' - ', ': '];
   let name = '';
@@ -70,6 +74,7 @@ export function parseStepLine(line) {
     name = (parts.shift() || 'Exercise').trim();
     detail = parts.join(sep || '').trim();
   }
+  if (countDetail) detail = detail ? `${detail}; ${countDetail}` : countDetail;
 
   return { name, detail, emoji: guessEmoji(`${name} ${detail}`), tags };
 }
@@ -113,6 +118,10 @@ function isTransitionLine(value) {
   return /^(grab|get|switch|remove|put away|drop|change|flip|turn over|move to|come to|set up|reset)\b/.test(lower);
 }
 
+function isMetaLine(value) {
+  return /^(here is|example of|notes?:|apple notes?:)/i.test(cleanHeading(value));
+}
+
 function isAllCapsHeading(value) {
   const letters = value.replace(/[^a-z]/gi, '');
   return letters.length >= 3 && letters === letters.toUpperCase();
@@ -125,7 +134,7 @@ function isCommonHeading(value) {
   if (words(text).length > 7) return false;
   if (/:$/.test(value.trim())) return true;
   if (isAllCapsHeading(text)) return true;
-  return /\b(warm|warmup|warm-up|opening|breath|core|abs|bridge|glute|booty|standing|side|sideline|tabletop|arms?|weights?|ball|band|flow|sun|balance|cool|cooldown|stretch|final|block|round|series|legs?|floor|mat|chair|warrior|plank)\b/i.test(text);
+  return /\b(warm|warmup|warm-up|opening|breath|core|abs|bridge|glute|booty|standing|side|sideline|tabletop|arms?|weights?|ball|band|ring|flow|sun|balance|cool|cooldown|stretch|final|block|round|series|legs?|floor|mat|chair|warrior|plank|pushups?)\b/i.test(text);
 }
 
 function isBlankSectionHeading(entry, currentBlock, nextEntry) {
@@ -150,6 +159,31 @@ function noteEntries(text) {
   return entries;
 }
 
+function inferBlockTitleFromStep(value, equipment = []) {
+  const lower = cleanHeading(value).toLowerCase();
+  if (/stretch|cool down|cooldown/.test(lower)) return 'Stretch';
+  if (/back body|upper back|lower back/.test(lower)) return 'Back Body';
+  if (/pushups?|plank|shoulder taps?|toe taps?|rocks?|hip dips?/.test(lower)) return 'Pushups + Plank';
+  if (/wide second|squat|curt?sey/.test(lower)) return 'Wide Second';
+  if (/warrior|lunge|skater|row|tricep|ring/.test(lower)) return equipment.includes('ring') ? 'Ring Standing Work' : 'Standing Strength';
+  if (/table\s*top|tabletop|hydrant|thread needle|donkey/.test(lower)) return 'Tabletop';
+  if (/teaser|roll up|seated|twist/.test(lower)) return 'Seated Core';
+  if (/ball/.test(lower)) return 'Ball Core';
+  if (equipment.includes('ball')) return 'Ball Work';
+  if (equipment.includes('ring')) return 'Ring Work';
+  if (equipment.includes('weights')) return 'Weighted Work';
+  if (equipment.includes('band')) return 'Band Work';
+  return 'Section';
+}
+
+function shouldStartBlockFromStep(entry, currentBlock) {
+  if (!entry.blankBefore || !currentBlock || (currentBlock.steps || []).length < 2) return false;
+  if (isTransitionLine(entry.text) || isCommonHeading(entry.text)) return false;
+  const text = cleanHeading(entry.text);
+  return words(text).length > 7
+    && /\b(grab|ring|lunge|warrior|wide second|squat|pushup|plank|back body|stretch)\b/i.test(text);
+}
+
 export function parseQuickBuild(text, startingDiscipline = 'custom') {
   const entries = noteEntries(text);
   const blocks = [];
@@ -157,9 +191,10 @@ export function parseQuickBuild(text, startingDiscipline = 'custom') {
   let colorIdx = 0;
   let name = '';
   let discipline = startingDiscipline || 'custom';
+  let pendingEquipment = [];
 
-  const startBlock = title => {
-    const equipment = detectEquipment(title);
+  const startBlock = (title, extraEquipment = []) => {
+    const equipment = [...new Set([...extraEquipment, ...detectEquipment(title)])];
     currentBlock = {
       type: 'block',
       id: `block${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
@@ -171,12 +206,14 @@ export function parseQuickBuild(text, startingDiscipline = 'custom') {
     };
     colorIdx++;
     blocks.push(currentBlock);
+    pendingEquipment = [];
   };
 
   entries.forEach((entry, index) => {
     const trimmed = entry.text.trim();
     const nextEntry = entries[index + 1];
     if (!trimmed) return;
+    if (isMetaLine(trimmed)) return;
 
     if (trimmed.startsWith('# ') && !trimmed.startsWith('## ')) {
       name = trimmed.slice(2).trim();
@@ -191,35 +228,45 @@ export function parseQuickBuild(text, startingDiscipline = 'custom') {
     }
 
     if (trimmed === '---' || trimmed.startsWith('--- ') || isTransitionLine(trimmed)) {
+      const title = cleanHeading(trimmed.replace(/^---\s*/, '').replace(/^transition:?\s*/i, '')) || 'Transition';
+      const equipment = detectEquipment(title);
       blocks.push({
         type: 'transition',
         id: `t${Date.now()}${Math.random().toString(36).slice(2, 6)}`,
-        title: cleanHeading(trimmed.replace(/^---\s*/, '').replace(/^transition:?\s*/i, '')) || 'Transition',
+        title,
         emoji: '🔀',
-        equipment: [],
+        equipment,
         color: 'var(--surface2)',
         steps: [],
       });
       currentBlock = null;
+      pendingEquipment = equipment;
       return;
     }
 
     const explicitHeading = trimmed.startsWith('## ') || /:$/.test(trimmed) || isAllCapsHeading(cleanHeading(trimmed));
     const inferredHeading = (!currentBlock || entry.blankBefore) && isCommonHeading(trimmed);
     if (explicitHeading || inferredHeading || isBlankSectionHeading(entry, currentBlock, nextEntry)) {
-      startBlock(cleanHeading(trimmed.replace(/^##\s*/, '')));
+      startBlock(cleanHeading(trimmed.replace(/^##\s*/, '')), pendingEquipment);
       return;
     }
 
     if (/^@(equipment|gear):?/i.test(trimmed)) {
-      if (!currentBlock) startBlock('Section');
-      currentBlock.equipment = [
-        ...new Set([...(currentBlock.equipment || []), ...detectEquipment(trimmed)]),
-      ];
+      const equipment = detectEquipment(trimmed);
+      if (!currentBlock) pendingEquipment = [...new Set([...pendingEquipment, ...equipment])];
+      else {
+        currentBlock.equipment = [
+          ...new Set([...(currentBlock.equipment || []), ...equipment]),
+        ];
+      }
       return;
     }
 
-    if (!currentBlock) startBlock('Section');
+    if (!currentBlock) {
+      startBlock(inferBlockTitleFromStep(trimmed, [...pendingEquipment, ...detectEquipment(trimmed)]), pendingEquipment);
+    } else if (shouldStartBlockFromStep(entry, currentBlock)) {
+      startBlock(inferBlockTitleFromStep(trimmed, detectEquipment(trimmed)));
+    }
     const step = parseStepLine(trimmed);
     currentBlock.steps.push(step);
     currentBlock.equipment = [

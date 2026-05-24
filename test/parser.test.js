@@ -95,6 +95,93 @@ Happy Baby`, 'yoga');
   assert.match(formatted, /## Cool Down/);
 });
 
+test('parseQuickBuild handles Lauren-style Apple Notes with counts, equipment, and blank-line sections', () => {
+  const parsed = parseQuickBuild(`Grab ball - ankle weights on
+Upper body lifts up with the ball, forward fold roll it back x 16
+Upper body stays down lift right leg, ball rolls up and down x 8
+Hold up leg and pulse x 8
+Lift and lower the left leg x 8
+Keep both legs hovering x 8
+Ball under legs and scissor x8
+Repeat on left x 8
+
+Seated roll up
+Hands back lift up legs to teaser, reverse table top repeat x 8
+Hold the teaser
+Lower and lift the legs x 8
+Rotate to the left bend and straighten in teaser x 8
+Rotate to the right bend and straighten in teaser x 8
+Seated twist right, extend the right leg x 8
+Hold and pulse x 8
+Twist left and extend right x 8
+Hold left and twist x 8
+Repeat in on the left
+
+Table top
+Ball under left hand, teaser bend in the left hand and lengthen the right leg long x 8
+Pulse x 8
+Lengthen, bend, thread needle, bend, x 8
+Bend arm back on the ball
+Tap and lift x 8
+Pulse x 8
+Circles left and right x 8
+Pulse x 8
+Hydrants and lift x 8
+Pulse x 8
+
+Grab onto ring, hinge lunge press the ring out, drop the knee and twist right, repeat x 8
+Hold hinge lunge, shoulder press x 8
+Lunge to warrior 3 x 8
+Hold warrior pulse x 8
+Narrow row x 8
+Tricep x 8
+One row one tricep x 8
+Skaters x 8
+obliques full range/pulse x 8
+Courtsey to shoulder press x 8
+
+Open wide second
+Squat and front press x 8
+Pulse x 8
+Lunge right, kick out right leg shoulder press x 8
+Courtsey with the left and kick out x 8
+
+Pushups
+Shoulder taps
+Pushups
+Toe taps
+Pushups
+Rocks
+Hips dips
+
+Repeat sequences on the left
+Ring in the right hand, right left down
+Side line, inner thighs only left/right
+
+Back body work
+
+Stretch`, 'pilates');
+
+  assert.equal(parsed.blocks[0].type, 'transition');
+  assert.equal(parsed.blocks[0].title, 'Grab ball - ankle weights on');
+  assert.deepEqual(parsed.blocks[0].equipment, ['ball', 'weights']);
+  assert.equal(parsed.blocks[1].title, 'Ball Core');
+  assert.deepEqual(parsed.blocks[1].equipment, ['ball', 'weights']);
+  assert.equal(parsed.blocks[1].steps[0].name, 'Upper body lifts up with the ball, forward fold roll it back');
+  assert.equal(parsed.blocks[1].steps[0].detail, '16 reps');
+  assert.deepEqual(parsed.blocks[1].steps[2].tags, ['pulse']);
+  assert.equal(parsed.blocks[2].title, 'Seated roll up');
+  assert.equal(parsed.blocks[3].title, 'Table top');
+  assert.equal(parsed.blocks[4].title, 'Ring Standing Work');
+  assert.deepEqual(parsed.blocks[4].equipment, ['ring']);
+  assert.equal(parsed.blocks[4].steps[0].detail, '8 reps');
+  assert.equal(parsed.blocks[5].title, 'Open wide second');
+  assert.equal(parsed.blocks[6].title, 'Pushups');
+  assert.equal(parsed.blocks[7].title, 'Repeat sequences on the left');
+  assert.deepEqual(parsed.blocks[7].equipment, ['ring']);
+  assert.equal(parsed.blocks.at(-1).title, 'Stretch');
+});
+
 test('routineToText exports a plan that can round trip through quick build conventions', () => {
   const text = routineToText({
     routineName: 'Mini Flow',

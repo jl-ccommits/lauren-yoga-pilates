@@ -1,4 +1,4 @@
-import { detectEquipment, guessEmoji } from './parser.js?v=20260523-schedule';
+import { detectEquipment, guessEmoji } from './parser.js?v=20260523-notes';
 
 const LEGACY_STEP_LIBRARY = [
   { name: 'Breath + Intention', detail: 'Settle in, hands at heart and belly. Take 8 full breaths.', category: 'warmup', disciplines: ['yoga', 'pilates'], equipment: [], emoji: '🫁' },

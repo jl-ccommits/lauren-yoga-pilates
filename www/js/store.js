@@ -1,5 +1,5 @@
-import { PILATES_DEFAULT } from './templates.js?v=20260523-schedule';
-import { clone } from './utils.js?v=20260523-schedule';
+import { PILATES_DEFAULT } from './templates.js?v=20260523-notes';
+import { clone } from './utils.js?v=20260523-notes';
 
 export const STORAGE_VERSION = 1;
 export const CURRENT_STATE_KEY = 'current_state';
@@ -121,7 +121,7 @@ function normalizePlanningPrefs(prefs = {}) {
   const intensity = ['gentle', 'steady', 'strong'].includes(prefs.intensity) ? prefs.intensity : DEFAULT_PLANNING_PREFS.intensity;
   const focus = ['balanced', 'core', 'glute', 'arms', 'balance', 'stretch'].includes(prefs.focus) ? prefs.focus : DEFAULT_PLANNING_PREFS.focus;
   const equipment = Array.isArray(prefs.equipment)
-    ? prefs.equipment.filter(item => ['ball', 'band', 'weights'].includes(item))
+    ? prefs.equipment.filter(item => ['ball', 'band', 'weights', 'ring'].includes(item))
     : [];
   return { duration, intensity, focus, equipment: [...new Set(equipment)] };
 }

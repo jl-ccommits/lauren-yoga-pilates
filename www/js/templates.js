@@ -2,6 +2,7 @@ export const EQUIPMENT = {
   ball: { label: 'Ball', icon: '🏐' },
   band: { label: 'Band', icon: '🔗' },
   weights: { label: 'Weights', icon: '🏋️' },
+  ring: { label: 'Ring', icon: '⭕' },
 };
 
 export const PILATES_DEFAULT = {

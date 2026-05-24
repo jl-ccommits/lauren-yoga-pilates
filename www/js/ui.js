@@ -1,6 +1,6 @@
-import { BLOCK_COLORS, EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-schedule';
-import { getRoutines, getScheduleItems, getUpcomingSchedule, S } from './store.js?v=20260523-schedule';
-import { esc, assertElement, markerFrom } from './utils.js?v=20260523-schedule';
+import { BLOCK_COLORS, EQUIPMENT, TEMPLATES } from './templates.js?v=20260523-notes';
+import { getRoutines, getScheduleItems, getUpcomingSchedule, S } from './store.js?v=20260523-notes';
+import { esc, assertElement, markerFrom } from './utils.js?v=20260523-notes';
 
 export let sheetContext = null;
 
@@ -482,7 +482,7 @@ export function openQuickBuildSheet() {
     <div class="sheet-body">
       <div class="sheet-field">
         <label>Apple Notes</label>
-        <textarea id="sheetQuickBuildText" placeholder="Paste from Apple Notes or type like normal.\n\nTuesday Pilates\nWarm-up\nBreath work\nCat/Cow\n\nCore with ball\nBridge\nPulses\n\nGrab weights\n\nStanding glute\nLunges\nWarrior 3" style="min-height:280px"></textarea>
+        <textarea id="sheetQuickBuildText" placeholder="Paste from Apple Notes or type like normal.\n\nGrab ball - ankle weights on\nUpper body lifts up with the ball x 16\nHold and pulse x 8\n\nSeated roll up\nHands back lift up legs to teaser x 8\n\nTable top\nBall under left hand, lengthen right leg x 8\n\nStretch" style="min-height:280px"></textarea>
       </div>
       <label class="switch-row">
         <input type="checkbox" id="quickBuildReplace" checked>
